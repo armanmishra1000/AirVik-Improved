@@ -11,8 +11,8 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { RegistrationFormData, AuthErrorCode } from '@/types/auth.types';
-import AuthService from '@/services/auth.service';
+import { RegistrationFormData, AuthErrorCode } from '../../types/auth.types';
+import AuthService from '../../services/auth.service';
 
 // Zod schema for form validation
 const registrationSchema = z.object({
