@@ -21,6 +21,7 @@ import {
 
 // Base API URL - should be from environment variables in production
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+// Ensure we don't duplicate the /api/v1 path
 const AUTH_API_URL = `${API_BASE_URL}/api/v1/auth`;
 
 /**

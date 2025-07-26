@@ -33,4 +33,4 @@ Pending commit - feat(user-registration): complete frontend-backend integration
 
 ## Known Issues:
 <!-- Any problems discovered -->
-None currently identified
+- ✅ [FIXED] API route mismatch in frontend auth service causing 404 errors (fixed on 2025-07-26)
