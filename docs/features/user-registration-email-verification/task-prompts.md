@@ -6,9 +6,13 @@
 
 ## Backend Task B1: MongoDB Schema
 **MANDATORY FIRST STEPS:**
+use planning mode:
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
 List what you found to prove you read them
 
 **CONTEXT:**
@@ -16,6 +20,7 @@ You are implementing user-registration-email-verification. The developer using t
 
 **YOUR TASK:**
 Create MongoDB schema for user registration with email verification
+
 
 **FILE TO CREATE:**
 `backend/src/models/user.model.ts` (MAXIMUM 400 lines)
@@ -46,6 +51,9 @@ Update docs/features/user-registration-email-verification/CURRENT-STATE.md:
 - Update "Next Task": B2
 - Add to "Git Status": Latest commit hash and message
 
+Read and analyze: docs/features/user-registration-email-verification/progress.md and mark completed tasks with ✅ Tick and update completed tasks.
+
+
 **TEST YOUR WORK:**
 The developer will test by creating a document in MongoDB
 
@@ -53,9 +61,13 @@ The developer will test by creating a document in MongoDB
 
 ## Backend Task B2: Service Layer
 **MANDATORY FIRST STEPS:**
+use planning mode:
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
 List what you found to prove you read them
 
 **CONTEXT:**
@@ -93,6 +105,8 @@ Update docs/features/user-registration-email-verification/CURRENT-STATE.md:
 - Update "Next Task": B3
 - Add to "Git Status": Latest commit hash and message
 
+Read and analyze: docs/features/user-registration-email-verification/progress.md and mark completed tasks with ✅ Tick and update completed tasks.
+
 **TEST YOUR WORK:**
 The developer will test by calling functions from Node.js console
 
@@ -100,9 +114,13 @@ The developer will test by calling functions from Node.js console
 
 ## Backend Task B3: Controller Layer
 **MANDATORY FIRST STEPS:**
+use planning mode:
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
 List what you found to prove you read them
 
 **CONTEXT:**
@@ -140,6 +158,8 @@ Update docs/features/user-registration-email-verification/CURRENT-STATE.md:
 - Update "Next Task": B4
 - Add to "Git Status": Latest commit hash and message
 
+Read and analyze: docs/features/user-registration-email-verification/progress.md and mark completed tasks with ✅ Tick and update completed tasks.
+
 **TEST YOUR WORK:**
 The developer will test using Postman
 
@@ -147,9 +167,13 @@ The developer will test using Postman
 
 ## Backend Task B4: Routes Setup
 **MANDATORY FIRST STEPS:**
+use planning mode:
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
 List what you found to prove you read them
 
 **CONTEXT:**
@@ -188,6 +212,8 @@ Update docs/features/user-registration-email-verification/CURRENT-STATE.md:
 - Update "Next Task": B5
 - Add to "Git Status": Latest commit hash and message
 
+Read and analyze: docs/features/user-registration-email-verification/progress.md and mark completed tasks with ✅ Tick and update completed tasks.
+
 **TEST YOUR WORK:**
 The developer will test that routes appear in Express route list
 
@@ -195,10 +221,14 @@ The developer will test that routes appear in Express route list
 
 ## Backend Task B5: Postman Collection
 **MANDATORY FIRST STEPS:**
+use planning mode:
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
-List what you found to prove you read them
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
+List what you found to prove you read them.
 
 **CONTEXT:**
 You are implementing user-registration-email-verification. The developer using this is a beginner who only copies prompts.
@@ -207,9 +237,9 @@ You are implementing user-registration-email-verification. The developer using t
 Create comprehensive Postman collection for testing all endpoints
 
 **FILE TO CREATE:**
-`postman/user-registration-email-verification.postman_collection.json` (MAXIMUM 400 lines)
+`postman/user-registration-email-verification.postman_collection.json`
 
-**REQUIREMENTS FROM SPEC.MD:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/SPEC.MD:**
 - Test all 3 endpoints with valid data
 - Test error scenarios (duplicate email, invalid tokens)
 - Include environment variables for base URL
@@ -234,6 +264,8 @@ Update docs/features/user-registration-email-verification/CURRENT-STATE.md:
 - Update "Next Task": F1
 - Add to "Git Status": Latest commit hash and message
 
+Read and analyze: docs/features/user-registration-email-verification/progress.md and mark completed tasks with ✅ Tick and update completed tasks.
+
 **TEST YOUR WORK:**
 The developer will test by running all requests in Postman
 
@@ -241,9 +273,13 @@ The developer will test by running all requests in Postman
 
 ## Frontend Task F1: TypeScript Types
 **MANDATORY FIRST STEPS:**
+use planning mode:
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
 List what you found to prove you read them
 
 **CONTEXT:**
@@ -255,7 +291,7 @@ Create TypeScript type definitions for authentication functionality
 **FILE TO CREATE:**
 `frontend/src/types/auth.types.ts` (MAXIMUM 400 lines)
 
-**REQUIREMENTS FROM SPEC.MD:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/SPEC.MD:**
 - User interface matching backend model (no sensitive fields)
 - API request/response types for all endpoints
 - Form data interfaces for registration
@@ -280,6 +316,8 @@ Update docs/features/user-registration-email-verification/CURRENT-STATE.md:
 - Update "Next Task": F2
 - Add to "Git Status": Latest commit hash and message
 
+Read and analyze: docs/features/user-registration-email-verification/progress.md and mark completed tasks with ✅ Tick and update completed tasks.
+
 **TEST YOUR WORK:**
 The developer will test TypeScript compilation
 
@@ -287,9 +325,13 @@ The developer will test TypeScript compilation
 
 ## Frontend Task F2: API Service
 **MANDATORY FIRST STEPS:**
+use planning mode:
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
 List what you found to prove you read them
 
 **CONTEXT:**
@@ -301,7 +343,7 @@ Create API service for authentication functionality
 **FILE TO CREATE:**
 `frontend/src/services/auth.service.ts` (MAXIMUM 400 lines)
 
-**REQUIREMENTS FROM SPEC.MD:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/SPEC.MD:**
 - registerUser() function
 - verifyEmail() function
 - resendVerification() function
@@ -327,6 +369,8 @@ Update docs/features/user-registration-email-verification/CURRENT-STATE.md:
 - Update "Next Task": F3
 - Add to "Git Status": Latest commit hash and message
 
+Read and analyze: docs/features/user-registration-email-verification/progress.md and mark completed tasks with ✅ Tick and update completed tasks.
+
 **TEST YOUR WORK:**
 The developer will test API calls in browser dev tools
 
@@ -334,9 +378,13 @@ The developer will test API calls in browser dev tools
 
 ## Frontend Task F3: Registration Form Component
 **MANDATORY FIRST STEPS:**
+use planning mode:
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
 List what you found to prove you read them
 
 **CONTEXT:**
@@ -348,7 +396,7 @@ Create a modern, responsive registration form component
 **FILE TO CREATE:**
 `frontend/src/components/auth/RegistrationForm.tsx` (MAXIMUM 400 lines)
 
-**REQUIREMENTS FROM SPEC.MD:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/SPEC.MD:**
 - React functional component with TypeScript
 - React Hook Form for form management
 - Tailwind CSS for styling
@@ -374,6 +422,8 @@ Update docs/features/user-registration-email-verification/CURRENT-STATE.md:
 - Update "Next Task": F4
 - Add to "Git Status": Latest commit hash and message
 
+Read and analyze: docs/features/user-registration-email-verification/progress.md and mark completed tasks with ✅ Tick and update completed tasks.
+
 **TEST YOUR WORK:**
 The developer will test form validation and mobile responsiveness
 
@@ -381,9 +431,13 @@ The developer will test form validation and mobile responsiveness
 
 ## Frontend Task F4: Next.js Pages
 **MANDATORY FIRST STEPS:**
+use planning mode:
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
 List what you found to prove you read them
 
 **CONTEXT:**
@@ -396,7 +450,7 @@ Create Next.js App Router pages for authentication
 `frontend/src/app/auth/register/page.tsx` (MAXIMUM 400 lines)
 `frontend/src/app/auth/verify-email/page.tsx` (MAXIMUM 400 lines)
 
-**REQUIREMENTS FROM SPEC.MD:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/spec.md file:**
 - Use Next.js 14 App Router conventions
 - Import and use authentication components
 - Proper SEO metadata
@@ -422,6 +476,8 @@ Update docs/features/user-registration-email-verification/CURRENT-STATE.md:
 - Update "Next Task": F5
 - Add to "Git Status": Latest commit hash and message
 
+Read and analyze: docs/features/user-registration-email-verification/progress.md and mark completed tasks with ✅ Tick and update completed tasks.
+
 **TEST YOUR WORK:**
 The developer will test page navigation and component rendering
 
@@ -429,9 +485,13 @@ The developer will test page navigation and component rendering
 
 ## Frontend Task F5: Frontend-Backend Integration
 **MANDATORY FIRST STEPS:**
+use planning mode:
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
 List what you found to prove you read them
 
 **CONTEXT:**
@@ -443,7 +503,7 @@ Complete integration testing and connect frontend to backend APIs
 **FILES TO MODIFY:**
 Any frontend files that need integration updates (MAXIMUM 400 lines per file)
 
-**REQUIREMENTS FROM SPEC.MDS:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/spec.md file:**
 - Replace any mock data with real API calls
 - Test complete user registration flow
 - Test email verification flow
@@ -466,6 +526,8 @@ Update docs/features/user-registration-email-verification/CURRENT-STATE.md:
 - Add to "What Exists Now": ✅ Frontend-backend integration complete
 - Update "Next Task": FEATURE COMPLETE
 - Add to "Git Status": Latest commit hash and message
+
+Read and analyze: docs/features/user-registration-email-verification/progress.md and mark completed tasks with ✅ Tick and update completed tasks.
 
 **TEST YOUR WORK:**
 The developer will test complete end-to-end user registration and email verification flow
