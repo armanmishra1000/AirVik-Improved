@@ -1,0 +1,399 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "User Registration & Email Verification",
+    "description": "Tests for user registration and email verification endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "User Registration",
+      "item": [
+        {
+          "name": "Register User - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response structure is correct\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.success).to.eql(true);",
+                  "    pm.expect(responseJson.data).to.be.an('object');",
+                  "    pm.expect(responseJson.data.user).to.be.an('object');",
+                  "    pm.expect(responseJson.data.user.id).to.be.a('string');",
+                  "    pm.expect(responseJson.data.user.firstName).to.eql(pm.variables.get(\"firstName\"));",
+                  "    pm.expect(responseJson.data.user.lastName).to.eql(pm.variables.get(\"lastName\"));",
+                  "    pm.expect(responseJson.data.user.email).to.eql(pm.variables.get(\"email\"));",
+                  "    pm.expect(responseJson.data.user.isEmailVerified).to.eql(false);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uuid = require('uuid');",
+                  "const randomId = uuid.v4().substring(0, 8);",
+                  "",
+                  "pm.variables.set(\"firstName\", \"Test\");",
+                  "pm.variables.set(\"lastName\", \"User\");",
+                  "pm.variables.set(\"email\", `test.user.${randomId}@example.com`);",
+                  "pm.variables.set(\"password\", \"SecurePassword123!\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"{{firstName}}\",\n  \"lastName\": \"{{lastName}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"confirmPassword\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "Register a new user with valid data"
+          }
+        },
+        {
+          "name": "Register User - Duplicate Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "",
+                  "pm.test(\"Response structure is correct for duplicate email\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.success).to.eql(false);",
+                  "    pm.expect(responseJson.error).to.eql(\"Email already exists\");",
+                  "    pm.expect(responseJson.code).to.eql(\"EMAIL_EXISTS\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"{{firstName}}\",\n  \"lastName\": \"{{lastName}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"confirmPassword\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "Attempt to register with an email that already exists"
+          }
+        },
+        {
+          "name": "Register User - Validation Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Response structure is correct for validation error\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.success).to.eql(false);",
+                  "    pm.expect(responseJson.error).to.eql(\"Validation failed\");",
+                  "    pm.expect(responseJson.code).to.eql(\"VALIDATION_ERROR\");",
+                  "    pm.expect(responseJson.details).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"invalid-email\",\n  \"password\": \"weak\",\n  \"confirmPassword\": \"different\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "Attempt to register with invalid data"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Email Verification",
+      "item": [
+        {
+          "name": "Verify Email - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response structure is correct\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.success).to.eql(true);",
+                  "    pm.expect(responseJson.data).to.be.an('object');",
+                  "    pm.expect(responseJson.data.message).to.eql(\"Email verified successfully\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{verificationToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "verify-email"]
+            },
+            "description": "Verify email with valid token"
+          }
+        },
+        {
+          "name": "Verify Email - Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Response structure is correct for invalid token\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.success).to.eql(false);",
+                  "    pm.expect(responseJson.error).to.eql(\"Invalid or expired verification token\");",
+                  "    pm.expect(responseJson.code).to.eql(\"INVALID_TOKEN\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"invalid-token-123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "verify-email"]
+            },
+            "description": "Attempt to verify email with invalid token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Resend Verification Email",
+      "item": [
+        {
+          "name": "Resend Verification - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response structure is correct\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.success).to.eql(true);",
+                  "    pm.expect(responseJson.data).to.be.an('object');",
+                  "    pm.expect(responseJson.data.message).to.eql(\"Verification email sent successfully\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/resend-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "resend-verification"]
+            },
+            "description": "Resend verification email to registered email"
+          }
+        },
+        {
+          "name": "Resend Verification - Email Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Response structure is correct for email not found\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.success).to.eql(false);",
+                  "    pm.expect(responseJson.error).to.eql(\"Email not found\");",
+                  "    pm.expect(responseJson.code).to.eql(\"EMAIL_NOT_FOUND\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.variables.set(\"nonExistentEmail\", \"nonexistent@example.com\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{nonExistentEmail}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/resend-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "resend-verification"]
+            },
+            "description": "Attempt to resend verification to non-existent email"
+          }
+        },
+        {
+          "name": "Resend Verification - Already Verified",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Response structure is correct for already verified\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.success).to.eql(false);",
+                  "    pm.expect(responseJson.error).to.eql(\"Email is already verified\");",
+                  "    pm.expect(responseJson.code).to.eql(\"ALREADY_VERIFIED\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{verifiedEmail}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/resend-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "resend-verification"]
+            },
+            "description": "Attempt to resend verification to already verified email"
+          }
+        }
+      ]
+    }
+  ]
+}
