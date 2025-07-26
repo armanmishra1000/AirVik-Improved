@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Registration Form Component
  * 
@@ -61,6 +63,13 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess }) => {
   } = useForm<RegistrationFormType>({
     resolver: zodResolver(registrationSchema),
     mode: 'onBlur', // Validate on blur for better UX
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: ''
+    }
   });
 
   // State for API errors and success message
