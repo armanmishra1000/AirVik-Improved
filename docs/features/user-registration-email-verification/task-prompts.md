@@ -249,6 +249,7 @@ Create comprehensive Postman collection for testing all endpoints
 **DO NOT:**
 - Create any other files
 - Modify any existing files
+- Exceed 400 lines
 - Add endpoints not in spec
 
 **GIT OPERATIONS:**
