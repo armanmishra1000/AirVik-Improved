@@ -198,7 +198,7 @@ The developer will test that routes appear in Express route list
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
-List what you found to prove you read them
+List what you found to prove you read them.
 
 **CONTEXT:**
 You are implementing user-registration-email-verification. The developer using this is a beginner who only copies prompts.
@@ -209,7 +209,7 @@ Create comprehensive Postman collection for testing all endpoints
 **FILE TO CREATE:**
 `postman/user-registration-email-verification.postman_collection.json` (MAXIMUM 400 lines)
 
-**REQUIREMENTS FROM SPEC.MD:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/SPEC.MD:**
 - Test all 3 endpoints with valid data
 - Test error scenarios (duplicate email, invalid tokens)
 - Include environment variables for base URL
@@ -255,7 +255,7 @@ Create TypeScript type definitions for authentication functionality
 **FILE TO CREATE:**
 `frontend/src/types/auth.types.ts` (MAXIMUM 400 lines)
 
-**REQUIREMENTS FROM SPEC.MD:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/SPEC.MD:**
 - User interface matching backend model (no sensitive fields)
 - API request/response types for all endpoints
 - Form data interfaces for registration
@@ -301,7 +301,7 @@ Create API service for authentication functionality
 **FILE TO CREATE:**
 `frontend/src/services/auth.service.ts` (MAXIMUM 400 lines)
 
-**REQUIREMENTS FROM SPEC.MD:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/SPEC.MD:**
 - registerUser() function
 - verifyEmail() function
 - resendVerification() function
@@ -348,7 +348,7 @@ Create a modern, responsive registration form component
 **FILE TO CREATE:**
 `frontend/src/components/auth/RegistrationForm.tsx` (MAXIMUM 400 lines)
 
-**REQUIREMENTS FROM SPEC.MD:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/SPEC.MD:**
 - React functional component with TypeScript
 - React Hook Form for form management
 - Tailwind CSS for styling
@@ -384,6 +384,9 @@ The developer will test form validation and mobile responsiveness
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
 List what you found to prove you read them
 
 **CONTEXT:**
@@ -396,7 +399,7 @@ Create Next.js App Router pages for authentication
 `frontend/src/app/auth/register/page.tsx` (MAXIMUM 400 lines)
 `frontend/src/app/auth/verify-email/page.tsx` (MAXIMUM 400 lines)
 
-**REQUIREMENTS FROM SPEC.MD:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/spec.md file:**
 - Use Next.js 14 App Router conventions
 - Import and use authentication components
 - Proper SEO metadata
@@ -432,6 +435,9 @@ The developer will test page navigation and component rendering
 
 Read and analyze: docs/features/user-registration-email-verification/CURRENT-STATE.md
 Read and analyze: docs/features/user-registration-email-verification/API-CONTRACT.md
+Read and analyze: docs/features/user-registration-email-verification/SPEC.MD
+Read and analyze: docs/features/user-registration-email-verification/api.md
+Read and analyze: docs/features/user-registration-email-verification/tasks.md
 List what you found to prove you read them
 
 **CONTEXT:**
@@ -443,7 +449,7 @@ Complete integration testing and connect frontend to backend APIs
 **FILES TO MODIFY:**
 Any frontend files that need integration updates (MAXIMUM 400 lines per file)
 
-**REQUIREMENTS FROM SPEC.MDS:**
+**REQUIREMENTS FROM docs/features/user-registration-email-verification/spec.md file:**
 - Replace any mock data with real API calls
 - Test complete user registration flow
 - Test email verification flow

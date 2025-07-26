@@ -2,7 +2,7 @@
  * Email Verification Page
  * 
  * This page handles email verification by extracting the token from URL parameters
- * and calling the verification API. It includes SEO metadata and error boundary handling.
+ * and calling the verification API. It includes SEO metadata and error handling.
  */
 
 'use client';
@@ -10,29 +10,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ErrorBoundary } from 'react-error-boundary';
 import AuthService from '../../../services/auth.service';
 import { EmailVerificationResponse, AuthErrorCode } from '../../../types/auth.types';
 
-/**
- * Error fallback component for the verification page
- */
-function ErrorFallback() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] p-4 text-center">
-      <h2 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h2>
-      <p className="text-gray-600 mb-6">
-        We encountered an error during email verification. Please try again later.
-      </p>
-      <Link
-        href="/auth/register"
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-      >
-        Back to Registration
-      </Link>
-    </div>
-  );
-}
+
 
 /**
  * Metadata for the verification page (SEO)
@@ -173,13 +154,11 @@ export default function VerifyEmailPage() {
           <h1 className="text-3xl font-extrabold text-gray-900">Email Verification</h1>
         </div>
 
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <VerificationResult 
-            isLoading={isLoading} 
-            isSuccess={isSuccess} 
-            errorMessage={errorMessage} 
-          />
-        </ErrorBoundary>
+        <VerificationResult 
+          isLoading={isLoading} 
+          isSuccess={isSuccess} 
+          errorMessage={errorMessage} 
+        />
       </div>
     </div>
   );
