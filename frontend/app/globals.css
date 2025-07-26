@@ -1,0 +1,4 @@
+/* Tailwind directives - IDE may show warnings but they work correctly */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
