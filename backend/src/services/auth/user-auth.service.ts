@@ -176,21 +176,22 @@ class UserAuthService {
     try {
       // Get environment variables
       const { 
-        EMAIL_HOST = 'smtp.example.com',
-        EMAIL_PORT = '587',
-        EMAIL_USER = 'noreply@airvik.com',
-        EMAIL_PASS = 'password',
+        SMTP_HOST = 'smtp.example.com',
+        SMTP_PORT = '587',
+        SMTP_USER = 'noreply@airvik.com',
+        SMTP_PASS = 'password',
+        FROM_EMAIL = 'noreply@airvik.com',
         FRONTEND_URL = 'http://localhost:3000'
       } = process.env;
 
       // Create transporter
       const transporter = nodemailer.createTransport({
-        host: EMAIL_HOST,
-        port: parseInt(EMAIL_PORT, 10),
-        secure: parseInt(EMAIL_PORT, 10) === 465, // true for 465, false for other ports
+        host: SMTP_HOST,
+        port: parseInt(SMTP_PORT, 10),
+        secure: parseInt(SMTP_PORT, 10) === 465, // true for 465, false for other ports
         auth: {
-          user: EMAIL_USER,
-          pass: EMAIL_PASS
+          user: SMTP_USER,
+          pass: SMTP_PASS
         }
       });
 
@@ -269,7 +270,7 @@ class UserAuthService {
 
       // Send email
       await transporter.sendMail({
-        from: `"Airvik Hotels" <${EMAIL_USER}>`,
+        from: `"Airvik Hotels" <${FROM_EMAIL}>`,
         to: email,
         subject: 'Verify Your Email Address',
         html: htmlTemplate
