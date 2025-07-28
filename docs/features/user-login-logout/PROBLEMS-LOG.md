@@ -94,3 +94,37 @@ Prevention:
 2. Consider creating a template for new components that includes this directive
 3. Add this requirement to the frontend development guidelines
 4. Test components in the actual Next.js app context, not just in isolation
+
+## Problem 4: Email Verification Route Mismatch
+
+Date: 2025-07-28
+Task: user-login-logout
+
+Problem: 404 errors when accessing the /verify-email route. The frontend was expecting verification links to point to /auth/verify-email, but the backend was generating links that point to /verify-email.
+
+Root Cause: Route structure mismatch between frontend and backend. The frontend implemented the email verification page at /auth/verify-email (following Next.js app router conventions), but the backend was generating verification links pointing to /verify-email.
+
+Solution:
+1. Added a redirect in next.config.js to forward requests from /verify-email to /auth/verify-email
+2. This maintains compatibility with existing verification emails that have already been sent
+3. The redirect preserves all query parameters (token, email) needed for verification
+
+Code fix applied:
+```javascript
+// Added to next.config.js
+async redirects() {
+  return [
+    {
+      source: '/verify-email',
+      destination: '/auth/verify-email',
+      permanent: true,
+    },
+  ];
+},
+```
+
+Prevention:
+1. Document URL structures in API-CONTRACT.md to ensure frontend and backend use consistent routes
+2. Include full URLs in API documentation, not just endpoints
+3. Consider creating a shared constants file for route paths used by both frontend and backend
+4. Test email verification flow end-to-end before deployment
