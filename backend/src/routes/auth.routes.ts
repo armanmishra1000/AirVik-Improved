@@ -41,6 +41,31 @@ const resendLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Additional rate limiters for login and token refresh
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 requests per 15 minutes per IP
+  message: {
+    success: false,
+    error: 'Too many login attempts. Please try again later.',
+    code: 'RATE_LIMITED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const refreshTokenLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 requests per minute per IP
+  message: {
+    success: false,
+    error: 'Too many token refresh attempts. Please try again later.',
+    code: 'RATE_LIMITED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Authentication routes
 
 /**
@@ -63,5 +88,28 @@ router.post('/verify-email', verificationLimiter, userAuthController.verifyEmail
  * @access  Public
  */
 router.post('/resend-verification', resendLimiter, userAuthController.resendVerification);
+
+/**
+ * @route   POST /api/v1/auth/login
+ * @desc    Authenticate user and get tokens
+ * @access  Public
+ */
+router.post('/login', loginLimiter, userAuthController.loginUser);
+
+/**
+ * @route   POST /api/v1/auth/logout
+ * @desc    Logout user and invalidate refresh token
+ * @access  Protected
+ * @note    Authentication middleware will be added in task B4
+ * @todo    Add authentication middleware in task B4
+ */
+router.post('/logout', userAuthController.logoutUser);
+
+/**
+ * @route   POST /api/v1/auth/refresh-token
+ * @desc    Get new access and refresh tokens
+ * @access  Public
+ */
+router.post('/refresh-token', refreshTokenLimiter, userAuthController.refreshToken);
 
 export default router;
