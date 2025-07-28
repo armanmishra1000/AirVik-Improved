@@ -2,25 +2,56 @@
 
 ## Feature: user-login-logout
 ## Developer: [name]  
-## Status: In Progress - Backend Phase
+## Status: Backend Complete - Frontend in Progress
 ## Branch: feature/user-login-logout
 
 ## Task Checklist:
 ### Backend:
 - [x] B1: Extend Auth Service with Login/Logout Methods
-- [ ] B2: Extend Auth Controller with Login/Logout Endpoints
-- [ ] B3: Add Login/Logout Routes
-- [ ] B4: Create JWT Middleware for Protected Routes
-- [ ] B5: Extend Postman Collection for Login/Logout
+- [x] B2: Extend Auth Controller with Login/Logout Endpoints
+- [x] B3: Add Login/Logout Routes
+- [x] B4: Create JWT Middleware for Protected Routes
+- [x] B5: Extend Postman Collection for Login/Logout
 
 ### Frontend:
-- [ ] F1: Extend TypeScript Types for Login/Logout
-- [ ] F2: Extend API Service with Login/Logout Methods
-- [ ] F3: Create Login UI Component
+- [x] F1: Extend TypeScript Types for Login/Logout
+- [x] F2: Extend API Service with Login/Logout Methods
+- [x] F3: Create Login UI Component
 - [ ] F4: Create Login Page and Logout Component
 - [ ] F5: Connect Frontend to Backend APIs
 
 ## Completed Tasks:
+### F3: Create Login UI Component (2025-07-28)
+- Created frontend/src/components/auth/LoginForm.tsx component
+- Implemented email and password input fields with validation
+- Added form validation for required fields and email format
+- Implemented loading states during form submission
+- Added error display for invalid credentials
+- Implemented success feedback with redirect placeholder
+- Styled with Tailwind CSS for responsive design
+- Added link to registration page and forgot password placeholder
+- Implemented password visibility toggle
+- Created mock API integration (to be replaced in F5)
+- Ensured component follows best practices with React hooks
+- Kept file under 400 lines as per requirements
+### F2: Extend API Service with Login/Logout Methods (2025-07-28)
+- Extended frontend/src/services/auth.service.ts with login/logout methods
+- Implemented loginUser, logoutUser, and refreshToken API functions
+- Added secure token storage and retrieval functions
+- Implemented HTTP interceptor for automatic token refresh on 401 errors
+- Added comprehensive error handling for all API calls
+- Added token management utilities (setStoredTokens, getStoredTokens, clearStoredTokens)
+- Extended AuthService class with new methods
+- Ensured all API calls match backend API contract exactly
+
+### F1: Extend TypeScript Types for Login/Logout (2025-07-28)
+- Extended frontend/src/types/auth.types.ts with login/logout interfaces
+- Added LoginRequest, LoginResponse, LogoutRequest interfaces
+- Added RefreshTokenRequest and RefreshTokenResponse interfaces
+- Added login form data and validation interfaces
+- Extended existing AuthService interface with login/logout methods
+- Updated API endpoints and error codes
+- Ensured all types match backend API contract exactly
 ### B1: Extend Auth Service with Login/Logout Methods (2025-07-28)
 - Extended user model with refreshTokens array, lastLoginAt, loginAttempts, lockUntil fields
 - Added isLocked method to user schema to check if account is locked
@@ -29,11 +60,41 @@
 - Implemented refreshUserToken method with token rotation for security
 - Adapted implementation to work with existing user model structure (name field, isActive field)
 
+### B2: Extend Auth Controller with Login/Logout Endpoints (2025-07-28)
+- Implemented loginUser controller method with Joi validation
+- Implemented logoutUser controller method with Joi validation
+- Implemented refreshToken controller method with Joi validation
+- Ensured all responses follow the API contract format
+- Added proper error handling with appropriate HTTP status codes
+
+### B3: Add Login/Logout Routes (2025-07-28)
+- Added POST /api/v1/auth/login route with loginLimiter middleware
+- Added POST /api/v1/auth/logout route (authentication middleware to be added in B4)
+- Added POST /api/v1/auth/refresh-token route with refreshTokenLimiter middleware
+- Implemented rate limiting for login (5 attempts per 15 minutes) and token refresh (10 per minute)
+- Added appropriate JSDoc comments for all routes
+
+### B4: Create JWT Middleware for Protected Routes (2025-07-28)
+- Created auth.middleware.ts with JWT verification functionality
+- Implemented verifyAccessToken middleware for protected routes
+- Added extractUserFromToken helper for token validation and decoding
+- Implemented requireAuth wrapper for easy route protection
+
+### B5: Extend Postman Collection for Login/Logout (2025-07-28)
+- Created comprehensive Postman collection with login, logout, and refresh token requests
+- Added test scripts for each request to verify response structure and status codes
+- Included error test cases for invalid credentials and expired tokens
+- Added environment variable support for baseUrl, accessToken, and refreshToken
+- Collection automatically manages token storage and cleanup
+- Verified collection structure is compatible with newman testing
+- Ensured proper error handling for invalid/expired tokens
+- Added user data attachment to request object for authenticated routes
+
 ## Current State:
 See CURRENT-STATE.md for details
 
 ## Git History:
-Pending commit: Implemented login/logout service methods
+Last commit: feat(user-login-logout): create login form component (89e0ffa)
 
 ## Integration Testing Results:
 <!-- Updated after F5 completion -->
