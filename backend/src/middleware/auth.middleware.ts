@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import { sendError } from '../utils/response.utils';
-import User from '../models/user.model';
+import User, { IUserDocument } from '../models/user.model';
 
 /**
  * Interface for JWT payload
@@ -102,7 +103,7 @@ export const verifyAccessToken = async (
     }
     
     // Find user by ID from token
-    const user = await User.findById(payload.userId);
+    const user = await User.findById(payload.userId) as IUserDocument | null;
     
     if (!user) {
       return sendError(
@@ -130,7 +131,7 @@ export const verifyAccessToken = async (
     
     // Attach user data to request object
     req.user = {
-      id: user._id.toString(),
+      id: user._id instanceof mongoose.Types.ObjectId ? user._id.toString() : String(user._id),
       email: user.email,
       firstName,
       lastName,
