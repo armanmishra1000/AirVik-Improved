@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { registerUser } from '@/src/services/auth.service';
 import type { RegistrationFormData, ApiResponse, User } from '@/src/types/auth.types';
 
@@ -35,7 +35,8 @@ export default function RegisterPage() {
 
   const password = watch('password');
 
-  const onSubmit = async (data: RegistrationFormData) => {
+  const onSubmit: SubmitHandler<RegistrationFormData> = async (data) => {
+    // Using react-hook-form's handleSubmit already prevents default form submission
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {

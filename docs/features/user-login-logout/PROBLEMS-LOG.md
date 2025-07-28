@@ -181,3 +181,33 @@ Prevention:
 2. Include full URLs in API documentation, not just endpoints
 3. Consider creating a shared constants file for route paths used by both frontend and backend
 4. Test email verification flow end-to-end before deployment
+
+---
+
+Date: 2025-07-28
+Task: User Registration Form
+Problem: When refreshing the registration page after submission or entering new registration data, the form data appears in the URL as query parameters (e.g., "http://localhost:3000/auth/register?firstName=wanaluwy&lastName=wanaluwy&email=wanaluwy%40forexnews.bg&password=Wanaluwy%40123&confirmPassword=Wanaluwy%40123"). This exposes sensitive information in the URL and creates a poor user experience.
+
+Root Cause: The registration form was not properly preventing default form submission behavior. Although react-hook-form's `handleSubmit` wrapper was used, the form was still allowing the default HTML form behavior which appends form data to the URL as query parameters when using the default GET method.
+
+Solution:
+1. Updated the onSubmit handler to use the correct TypeScript typing with react-hook-form's SubmitHandler:
+```typescript
+// Before:
+const onSubmit = async (data: RegistrationFormData) => {
+  // No prevention of default form behavior
+
+// After:
+import { useForm, SubmitHandler } from 'react-hook-form';
+
+const onSubmit: SubmitHandler<RegistrationFormData> = async (data) => {
+  // Using react-hook-form's handleSubmit already prevents default form submission
+```
+2. This ensures that react-hook-form properly handles the form submission and prevents the default behavior that would append form data to the URL.
+
+Prevention:
+1. Always use proper form submission prevention in React applications
+2. Use TypeScript to ensure correct typing of form handlers
+3. Add automated tests for form submissions to catch similar issues
+4. Review all forms for proper event handling
+5. Consider using a form library like Formik or react-hook-form consistently across the application
