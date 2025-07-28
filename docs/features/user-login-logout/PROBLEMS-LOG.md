@@ -203,7 +203,17 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 const onSubmit: SubmitHandler<RegistrationFormData> = async (data) => {
   // Using react-hook-form's handleSubmit already prevents default form submission
 ```
-2. This ensures that react-hook-form properly handles the form submission and prevents the default behavior that would append form data to the URL.
+
+2. Added explicit method="post" to the form element to prevent GET requests:
+```typescript
+// Before:
+<form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+
+// After:
+<form method="post" className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+```
+
+3. These changes ensure that react-hook-form properly handles the form submission and the browser doesn't default to GET requests that would append form data to the URL.
 
 Prevention:
 1. Always use proper form submission prevention in React applications
