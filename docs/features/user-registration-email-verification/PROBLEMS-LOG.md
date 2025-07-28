@@ -34,4 +34,31 @@ Prevention: [how to avoid in future]
 
 ---
 
+### Date: 2025-07-28T10:19:15+05:30
+**Task:** F2: API Service - TypeScript Import Error
+**Problem:** TypeScript compilation error: "Cannot find module '@/types/auth.types' or its corresponding type declarations" in auth.service.ts line 15
+**Root Cause:** 
+Incorrect TypeScript path alias usage - the import path `@/types/auth.types` was wrong because:
+1. The `@` alias points to the frontend root directory (`frontend/`)
+2. The actual file location is `frontend/src/types/auth.types.ts`
+3. The correct import path should include the `src/` directory
+
+**Solution:** 
+Fixed the import statement from:
+```typescript
+} from '@/types/auth.types';
+```
+To:
+```typescript
+} from '@/src/types/auth.types';
+```
+
+**Prevention:** 
+- Always verify the actual file path relative to the TypeScript baseUrl configuration
+- Check tsconfig.json path aliases before using them in imports
+- Test TypeScript compilation (`npx tsc --noEmit`) after creating new files with imports
+- Remember that `@` alias in Next.js points to the project root, not the src directory
+
+---
+
 <!-- Future problems will be logged here -->

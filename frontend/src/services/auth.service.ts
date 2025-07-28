@@ -12,7 +12,7 @@ import {
   ApiResponse,
   ApiSuccessResponse,
   ApiErrorResponse
-} from '@/types/auth.types';
+} from '@/src/types/auth.types';
 
 // ============================================================================
 // CONFIGURATION
