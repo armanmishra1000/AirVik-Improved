@@ -1,6 +1,13 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
 
+// Refresh token interface
+export interface IRefreshToken {
+  token: string;
+  expiresAt: Date;
+  createdAt: Date;
+}
+
 // User interface for TypeScript
 export interface IUser {
   email: string;
@@ -8,6 +15,10 @@ export interface IUser {
   name: string;
   role: string;
   isActive: boolean;
+  refreshTokens: IRefreshToken[];
+  lastLoginAt?: Date;
+  loginAttempts: number;
+  lockUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,6 +26,7 @@ export interface IUser {
 // User document interface extending Mongoose Document
 export interface IUserDocument extends IUser, Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
+  isLocked(): boolean;
 }
 
 // User schema definition
@@ -52,6 +64,30 @@ const userSchema = new Schema<IUserDocument>(
     isActive: {
       type: Boolean,
       default: true
+    },
+    refreshTokens: [{
+      token: {
+        type: String,
+        required: true
+      },
+      expiresAt: {
+        type: Date,
+        required: true
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
+    lastLoginAt: {
+      type: Date
+    },
+    loginAttempts: {
+      type: Number,
+      default: 0
+    },
+    lockUntil: {
+      type: Date
     }
   },
   {
@@ -99,6 +135,11 @@ userSchema.methods.comparePassword = async function(candidatePassword: string): 
   } catch (error) {
     throw error;
   }
+};
+
+// Method to check if account is locked
+userSchema.methods.isLocked = function(): boolean {
+  return !!(this.lockUntil && this.lockUntil > new Date());
 };
 
 // Static method to find user by email with password field

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
-import User, { IUser } from '../../models/user.model';
+import User, { IUser, IRefreshToken } from '../../models/user.model';
 
 // Types for service functions
 interface RegisterUserData {
@@ -12,12 +12,29 @@ interface RegisterUserData {
   confirmPassword: string;
 }
 
+interface LoginUserData {
+  email: string;
+  password: string;
+}
+
+interface TokenPayload {
+  userId: string;
+  type: string;
+  timestamp: number;
+}
+
+interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+}
+
 interface ServiceResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
   code?: string;
   details?: string[];
+  message?: string;
 }
 
 interface RegisterResponse {
@@ -30,6 +47,25 @@ interface RegisterResponse {
     createdAt: string;
   };
   message: string;
+}
+
+interface LoginResponse {
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    isEmailVerified: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+  accessToken: string;
+  refreshToken: string;
+}
+
+interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
 }
 
 // Email transporter configuration
@@ -56,6 +92,42 @@ export const generateVerificationToken = (userId: string): string => {
   return jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret', {
     expiresIn: '24h',
   });
+};
+
+// Generate access token with 15-minute expiry
+export const generateAccessToken = (userId: string): string => {
+  const payload = {
+    userId,
+    type: 'access_token',
+    timestamp: Date.now(),
+  };
+
+  return jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret', {
+    expiresIn: '15m',
+  });
+};
+
+// Generate refresh token with 7-day expiry
+export const generateRefreshToken = (userId: string): string => {
+  const payload = {
+    userId,
+    type: 'refresh_token',
+    timestamp: Date.now(),
+  };
+
+  return jwt.sign(payload, process.env.JWT_SECRET || 'fallback_secret', {
+    expiresIn: '7d',
+  });
+};
+
+// Verify token and return payload
+export const verifyToken = (token: string): TokenPayload | null => {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+    return decoded as TokenPayload;
+  } catch (error) {
+    return null;
+  }
 };
 
 // Send verification email with HTML template
@@ -406,11 +478,280 @@ export const resendVerificationEmail = async (email: string): Promise<ServiceRes
   }
 };
 
+// Login user with rate limiting
+export const loginUser = async (userData: LoginUserData): Promise<ServiceResponse<LoginResponse>> => {
+  try {
+    const { email, password } = userData;
+
+    // Validation
+    if (!email || !password) {
+      return {
+        success: false,
+        error: 'Email and password are required',
+        code: 'VALIDATION_ERROR',
+      };
+    }
+
+    // Find user by email with password included
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    
+    if (!user) {
+      return {
+        success: false,
+        error: 'Invalid email or password',
+        code: 'INVALID_CREDENTIALS',
+      };
+    }
+
+    // Check if account is locked due to too many failed attempts
+    if (user.isLocked()) {
+      const lockTime = new Date(user.lockUntil as Date).toISOString();
+      return {
+        success: false,
+        error: `Account is locked until ${lockTime}`,
+        code: 'ACCOUNT_LOCKED',
+      };
+    }
+
+    // Check if password is correct
+    const isPasswordValid = await user.comparePassword(password);
+    
+    // Handle failed login attempt
+    if (!isPasswordValid) {
+      // Increment login attempts
+      user.loginAttempts += 1;
+      
+      // Lock account if 5 or more failed attempts
+      if (user.loginAttempts >= 5) {
+        // Lock for 15 minutes
+        user.lockUntil = new Date(Date.now() + 15 * 60 * 1000);
+      }
+      
+      await user.save();
+      
+      return {
+        success: false,
+        error: 'Invalid email or password',
+        code: 'INVALID_CREDENTIALS',
+      };
+    }
+
+    // Check if email is verified (using isActive field)
+    if (!user.isActive) {
+      return {
+        success: false,
+        error: 'Email not verified. Please verify your email first.',
+        code: 'EMAIL_NOT_VERIFIED',
+      };
+    }
+
+    // Reset login attempts on successful login
+    user.loginAttempts = 0;
+    user.lockUntil = undefined;
+    user.lastLoginAt = new Date();
+
+    // Generate tokens
+    const accessToken = generateAccessToken(String(user._id));
+    const refreshToken = generateRefreshToken(String(user._id));
+    
+    // Calculate token expiry dates
+    const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    
+    // Store refresh token in user document
+    user.refreshTokens.push({
+      token: refreshToken,
+      expiresAt: refreshTokenExpiry,
+      createdAt: new Date()
+    });
+    
+    // Limit stored refresh tokens to 5 most recent
+    if (user.refreshTokens.length > 5) {
+      user.refreshTokens = user.refreshTokens.slice(-5);
+    }
+    
+    await user.save();
+
+    // Prepare user data for response
+    const userResponse = {
+      id: String(user._id),
+      firstName: user.name.split(' ')[0], // Using name field from user model
+      lastName: user.name.split(' ').slice(1).join(' '), // Using name field from user model
+      email: user.email,
+      isEmailVerified: user.isActive, // Using isActive as isEmailVerified
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    };
+
+    return {
+      success: true,
+      data: {
+        user: userResponse,
+        accessToken,
+        refreshToken,
+      }
+    };
+  } catch (error) {
+    console.error('Login error:', error);
+    return {
+      success: false,
+      error: 'Internal server error',
+      code: 'INTERNAL_ERROR',
+    };
+  }
+};
+
+// Logout user by invalidating refresh token
+export const logoutUser = async (refreshToken: string): Promise<ServiceResponse> => {
+  try {
+    if (!refreshToken) {
+      return {
+        success: false,
+        error: 'Refresh token is required',
+        code: 'VALIDATION_ERROR',
+      };
+    }
+
+    // Verify refresh token
+    const decoded = verifyToken(refreshToken);
+    if (!decoded || decoded.type !== 'refresh_token') {
+      return {
+        success: false,
+        error: 'Invalid or expired token',
+        code: 'INVALID_TOKEN',
+      };
+    }
+
+    // Find user and remove the specific refresh token
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return {
+        success: false,
+        error: 'User not found',
+        code: 'USER_NOT_FOUND',
+      };
+    }
+
+    // Filter out the provided refresh token
+    user.refreshTokens = user.refreshTokens.filter(
+      (token: IRefreshToken) => token.token !== refreshToken
+    );
+
+    await user.save();
+
+    return {
+      success: true,
+      data: {}
+    };
+  } catch (error) {
+    console.error('Logout error:', error);
+    return {
+      success: false,
+      error: 'Internal server error',
+      code: 'INTERNAL_ERROR',
+    };
+  }
+};
+
+// Refresh user token with token rotation
+export const refreshUserToken = async (refreshToken: string): Promise<ServiceResponse<RefreshTokenResponse>> => {
+  try {
+    if (!refreshToken) {
+      return {
+        success: false,
+        error: 'Refresh token is required',
+        code: 'VALIDATION_ERROR',
+      };
+    }
+
+    // Verify refresh token
+    const decoded = verifyToken(refreshToken);
+    if (!decoded || decoded.type !== 'refresh_token') {
+      return {
+        success: false,
+        error: 'Invalid or expired refresh token',
+        code: 'INVALID_REFRESH_TOKEN',
+      };
+    }
+
+    // Find user and check if refresh token exists in their tokens array
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return {
+        success: false,
+        error: 'User not found',
+        code: 'USER_NOT_FOUND',
+      };
+    }
+
+    // Find the specific refresh token in the user's tokens array
+    const tokenIndex = user.refreshTokens.findIndex(
+      (token: IRefreshToken) => token.token === refreshToken
+    );
+
+    if (tokenIndex === -1) {
+      return {
+        success: false,
+        error: 'Invalid or expired refresh token',
+        code: 'INVALID_REFRESH_TOKEN',
+      };
+    }
+
+    // Check if token is expired in our database
+    const tokenData = user.refreshTokens[tokenIndex];
+    if (new Date() > tokenData.expiresAt) {
+      // Remove expired token
+      user.refreshTokens.splice(tokenIndex, 1);
+      await user.save();
+      
+      return {
+        success: false,
+        error: 'Refresh token has expired',
+        code: 'EXPIRED_REFRESH_TOKEN',
+      };
+    }
+
+    // Generate new tokens (token rotation)
+    const newAccessToken = generateAccessToken(String(user._id));
+    const newRefreshToken = generateRefreshToken(String(user._id));
+    
+    // Calculate new refresh token expiry
+    const newRefreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    
+    // Remove the old refresh token and add the new one
+    user.refreshTokens.splice(tokenIndex, 1);
+    user.refreshTokens.push({
+      token: newRefreshToken,
+      expiresAt: newRefreshTokenExpiry,
+      createdAt: new Date()
+    });
+    
+    await user.save();
+
+    return {
+      success: true,
+      data: {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      },
+    };
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    return {
+      success: false,
+      error: 'Internal server error',
+      code: 'INTERNAL_ERROR',
+    };
+  }
+};
+
 // Export all functions
 export const userAuthService = {
   registerUser,
   verifyEmail,
   resendVerificationEmail,
+  loginUser,
+  logoutUser,
+  refreshUserToken,
   generateVerificationToken,
   sendVerificationEmail,
 };
