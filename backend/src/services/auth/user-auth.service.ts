@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
-import { User, IUser } from '../../models/user.model';
+import User, { IUser } from '../../models/user.model';
 
 // Types for service functions
 interface RegisterUserData {
@@ -34,7 +34,7 @@ interface RegisterResponse {
 
 // Email transporter configuration
 const createEmailTransporter = () => {
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.ethereal.email',
     port: parseInt(process.env.SMTP_PORT || '587'),
     secure: false,
@@ -219,7 +219,7 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
     const savedUser = await newUser.save();
 
     // Update token with actual user ID
-    const actualToken = generateVerificationToken(savedUser._id.toString());
+    const actualToken = generateVerificationToken(String(savedUser._id));
     savedUser.emailVerificationToken = actualToken;
     await savedUser.save();
 
@@ -233,7 +233,7 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
 
     // Prepare response
     const userResponse = {
-      id: savedUser._id.toString(),
+      id: String(savedUser._id),
       firstName: savedUser.firstName,
       lastName: savedUser.lastName,
       email: savedUser.email,
@@ -371,7 +371,7 @@ export const resendVerificationEmail = async (email: string): Promise<ServiceRes
     }
 
     // Generate new verification token
-    const newToken = generateVerificationToken(user._id.toString());
+    const newToken = generateVerificationToken(String(user._id));
     const newTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Update user with new token
