@@ -3,13 +3,11 @@ import bcrypt from 'bcrypt';
 
 // User interface for TypeScript
 export interface IUser {
-  firstName: string;
-  lastName: string;
   email: string;
   password: string;
-  isEmailVerified: boolean;
-  emailVerificationToken?: string;
-  tokenExpiry?: Date;
+  name: string;
+  role: string;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,20 +20,6 @@ export interface IUserDocument extends IUser, Document {
 // User schema definition
 const userSchema = new Schema<IUserDocument>(
   {
-    firstName: {
-      type: String,
-      required: [true, 'First name is required'],
-      trim: true,
-      minlength: [2, 'First name must be at least 2 characters long'],
-      maxlength: [50, 'First name must be less than 50 characters']
-    },
-    lastName: {
-      type: String,
-      required: [true, 'Last name is required'],
-      trim: true,
-      minlength: [2, 'Last name must be at least 2 characters long'],
-      maxlength: [50, 'Last name must be less than 50 characters']
-    },
     email: {
       type: String,
       required: [true, 'Email is required'],
@@ -50,20 +34,24 @@ const userSchema = new Schema<IUserDocument>(
     password: {
       type: String,
       required: [true, 'Password is required'],
-      minlength: [8, 'Password must be at least 8 characters long'],
+      minlength: [6, 'Password must be at least 6 characters long'],
       select: false // Don't include password in queries by default
     },
-    isEmailVerified: {
-      type: Boolean,
-      default: false
-    },
-    emailVerificationToken: {
+    name: {
       type: String,
-      select: false // Don't include token in queries by default
+      required: [true, 'Name is required'],
+      trim: true,
+      minlength: [2, 'Name must be at least 2 characters long'],
+      maxlength: [100, 'Name must be less than 100 characters']
     },
-    tokenExpiry: {
-      type: Date,
-      select: false // Don't include expiry in queries by default
+    role: {
+      type: String,
+      enum: ['user', 'admin', 'staff'],
+      default: 'user'
+    },
+    isActive: {
+      type: Boolean,
+      default: true
     }
   },
   {
@@ -72,8 +60,6 @@ const userSchema = new Schema<IUserDocument>(
       transform: function(doc, ret: any) {
         // Remove sensitive fields from JSON output
         if ('password' in ret) delete ret.password;
-        if ('emailVerificationToken' in ret) delete ret.emailVerificationToken;
-        if ('tokenExpiry' in ret) delete ret.tokenExpiry;
         if ('__v' in ret) delete ret.__v;
         // Convert _id to id
         if ('_id' in ret) {
@@ -120,12 +106,9 @@ userSchema.statics.findByEmailWithPassword = function(email: string) {
   return this.findOne({ email }).select('+password');
 };
 
-// Static method to find user by verification token
-userSchema.statics.findByVerificationToken = function(token: string) {
-  return this.findOne({
-    emailVerificationToken: token,
-    tokenExpiry: { $gt: new Date() }
-  }).select('+emailVerificationToken +tokenExpiry');
+// Static method to find user by role
+userSchema.statics.findByRole = function(role: string) {
+  return this.find({ role });
 };
 
 // Create and export the User model
