@@ -6,7 +6,7 @@
 3. Report "done" or exact error message
 4. AI will update state files automatically
 
-## Backend Task B1: Extend Auth Service with Login/Logout Methods
+<!-- ## Backend Task B1: Extend Auth Service with Login/Logout Methods
 
 **MANDATORY FIRST STEPS:**
 
@@ -65,13 +65,13 @@ After extending the files successfully:
 ```bash
 git add backend/src/services/auth/user-auth.service.ts backend/src/models/user.model.ts
 git commit -m "feat(user-login-logout): extend auth service with login/logout methods"
-git push origin feature/user-login-logout
+git push origin feature/test-user-login-logout
 ```
 
 **TEST YOUR WORK:**
-The developer will test by calling service methods from Node.js console
+The developer will test by calling service methods from Node.js console -->
 
-## Backend Task B2: Extend Auth Controller with Login/Logout Endpoints
+<!-- ## Backend Task B2: Extend Auth Controller with Login/Logout Endpoints
 
 **MANDATORY FIRST STEPS:**
 
@@ -114,7 +114,7 @@ After extending the file successfully:
 ```bash
 git add backend/src/controllers/auth/user-auth.controller.ts
 git commit -m "feat(user-login-logout): extend auth controller with login/logout endpoints"
-git push origin feature/user-login-logout
+git push origin feature/test-user-login-logout
 ```
 
 **AFTER COMPLETING:**
@@ -125,16 +125,18 @@ Update docs/features/user-login-logout/CURRENT-STATE.md:
 
 Update docs/features/user-login-logout/progress.md:
 - Mark B2 as completed
-- Update current state
+- Update current state -->
 
-## Backend Task B3: Add Login/Logout Routes
+<!-- ## Backend Task B3: Add Login/Logout Routes
 
 **MANDATORY FIRST STEPS:**
+
+use planning mode.
 
 Read and analyze: docs/features/user-login-logout/CURRENT-STATE.md
 Verify controller exists from B2
 Read and analyze: docs/features/user-login-logout/API-CONTRACT.md
-Read and analyze: docs/features/user-login-logout/spec.md
+Read and analyze: docs/features/user-login-logout/spec.mdS
 Read and analyze: docs/features/user-login-logout/api.md
 Read and analyze: docs/features/user-login-logout/tasks.md
 Read and analyze: docs/features/user-login-logout/progress.md
@@ -164,16 +166,18 @@ After extending the file successfully:
 ```bash
 git add backend/src/routes/auth.routes.ts
 git commit -m "feat(user-login-logout): add login/logout routes"
-git push origin feature/user-login-logout
+git push origin feature/test-user-login-logout
 ```
 
 **AFTER COMPLETING:**
 Update CURRENT-STATE.md and set next task to B4
-Update progress.md with task completion and current state
+Update progress.md with task completion and current state -->
 
-## Backend Task B4: Create JWT Middleware for Protected Routes
+<!-- ## Backend Task B4: Create JWT Middleware for Protected Routes
 
 **MANDATORY FIRST STEPS:**
+
+use planning mode.
 
 Read and analyze: docs/features/user-login-logout/CURRENT-STATE.md
 Read and analyze: docs/features/user-login-logout/API-CONTRACT.md
@@ -216,16 +220,18 @@ After creating the file successfully:
 ```bash
 git add backend/src/middleware/auth.middleware.ts
 git commit -m "feat(user-login-logout): add JWT authentication middleware"
-git push origin feature/user-login-logout
+git push origin feature/test-user-login-logout
 ```
 
 **AFTER COMPLETING:**
 Update CURRENT-STATE.md and set next task to B5
-Update progress.md with task completion and current state
+Update progress.md with task completion and current state -->
 
-## Backend Task B5: Extend Postman Collection for Login/Logout
+<!-- ## Backend Task B5: Extend Postman Collection for Login/Logout
 
 **MANDATORY FIRST STEPS:**
+
+use planning mode.
 
 Read and analyze: docs/features/user-login-logout/CURRENT-STATE.md
 Read and analyze: docs/features/user-login-logout/API-CONTRACT.md
@@ -276,16 +282,18 @@ After extending the file successfully:
 ```bash
 git add postman/user-registration-email-verification.postman_collection.json
 git commit -m "feat(user-login-logout): extend Postman collection with login/logout tests"
-git push origin feature/user-login-logout
+git push origin feature/test-user-login-logout
 ```
 
 **AFTER COMPLETING:**
 Update CURRENT-STATE.md and mark backend phase COMPLETE
-Update progress.md with all backend tasks completed
+Update progress.md with all backend tasks completed -->
 
-## Frontend Task F1: Extend TypeScript Types for Login/Logout
+<!-- ## Frontend Task F1: Extend TypeScript Types for Login/Logout
 
 **MANDATORY FIRST STEPS:**
+
+use planning mode.
 
 Read and analyze: docs/features/user-login-logout/CURRENT-STATE.md
 Read and analyze: docs/features/user-login-logout/API-CONTRACT.md
@@ -320,16 +328,18 @@ After extending the file successfully:
 ```bash
 git add frontend/src/types/auth.types.ts
 git commit -m "feat(user-login-logout): extend TypeScript types for login/logout"
-git push origin feature/user-login-logout
+git push origin feature/test-user-login-logout
 ```
 
 **AFTER COMPLETING:**
 Update CURRENT-STATE.md and set next task to F2
-Update progress.md with task completion and current state
+Update progress.md with task completion and current state -->
 
-## Frontend Task F2: Extend API Service with Login/Logout Methods
+<!-- ## Frontend Task F2: Extend API Service with Login/Logout Methods
 
 **MANDATORY FIRST STEPS:**
+
+use planning mode.
 
 Read and analyze: docs/features/user-login-logout/CURRENT-STATE.md
 Read and analyze: docs/features/user-login-logout/API-CONTRACT.md
@@ -370,16 +380,18 @@ After extending the file successfully:
 ```bash
 git add frontend/src/services/auth.service.ts
 git commit -m "feat(user-login-logout): extend API service with login/logout methods"
-git push origin feature/user-login-logout
+git push origin feature/test-user-login-logout
 ```
 
 **AFTER COMPLETING:**
 Update CURRENT-STATE.md and set next task to F3
-Update progress.md with task completion and current state
+Update progress.md with task completion and current state -->
 
-## Frontend Task F3: Create Login UI Component
+<!-- ## Frontend Task F3: Create Login UI Component
 
 **MANDATORY FIRST STEPS:**
+
+use planning mode.
 
 Read and analyze: docs/features/user-login-logout/CURRENT-STATE.md
 Read and analyze: docs/features/user-login-logout/API-CONTRACT.md
@@ -427,16 +439,18 @@ After creating the file successfully:
 ```bash
 git add frontend/src/components/auth/LoginForm.tsx
 git commit -m "feat(user-login-logout): create login form component"
-git push origin feature/user-login-logout
+git push origin feature/test-user-login-logout
 ```
 
 **AFTER COMPLETING:**
 Update CURRENT-STATE.md and set next task to F4
-Update progress.md with task completion and current state
+Update progress.md with task completion and current state -->
 
-## Frontend Task F4: Create Login Page and Logout Component
+<!-- ## Frontend Task F4: Create Login Page and Logout Component
 
 **MANDATORY FIRST STEPS:**
+
+use planning mode.
 
 Read and analyze: docs/features/user-login-logout/CURRENT-STATE.md
 Read and analyze: docs/features/user-login-logout/API-CONTRACT.md
@@ -477,16 +491,18 @@ After creating the files successfully:
 ```bash
 git add frontend/src/app/auth/login/ frontend/src/components/layout/LogoutButton.tsx
 git commit -m "feat(user-login-logout): create login page and logout component"
-git push origin feature/user-login-logout
+git push origin feature/test-user-login-logout
 ```
 
 **AFTER COMPLETING:**
 Update CURRENT-STATE.md and set next task to F5
-Update progress.md with task completion and current state
+Update progress.md with task completion and current state -->
 
-## Frontend Task F5: Connect Frontend to Backend APIs
+<!-- ## Frontend Task F5: Connect Frontend to Backend APIs
 
 **MANDATORY FIRST STEPS:**
+
+use planning mode.
 
 Read and analyze: docs/features/user-login-logout/CURRENT-STATE.md
 Read and analyze: docs/features/user-login-logout/API-CONTRACT.md
@@ -531,7 +547,7 @@ After modifying successfully:
 ```bash
 git add frontend/src/components/auth/ frontend/src/components/layout/ frontend/src/services/
 git commit -m "feat(user-login-logout): complete backend integration"
-git push origin feature/user-login-logout
+git push origin feature/test-user-login-logout
 ```
 
 **AFTER COMPLETING:**
@@ -543,4 +559,4 @@ Update CURRENT-STATE.md:
 Update progress.md:
 - Mark all tasks completed
 - Update final status
-- Add integration test results
+- Add integration test results -->

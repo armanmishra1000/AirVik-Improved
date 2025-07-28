@@ -529,14 +529,26 @@ async function handleTokenRefresh(): Promise<RefreshTokenResponse> {
  */
 export async function loginUser(data: LoginRequest): Promise<LoginResponse> {
   try {
+    // Debug: Log the login request data received by the service
+    console.log('Auth service loginUser received:', JSON.stringify(data));
+    
     // Validate required fields
     validateRequestData(data, ['email', 'password']);
     
+    // Debug: Log after validation
+    console.log('Auth service validation passed');
+    
     // Make API request
+    const requestBody = JSON.stringify(data);
+    console.log('Auth service sending request body:', requestBody);
+    
     const response = await createApiRequest(AUTH_ENDPOINTS.login, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: requestBody
     });
+    
+    // Debug: Log raw response
+    console.log('Auth service raw response status:', response.status);
     
     // Handle response
     const result = await handleApiResponse<{
@@ -553,6 +565,9 @@ export async function loginUser(data: LoginRequest): Promise<LoginResponse> {
       refreshToken: string;
     }>(response);
     
+    // Debug: Log processed response
+    console.log('Auth service processed response:', JSON.stringify(result));
+    
     // Store tokens if login successful
     if (result.success) {
       setStoredTokens(result.data.accessToken, result.data.refreshToken);
@@ -562,6 +577,12 @@ export async function loginUser(data: LoginRequest): Promise<LoginResponse> {
     
   } catch (error) {
     console.error('Login API error:', error);
+    // Debug: Log more detailed error information
+    if (error instanceof Error) {
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     return createNetworkErrorResponse(error);
   }
 }

@@ -214,16 +214,28 @@ const LoginForm: React.FC = () => {
    * Login API call using auth service
    */
   const loginApi = async (data: LoginFormData): Promise<void> => {
+    // Debug: Log the login request data
+    console.log('Login request data:', JSON.stringify(data));
+    
     const { loginUser } = await import('@/src/services/auth.service');
     
-    const response = await loginUser(data);
-    
-    if (!response.success) {
-      throw new Error(response.error || 'Login failed. Please try again.');
+    try {
+      const response = await loginUser(data);
+      
+      // Debug: Log the login response
+      console.log('Login response:', JSON.stringify(response));
+      
+      if (!response.success) {
+        throw new Error(response.error || 'Login failed. Please try again.');
+      }
+      
+      // Return successfully - tokens are automatically stored by the service
+      return Promise.resolve();
+    } catch (error) {
+      // Debug: Log the error
+      console.error('Login API error details:', error);
+      throw error;
     }
-    
-    // Return successfully - tokens are automatically stored by the service
-    return Promise.resolve();
   };
   
   // ============================================================================

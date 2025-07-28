@@ -2,7 +2,7 @@
 
 ## Feature: user-login-logout
 ## Developer: [name]  
-## Status: Backend Complete - Frontend in Progress
+## Status: Backend Complete - Frontend in Progress (F4 Complete)
 ## Branch: feature/user-login-logout
 
 ## Task Checklist:
@@ -17,10 +17,27 @@
 - [x] F1: Extend TypeScript Types for Login/Logout
 - [x] F2: Extend API Service with Login/Logout Methods
 - [x] F3: Create Login UI Component
-- [ ] F4: Create Login Page and Logout Component
-- [ ] F5: Connect Frontend to Backend APIs
+- [x] F4: Create Login Page and Logout Component
+- [x] F5: Connect Frontend to Backend APIs
 
 ## Completed Tasks:
+### F5: Connect Frontend to Backend APIs (2025-07-28)
+- Connected frontend/src/app/auth/login/page.tsx to backend login endpoint
+- Connected frontend/src/components/layout/LogoutButton.tsx to backend logout endpoint
+- Implemented token management for login/logout functionality
+- Added automatic redirect to login page after logout
+- Ensured both components follow best practices with React hooks
+### F4: Create Login Page and Logout Component (2025-07-28)
+- Created frontend/src/app/auth/login/page.tsx with proper layout and metadata
+- Created frontend/src/components/layout/LogoutButton.tsx component
+- Implemented login page with breadcrumbs and proper structure
+- Integrated LoginForm component from F3 into the login page
+- Implemented logout button with loading state and error handling
+- Added token management for logout functionality
+- Added automatic redirect to login page after logout
+- Implemented different button variants and sizes for flexibility
+- Ensured both components follow best practices with React hooks
+- Kept both files under 200 lines as per requirements
 ### F3: Create Login UI Component (2025-07-28)
 - Created frontend/src/components/auth/LoginForm.tsx component
 - Implemented email and password input fields with validation
@@ -94,7 +111,7 @@
 See CURRENT-STATE.md for details
 
 ## Git History:
-Last commit: feat(user-login-logout): create login form component (89e0ffa)
+Last commit: feat(user-login-logout): create login page and logout component (f6ea419)
 
 ## Integration Testing Results:
 <!-- Updated after F5 completion -->
