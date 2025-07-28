@@ -65,3 +65,32 @@ Prevention:
 3. Add validation checks for required fields before document save operations
 4. Test with existing database data, not just new test data
 5. Use proper debugging techniques to identify root causes (console.log user document state)
+
+## Problem 3: Next.js 14 Client Component Error
+
+Date: 2025-07-28
+Task: user-login-logout
+
+Problem: Next.js error when loading the login page: "You're importing a component that needs useState/useEffect. It only works in a Client Component but none of its parents are marked with 'use client', so they're Server Components by default."
+
+Root Cause: In Next.js 14, all components are Server Components by default. Components that use React hooks like useState or useEffect must be explicitly marked as Client Components using the "use client" directive. Our LoginForm.tsx and LogoutButton.tsx components were using React hooks but weren't marked as Client Components.
+
+Solution:
+1. Added "use client" directive at the top of LoginForm.tsx
+2. Added "use client" directive at the top of LogoutButton.tsx
+3. This tells Next.js that these components should be rendered on the client-side where React hooks are available
+
+Code fix applied:
+```tsx
+// Added to the top of LoginForm.tsx and LogoutButton.tsx
+"use client";
+
+import React, { useState, useEffect } from 'react';
+// Rest of the imports...
+```
+
+Prevention:
+1. Always add "use client" directive to components that use React hooks in Next.js 14+
+2. Consider creating a template for new components that includes this directive
+3. Add this requirement to the frontend development guidelines
+4. Test components in the actual Next.js app context, not just in isolation

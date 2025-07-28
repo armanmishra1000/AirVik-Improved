@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { LoginFormData, LoginFormValidation, FieldValidation, AuthUIState } from '@/src/types/auth.types';
