@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { registerUser } from '@/src/services/auth.service';
-import type { RegisterFormData, ApiResponse, User } from '@/src/types/auth.types';
+import type { RegistrationFormData, ApiResponse, User } from '@/src/types/auth.types';
 
 interface RegisterPageState {
   isLoading: boolean;
@@ -29,13 +29,13 @@ export default function RegisterPage() {
     watch,
     formState: { errors },
     setError,
-  } = useForm<RegisterFormData>({
+  } = useForm<RegistrationFormData>({
     mode: 'onChange',
   });
 
   const password = watch('password');
 
-  const onSubmit = async (data: RegisterFormData) => {
+  const onSubmit = async (data: RegistrationFormData) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
@@ -82,8 +82,8 @@ export default function RegisterPage() {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const { resendVerificationEmail } = await import('@/src/services/auth.service');
-      const response = await resendVerificationEmail(state.registeredEmail);
+      const { resendVerification } = await import('@/src/services/auth.service');
+      const response = await resendVerification({ email: state.registeredEmail });
       
       if (response.success) {
         setState(prev => ({

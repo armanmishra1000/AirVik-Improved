@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { verifyEmail, resendVerificationEmail } from '@/src/services/auth.service';
+import { verifyEmail, resendVerification } from '@/src/services/auth.service';
 
 interface VerifyEmailState {
   isLoading: boolean;
@@ -48,7 +48,7 @@ export default function VerifyEmailPage() {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const response = await verifyEmail(token);
+      const response = await verifyEmail({ token });
 
       if (response.success) {
         setState(prev => ({
@@ -113,7 +113,7 @@ export default function VerifyEmailPage() {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const response = await resendVerificationEmail(state.resendEmail);
+      const response = await resendVerification({ email: state.resendEmail });
 
       if (response.success) {
         setState(prev => ({
