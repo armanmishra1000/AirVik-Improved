@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { logoutUser, getStoredTokens, clearStoredTokens } from '@/src/services/auth.service';
-import { LogoutRequest } from '@/src/types/auth.types';
+import { LogoutRequest, LogoutResponse } from '@/src/types/auth.types';
 
 /**
  * LogoutButton Component Props
@@ -54,24 +54,42 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
         refreshToken
       };
       
-      // Call logout API
-      const response = await logoutUser(logoutRequest);
-      
-      if (response.success) {
-        // Clear tokens on successful logout
-        clearStoredTokens();
+      // Call logout API with proper error handling
+      try {
+        const response = await logoutUser(logoutRequest);
         
-        // Call success callback if provided
-        if (onLogoutSuccess) {
-          onLogoutSuccess();
+        if (response.success) {
+          // Clear tokens on successful logout
+          clearStoredTokens();
+          
+          // Call success callback if provided
+          if (onLogoutSuccess) {
+            onLogoutSuccess();
+          }
+          
+          // Redirect to login page
+          router.push('/auth/login');
+        } else {
+          // Handle API error response
+          const errorMessage = response.error || 'Logout failed. Please try again.';
+          
+          // Call error callback if provided
+          if (onLogoutError) {
+            onLogoutError(errorMessage);
+          }
+          
+          // Clear tokens anyway for security
+          clearStoredTokens();
+          
+          // Redirect to login page
+          router.push('/auth/login');
         }
-        
-        // Redirect to login page
-        router.push('/auth/login');
-      } else {
-        // Handle error
-        const errorMessage = response.error || 'Logout failed. Please try again.';
-        
+      } catch (apiError) {
+        // Handle network or unexpected errors
+        const errorMessage = apiError instanceof Error 
+          ? apiError.message 
+          : 'Network error during logout';
+          
         // Call error callback if provided
         if (onLogoutError) {
           onLogoutError(errorMessage);

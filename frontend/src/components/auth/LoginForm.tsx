@@ -106,8 +106,8 @@ const LoginForm: React.FC = () => {
     }));
     
     try {
-      // Mock API call (will be replaced in F5)
-      await mockLoginApi(formData);
+      // Real API call to backend
+      await loginApi(formData);
       
       // Set success state
       setUiState(prev => ({
@@ -119,9 +119,9 @@ const LoginForm: React.FC = () => {
         success: 'Login successful! Redirecting...'
       }));
       
-      // Mock redirect (will be replaced in F5)
+      // Redirect to dashboard after successful login
       setTimeout(() => {
-        console.log('Redirecting to dashboard...');
+        window.location.href = '/dashboard';
       }, 1500);
       
     } catch (error) {
@@ -209,23 +209,19 @@ const LoginForm: React.FC = () => {
   // ============================================================================
   
   /**
-   * Mock login API call
-   * This will be replaced with actual API call in F5
+   * Login API call using auth service
    */
-  const mockLoginApi = async (data: LoginFormData): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      // Simulate API delay
-      setTimeout(() => {
-        // Mock validation for demo purposes
-        if (data.email === 'test@example.com' && data.password === 'password') {
-          resolve();
-        } else if (data.email === 'unverified@example.com') {
-          reject(new Error('Email not verified. Please verify your email first.'));
-        } else {
-          reject(new Error('Invalid email or password'));
-        }
-      }, 1000);
-    });
+  const loginApi = async (data: LoginFormData): Promise<void> => {
+    const { loginUser } = await import('@/src/services/auth.service');
+    
+    const response = await loginUser(data);
+    
+    if (!response.success) {
+      throw new Error(response.error || 'Login failed. Please try again.');
+    }
+    
+    // Return successfully - tokens are automatically stored by the service
+    return Promise.resolve();
   };
   
   // ============================================================================

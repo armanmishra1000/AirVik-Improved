@@ -54,6 +54,7 @@ const AUTH_ENDPOINTS = {
 
 /**
  * Creates a fetch request with proper configuration
+ * Handles authentication, token refresh, and request timeouts
  */
 async function createApiRequest(
   endpoint: string,
@@ -67,7 +68,15 @@ async function createApiRequest(
     ...(options.headers as Record<string, string> || {})
   };
   
-  // Add authorization header if access token is provided
+  // If no access token is provided, try to get it from storage
+  if (!accessToken && !endpoint.includes('/login') && !endpoint.includes('/refresh-token')) {
+    const tokens = getStoredTokens();
+    if (tokens.accessToken) {
+      accessToken = tokens.accessToken;
+    }
+  }
+  
+  // Add authorization header if access token is available
   if (accessToken) {
     headers['Authorization'] = `Bearer ${accessToken}`;
   }
@@ -90,22 +99,46 @@ async function createApiRequest(
     clearTimeout(timeoutId);
     
     // Handle 401 errors for token refresh
-    if (response.status === 401 && !endpoint.includes('/refresh-token')) {
+    if (response.status === 401 && !endpoint.includes('/refresh-token') && !endpoint.includes('/logout')) {
+      console.log('Received 401 unauthorized, attempting token refresh...');
+      
       const refreshResult = await handleTokenRefresh();
       
-      if (refreshResult.success) {
+      if (refreshResult.success && refreshResult.data && refreshResult.data.accessToken) {
+        console.log('Token refresh successful, retrying original request');
+        
         // Retry the original request with new token
         return createApiRequest(
           endpoint,
           options,
           refreshResult.data.accessToken
         );
+      } else {
+        console.warn('Token refresh failed, redirecting to login');
+        
+        // If we're in a browser context, redirect to login
+        if (typeof window !== 'undefined') {
+          // Small delay to allow for any pending operations
+          setTimeout(() => {
+            window.location.href = '/auth/login';
+          }, 100);
+        }
       }
     }
     
     return response;
   } catch (error) {
     clearTimeout(timeoutId);
+    
+    // Log network errors
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error('Network error during API request:', error);
+    } else if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Request timeout after', API_CONFIG.timeout, 'ms');
+    } else {
+      console.error('API request error:', error);
+    }
+    
     throw error;
   }
 }
@@ -413,31 +446,58 @@ async function handleTokenRefresh(): Promise<RefreshTokenResponse> {
     const { refreshToken: storedRefreshToken } = getStoredTokens();
     
     if (!storedRefreshToken) {
+      console.warn('Token refresh attempted but no refresh token available');
+      clearStoredTokens(); // Clear any remaining tokens
       return {
         success: false,
-        error: 'No refresh token available',
+        error: 'No refresh token available. Please login again.',
         code: 'INVALID_REFRESH_TOKEN'
       };
     }
     
-    const result = await refreshToken({ refreshToken: storedRefreshToken });
+    // Make direct API call to refresh token endpoint to avoid circular dependency
+    const response = await fetch(`${API_CONFIG.baseUrl}${AUTH_ENDPOINTS.refreshToken}`, {
+      method: 'POST',
+      headers: API_CONFIG.headers,
+      body: JSON.stringify({ refreshToken: storedRefreshToken })
+    });
     
-    if (result.success && 'data' in result) {
-      // Store new tokens
-      setStoredTokens(result.data.accessToken, result.data.refreshToken);
-    } else {
-      // Clear tokens on refresh failure
+    if (!response.ok) {
+      // Handle non-200 responses
+      const errorData = await response.json().catch(() => ({}));
+      console.warn('Token refresh failed:', response.status, errorData);
       clearStoredTokens();
+      
+      return {
+        success: false,
+        error: errorData.error || 'Failed to refresh authentication token',
+        code: errorData.code || 'REFRESH_TOKEN_FAILED'
+      };
     }
     
-    return result;
+    const result = await response.json();
+    
+    if (result.success && result.data && result.data.accessToken && result.data.refreshToken) {
+      // Store new tokens
+      setStoredTokens(result.data.accessToken, result.data.refreshToken);
+      return result as RefreshTokenResponse;
+    } else {
+      // Invalid response format
+      console.error('Invalid token refresh response format:', result);
+      clearStoredTokens();
+      return {
+        success: false,
+        error: 'Invalid response from authentication server',
+        code: 'INVALID_RESPONSE_FORMAT'
+      };
+    }
   } catch (error) {
     console.error('Token refresh error:', error);
     clearStoredTokens();
     return {
       success: false,
-      error: 'Failed to refresh authentication',
-      code: 'INVALID_REFRESH_TOKEN'
+      error: error instanceof Error ? error.message : 'Failed to refresh authentication',
+      code: 'REFRESH_TOKEN_ERROR'
     };
   }
 }
