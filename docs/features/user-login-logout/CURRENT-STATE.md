@@ -1,6 +1,6 @@
 # User Login Logout Current State
 
-## Last Updated: 2025-07-28T21:38:14+05:30
+## Last Updated: 2025-07-28T22:25:00+05:30
 
 ## What Exists Now:
 <!-- AI updates this after each task -->
@@ -62,6 +62,7 @@ Last commit: feat(user-login-logout): create login page and logout component (f6
 - ✅ Login API now properly handles users created before name field was required
 - ✅ Fixed Next.js 14 client component error by adding "use client" directive to LoginForm.tsx and LogoutButton.tsx
 - ✅ Added redirect from /verify-email to /auth/verify-email in next.config.js to fix route mismatch
+- ✅ Fixed login authentication issue by removing double password hashing in registerUser service function
 
 ## Known Issues:
 - User model uses `name` field instead of separate `firstName` and `lastName` fields

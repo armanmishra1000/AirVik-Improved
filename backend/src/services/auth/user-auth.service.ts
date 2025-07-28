@@ -263,10 +263,6 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
       };
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     // Generate verification token
     const verificationToken = generateVerificationToken('temp');
     const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
@@ -275,7 +271,7 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
     const newUser = new User({
       name: `${firstName.trim()} ${lastName.trim()}`,
       email: email.toLowerCase().trim(),
-      password: hashedPassword,
+      password: password, // Will be hashed by pre('save') hook
       isActive: false, // Used as isEmailVerified
       emailVerificationToken: verificationToken,
       tokenExpiry,

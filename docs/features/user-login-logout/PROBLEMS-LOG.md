@@ -105,9 +105,62 @@ Problem: 404 errors when accessing the /verify-email route. The frontend was exp
 Root Cause: Route structure mismatch between frontend and backend. The frontend implemented the email verification page at /auth/verify-email (following Next.js app router conventions), but the backend was generating verification links pointing to /verify-email.
 
 Solution:
-1. Added a redirect in next.config.js to forward requests from /verify-email to /auth/verify-email
-2. This maintains compatibility with existing verification emails that have already been sent
-3. The redirect preserves all query parameters (token, email) needed for verification
+1. Added a redirect in next.config.js to handle the mismatch:
+```javascript
+async redirects() {
+  return [
+    {
+      source: '/verify-email',
+      destination: '/auth/verify-email',
+      permanent: true,
+    },
+  ];
+}
+```
+2. This ensures that users clicking on verification links in emails will be properly redirected to the correct route in the frontend application.
+
+Prevention:
+1. Establish a clear route naming convention across frontend and backend
+2. Document all routes in API-CONTRACT.md
+3. Implement automated tests for email verification flow
+4. Consider using environment variables for shared route configurations
+
+---
+
+Date: 2025-07-28
+Task: User Login Implementation
+Problem: 400 Bad Request error when attempting to login with valid credentials. Users could register and verify email successfully, but login attempts with the same credentials failed with "Invalid email or password" error.
+
+Root Cause: Double password hashing in the authentication flow. The password was being hashed twice:
+1. First in the registerUser service function with bcrypt.hash using salt rounds 10
+2. Then again in the User model's pre('save') hook with bcrypt.hash using salt rounds 12
+
+This resulted in the stored password being a hash of an already hashed password. During login, when comparePassword tried to verify the user input against the stored password, it failed because it was comparing:
+- User input: `password`
+- Stored value: `bcrypt.hash(bcrypt.hash(password, 10), 12)`
+
+Solution:
+1. Removed password hashing from the registerUser service function:
+```typescript
+// Before:
+const salt = await bcrypt.genSalt(10);
+const hashedPassword = await bcrypt.hash(password, salt);
+// ...
+password: hashedPassword,
+
+// After:
+// No explicit hashing in service
+password: password, // Will be hashed by pre('save') hook
+```
+2. This ensures the password is only hashed once by the User model's pre('save') hook
+3. Allows bcrypt.compare to correctly verify passwords during login
+
+Prevention:
+1. Implement clear separation of concerns between models and services
+2. Add comments in the code to document where password hashing occurs
+3. Create unit tests for user registration and login flows
+4. Add debug logging in production for authentication failures
+5. Document password handling flow in the codebase
 
 Code fix applied:
 ```javascript
