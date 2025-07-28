@@ -481,14 +481,22 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
       };
     }
 
-    // Find user by email with password included
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    // Find user by email with password included and ensure all required fields are loaded
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password name email role isActive refreshTokens lastLoginAt loginAttempts lockUntil emailVerificationToken tokenExpiry createdAt updatedAt');
     if (!user) {
       return {
         success: false,
         error: 'Invalid email or password',
         code: 'INVALID_CREDENTIALS',
       };
+    }
+
+    // Fix: Ensure name field exists (handle legacy users without name)
+    if (!user.name) {
+      // Extract name from email or set a default
+      const emailPrefix = user.email.split('@')[0];
+      user.name = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+      console.log(`Fixed missing name field for user ${user.email}: set to '${user.name}'`);
     }
 
     // Check if account is locked

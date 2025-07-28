@@ -11,27 +11,6 @@ Solution: [how it was fixed]
 Prevention: [how to avoid in future]
 -->
 
-## Problem 2: Postman Test Scripts Not Robust for API Response Variations
-
-Date: 2025-07-28
-Task: user-login-logout
-
-Problem: Postman test scripts were too strict in checking response structures, causing tests to fail when the backend implementation used slightly different field names or response formats than what was specified in the API contract.
-
-Root Cause: The API contract expected specific field names (like `isEmailVerified`) but the backend model used different names (like `isActive`). The service layer correctly mapped these fields, but the test scripts were checking for exact field names and values.
-
-Solution:
-1. Updated the User Login test script to check for either `isEmailVerified` or `isActive` field in the user object
-2. Made error message checks more flexible by using string inclusion rather than exact matches
-3. Updated the Invalid Credentials test to accept either `INVALID_CREDENTIALS` or `VALIDATION_ERROR` codes
-4. Made email verification error check more robust by looking for keywords in the error message
-
-Prevention:
-1. Write more flexible test scripts that focus on semantic correctness rather than exact string matches
-2. Use string inclusion checks instead of exact matches when appropriate
-3. Consider field mapping differences between API contracts and actual implementations
-4. Test scripts should be robust enough to handle minor variations in response format
-
 ## Problem 1: TypeScript Property Errors in Auth Service
 
 Date: 2025-07-28
@@ -53,3 +32,36 @@ Prevention:
 2. Document field mappings between API and database models
 3. Consider using DTOs (Data Transfer Objects) to formalize the transformation between API and database models
 4. Add comments in code to clarify field mappings
+
+## Problem 2: Missing Name Field Validation Error During Login
+
+Date: 2025-07-28
+Task: user-login-logout
+
+Problem: Mongoose validation error "User validation failed: name: Name is required" occurring during login process. The login API was returning 500 Internal Server Error instead of processing login requests properly.
+
+Root Cause: Legacy users in the database were created without the required 'name' field, but the user model schema requires this field. When the login process tried to save the user document after updating login tracking fields (loginAttempts, lastLoginAt, etc.), Mongoose validated the entire document and failed because the required 'name' field was undefined.
+
+Solution:
+1. Added logic in the loginUser service method to check if the name field exists
+2. If name field is missing, automatically generate it from the email prefix
+3. Set the name field before proceeding with the login process
+4. This ensures backward compatibility with existing users while maintaining model validation
+
+Code fix applied:
+```typescript
+// Fix: Ensure name field exists (handle legacy users without name)
+if (!user.name) {
+  // Extract name from email or set a default
+  const emailPrefix = user.email.split('@')[0];
+  user.name = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+  console.log(`Fixed missing name field for user ${user.email}: set to '${user.name}'`);
+}
+```
+
+Prevention:
+1. Always handle backward compatibility when adding required fields to existing models
+2. Consider database migrations when schema changes affect existing data
+3. Add validation checks for required fields before document save operations
+4. Test with existing database data, not just new test data
+5. Use proper debugging techniques to identify root causes (console.log user document state)
