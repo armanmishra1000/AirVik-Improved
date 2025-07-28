@@ -187,7 +187,10 @@ export type ApiErrorCode =
   | 'EMAIL_NOT_FOUND'
   | 'USER_NOT_FOUND'
   | 'RATE_LIMITED'
-  | 'INTERNAL_ERROR';
+  | 'INTERNAL_ERROR'
+  | 'INVALID_CREDENTIALS'
+  | 'EMAIL_NOT_VERIFIED'
+  | 'INVALID_REFRESH_TOKEN';
 
 /**
  * Validation error details
@@ -255,6 +258,9 @@ export interface AuthLoadingState {
   isRegistering: boolean;
   isVerifyingEmail: boolean;
   isResendingVerification: boolean;
+  isLoggingIn: boolean;
+  isLoggingOut: boolean;
+  isRefreshingToken: boolean;
 }
 
 /**
@@ -350,6 +356,9 @@ export interface AuthService {
   registerUser: (data: RegisterUserRequest) => Promise<RegisterUserResponse>;
   verifyEmail: (data: VerifyEmailRequest) => Promise<VerifyEmailResponse>;
   resendVerification: (data: ResendVerificationRequest) => Promise<ResendVerificationResponse>;
+  loginUser: (data: LoginRequest) => Promise<LoginResponse>;
+  logoutUser: (data: LogoutRequest) => Promise<LogoutResponse>;
+  refreshToken: (data: RefreshTokenRequest) => Promise<RefreshTokenResponse>;
 }
 
 /**
@@ -360,6 +369,113 @@ export interface ApiClientConfig {
   timeout: number;
   headers: Record<string, string>;
 }
+
+// ============================================================================
+// LOGIN/LOGOUT TYPES
+// ============================================================================
+
+/**
+ * Login request payload
+ */
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+/**
+ * Login response data
+ */
+export interface LoginResponseData {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+}
+
+/**
+ * Login API response
+ */
+export type LoginResponse = ApiResponse<LoginResponseData>;
+
+/**
+ * Logout request payload
+ */
+export interface LogoutRequest {
+  refreshToken: string;
+}
+
+/**
+ * Logout response data (empty object)
+ */
+export interface LogoutResponseData {}
+
+/**
+ * Logout API response
+ */
+export type LogoutResponse = ApiResponse<LogoutResponseData>;
+
+/**
+ * Refresh token request payload
+ */
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+/**
+ * Refresh token response data
+ */
+export interface RefreshTokenResponseData {
+  accessToken: string;
+  refreshToken: string;
+}
+
+/**
+ * Refresh token API response
+ */
+export type RefreshTokenResponse = ApiResponse<RefreshTokenResponseData>;
+
+/**
+ * Login form data interface
+ */
+export interface LoginFormData {
+  email: string;
+  password: string;
+}
+
+/**
+ * Login form validation state
+ */
+export interface LoginFormValidation {
+  email: FieldValidation;
+  password: FieldValidation;
+  isFormValid: boolean;
+}
+
+/**
+ * Login page state
+ */
+export interface LoginPageState extends AuthUIState {
+  formData: LoginFormData;
+  validation: LoginFormValidation;
+  showPassword: boolean;
+}
+
+/**
+ * Return type for useLogin hook
+ */
+export interface UseLoginReturn {
+  formData: LoginFormData;
+  validation: LoginFormValidation;
+  uiState: AuthUIState;
+  updateField: (field: keyof LoginFormData, value: string) => void;
+  submitForm: () => Promise<void>;
+  resetForm: () => void;
+  togglePasswordVisibility: () => void;
+}
+
+/**
+ * Form field names for login
+ */
+export type LoginFieldName = keyof LoginFormData;
 
 // ============================================================================
 // UTILITY TYPES
@@ -401,6 +517,9 @@ export interface ApiEndpoints {
   register: string;
   verifyEmail: string;
   resendVerification: string;
+  login: string;
+  logout: string;
+  refreshToken: string;
 }
 
 /**
@@ -439,6 +558,10 @@ export interface RateLimitConfig {
     windowMinutes: number;
   };
   resendVerification: {
+    maxAttempts: number;
+    windowMinutes: number;
+  };
+  login: {
     maxAttempts: number;
     windowMinutes: number;
   };
