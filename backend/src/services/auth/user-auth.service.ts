@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 import User, { IUser, IRefreshToken } from '../../models/user.model';
 
 // Types for service functions
-interface RegisterUserData {
+export interface RegisterUserData {
   firstName: string;
   lastName: string;
   email: string;
@@ -12,23 +12,23 @@ interface RegisterUserData {
   confirmPassword: string;
 }
 
-interface LoginUserData {
+export interface LoginUserData {
   email: string;
   password: string;
 }
 
-interface TokenPayload {
+export interface TokenPayload {
   userId: string;
   type: string;
   timestamp: number;
 }
 
-interface TokenPair {
+export interface TokenPair {
   accessToken: string;
   refreshToken: string;
 }
 
-interface ServiceResponse<T = any> {
+export interface ServiceResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
@@ -37,7 +37,7 @@ interface ServiceResponse<T = any> {
   message?: string;
 }
 
-interface RegisterResponse {
+export interface RegisterResponse {
   user: {
     id: string;
     firstName: string;
@@ -49,7 +49,7 @@ interface RegisterResponse {
   message: string;
 }
 
-interface LoginResponse {
+export interface LoginResponse {
   user: {
     id: string;
     firstName: string;
@@ -63,7 +63,7 @@ interface LoginResponse {
   refreshToken: string;
 }
 
-interface RefreshTokenResponse {
+export interface RefreshTokenResponse {
   accessToken: string;
   refreshToken: string;
 }
@@ -71,18 +71,18 @@ interface RefreshTokenResponse {
 // Email transporter configuration
 const createEmailTransporter = () => {
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.ethereal.email',
+    host: process.env.SMTP_HOST || 'smtp.example.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false,
+    secure: process.env.SMTP_SECURE === 'true',
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: process.env.SMTP_USER || 'user@example.com',
+      pass: process.env.SMTP_PASS || 'password',
     },
   });
 };
 
 // Generate verification token with 24-hour expiry
-export const generateVerificationToken = (userId: string): string => {
+const generateVerificationToken = (userId: string): string => {
   const payload = {
     userId,
     type: 'email_verification',
@@ -95,10 +95,10 @@ export const generateVerificationToken = (userId: string): string => {
 };
 
 // Generate access token with 15-minute expiry
-export const generateAccessToken = (userId: string): string => {
+const generateAccessToken = (userId: string): string => {
   const payload = {
     userId,
-    type: 'access_token',
+    type: 'access',
     timestamp: Date.now(),
   };
 
@@ -108,10 +108,10 @@ export const generateAccessToken = (userId: string): string => {
 };
 
 // Generate refresh token with 7-day expiry
-export const generateRefreshToken = (userId: string): string => {
+const generateRefreshToken = (userId: string): string => {
   const payload = {
     userId,
-    type: 'refresh_token',
+    type: 'refresh',
     timestamp: Date.now(),
   };
 
@@ -121,100 +121,112 @@ export const generateRefreshToken = (userId: string): string => {
 };
 
 // Verify token and return payload
-export const verifyToken = (token: string): TokenPayload | null => {
+const verifyToken = (token: string): TokenPayload | null => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
-    return decoded as TokenPayload;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret') as TokenPayload;
+    return decoded;
   } catch (error) {
     return null;
   }
 };
 
 // Send verification email with HTML template
-export const sendVerificationEmail = async (
+const sendVerificationEmail = async (
   email: string,
   firstName: string,
   token: string
 ): Promise<ServiceResponse> => {
   try {
     const transporter = createEmailTransporter();
-    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/verify-email?token=${token}`;
+    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
 
-    const htmlTemplate = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Email Verification - AirVik Hotel System</title>
+    // HTML email template
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Verify Your Email</title>
         <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: #2563eb; color: white; padding: 20px; text-align: center; }
-            .content { padding: 30px; background: #f9fafb; }
-            .button { display: inline-block; background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
-            .footer { padding: 20px; text-align: center; color: #666; font-size: 14px; }
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+          }
+          .container {
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+          }
+          .header {
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+          }
+          .content {
+            padding: 20px;
+          }
+          .button {
+            display: inline-block;
+            background-color: #4a90e2;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+          }
+          .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+          }
         </style>
-    </head>
-    <body>
+      </head>
+      <body>
         <div class="container">
-            <div class="header">
-                <h1>AirVik Hotel System</h1>
-                <p>Email Verification Required</p>
-            </div>
-            <div class="content">
-                <h2>Welcome, ${firstName}!</h2>
-                <p>Thank you for registering with AirVik Hotel System. To complete your registration, please verify your email address by clicking the button below:</p>
-                <div style="text-align: center;">
-                    <a href="${verificationUrl}" class="button">Verify Email Address</a>
-                </div>
-                <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
-                <p style="word-break: break-all; color: #2563eb;">${verificationUrl}</p>
-                <p><strong>Important:</strong> This verification link will expire in 24 hours.</p>
-                <p>If you didn't create an account with AirVik, please ignore this email.</p>
-            </div>
-            <div class="footer">
-                <p>&copy; 2025 AirVik Hotel System. All rights reserved.</p>
-                <p>This is an automated email. Please do not reply to this message.</p>
-            </div>
+          <div class="header">
+            <h2>Email Verification</h2>
+          </div>
+          <div class="content">
+            <p>Hello ${firstName},</p>
+            <p>Thank you for registering with Airvik Hotel System. Please verify your email address by clicking the button below:</p>
+            <p><a href="${verificationUrl}" class="button">Verify Email</a></p>
+            <p>Or copy and paste this link in your browser:</p>
+            <p>${verificationUrl}</p>
+            <p>This link will expire in 24 hours.</p>
+            <p>If you did not create an account, you can safely ignore this email.</p>
+            <p>Best regards,<br>The Airvik Hotel Team</p>
+          </div>
+          <div class="footer">
+            <p>This is an automated message, please do not reply to this email.</p>
+          </div>
         </div>
-    </body>
-    </html>
+      </body>
+      </html>
     `;
 
-    const textTemplate = `
-    Welcome to AirVik Hotel System, ${firstName}!
-    
-    Thank you for registering. To complete your registration, please verify your email address by visiting:
-    ${verificationUrl}
-    
-    This verification link will expire in 24 hours.
-    
-    If you didn't create an account with AirVik, please ignore this email.
-    
-    © 2025 AirVik Hotel System. All rights reserved.
-    `;
-
-    const mailOptions = {
-      from: `"AirVik Hotel System" <${process.env.SMTP_FROM || 'noreply@airvik.com'}>`,
+    // Send email
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || '"Airvik Hotel" <noreply@airvik.com>',
       to: email,
-      subject: 'Verify Your Email Address - AirVik Hotel System',
-      text: textTemplate,
-      html: htmlTemplate,
-    };
-
-    await transporter.sendMail(mailOptions);
+      subject: 'Verify Your Email Address',
+      html: htmlContent,
+    });
 
     return {
       success: true,
-      data: { message: 'Verification email sent successfully' },
+      message: 'Verification email sent successfully',
     };
   } catch (error) {
     console.error('Email sending error:', error);
     return {
       success: false,
       error: 'Failed to send verification email',
-      code: 'EMAIL_SEND_ERROR',
+      code: 'EMAIL_SEND_FAILED',
     };
   }
 };
@@ -224,37 +236,20 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
   try {
     const { firstName, lastName, email, password, confirmPassword } = userData;
 
-    // Validation
-    const validationErrors: string[] = [];
-
-    if (!firstName || firstName.length < 2 || firstName.length > 50) {
-      validationErrors.push('First name must be between 2 and 50 characters');
-    }
-
-    if (!lastName || lastName.length < 2 || lastName.length > 50) {
-      validationErrors.push('Last name must be between 2 and 50 characters');
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      validationErrors.push('Email format is invalid');
-    }
-
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (!password || !passwordRegex.test(password)) {
-      validationErrors.push('Password must be at least 8 characters long with 1 uppercase, 1 lowercase, and 1 number');
+    // Validate input
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+      return {
+        success: false,
+        error: 'All fields are required',
+        code: 'VALIDATION_ERROR',
+      };
     }
 
     if (password !== confirmPassword) {
-      validationErrors.push('Passwords do not match');
-    }
-
-    if (validationErrors.length > 0) {
       return {
         success: false,
-        error: 'Validation failed',
+        error: 'Passwords do not match',
         code: 'VALIDATION_ERROR',
-        details: validationErrors,
       };
     }
 
@@ -263,27 +258,25 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
     if (existingUser) {
       return {
         success: false,
-        error: 'Email already exists',
+        error: 'Email is already registered',
         code: 'EMAIL_EXISTS',
       };
     }
 
     // Hash password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // Generate verification token
-    const tempUserId = new Date().getTime().toString(); // Temporary ID for token generation
-    const verificationToken = generateVerificationToken(tempUserId);
+    const verificationToken = generateVerificationToken('temp');
     const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Create user
     const newUser = new User({
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
+      name: `${firstName.trim()} ${lastName.trim()}`,
       email: email.toLowerCase().trim(),
       password: hashedPassword,
-      isEmailVerified: false,
+      isActive: false, // Used as isEmailVerified
       emailVerificationToken: verificationToken,
       tokenExpiry,
     });
@@ -296,7 +289,9 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
     await savedUser.save();
 
     // Send verification email
-    const emailResult = await sendVerificationEmail(savedUser.email, savedUser.firstName, actualToken);
+    const nameParts = savedUser.name.split(' ');
+    const firstNameFromName = nameParts[0];
+    const emailResult = await sendVerificationEmail(savedUser.email, firstNameFromName, actualToken);
     
     if (!emailResult.success) {
       // If email fails, we still return success for user creation but log the error
@@ -304,12 +299,13 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
     }
 
     // Prepare response
+    const nameParts2 = savedUser.name.split(' ');
     const userResponse = {
       id: String(savedUser._id),
-      firstName: savedUser.firstName,
-      lastName: savedUser.lastName,
+      firstName: nameParts2[0],
+      lastName: nameParts2.slice(1).join(' '),
       email: savedUser.email,
-      isEmailVerified: savedUser.isEmailVerified,
+      isEmailVerified: savedUser.isActive,
       createdAt: savedUser.createdAt.toISOString(),
     };
 
@@ -324,8 +320,8 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
     console.error('Registration error:', error);
     return {
       success: false,
-      error: 'Internal server error',
-      code: 'INTERNAL_ERROR',
+      error: 'Failed to register user',
+      code: 'SERVER_ERROR',
     };
   }
 };
@@ -364,7 +360,7 @@ export const verifyEmail = async (token: string): Promise<ServiceResponse> => {
     }
 
     // Check if already verified
-    if (user.isEmailVerified) {
+    if (user.isActive) {
       return {
         success: false,
         error: 'Email is already verified',
@@ -382,7 +378,7 @@ export const verifyEmail = async (token: string): Promise<ServiceResponse> => {
     }
 
     // Verify email
-    user.isEmailVerified = true;
+    user.isActive = true;
     user.emailVerificationToken = undefined;
     user.tokenExpiry = undefined;
     await user.save();
@@ -398,7 +394,7 @@ export const verifyEmail = async (token: string): Promise<ServiceResponse> => {
     return {
       success: false,
       error: 'Internal server error',
-      code: 'INTERNAL_ERROR',
+      code: 'SERVER_ERROR',
     };
   }
 };
@@ -414,27 +410,18 @@ export const resendVerificationEmail = async (email: string): Promise<ServiceRes
       };
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return {
-        success: false,
-        error: 'Invalid email format',
-        code: 'VALIDATION_ERROR',
-      };
-    }
-
     // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return {
         success: false,
-        error: 'Email not found',
-        code: 'EMAIL_NOT_FOUND',
+        error: 'User not found',
+        code: 'USER_NOT_FOUND',
       };
     }
 
     // Check if already verified
-    if (user.isEmailVerified) {
+    if (user.isActive) {
       return {
         success: false,
         error: 'Email is already verified',
@@ -443,22 +430,24 @@ export const resendVerificationEmail = async (email: string): Promise<ServiceRes
     }
 
     // Generate new verification token
-    const newToken = generateVerificationToken(String(user._id));
-    const newTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const verificationToken = generateVerificationToken(String(user._id));
+    const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Update user with new token
-    user.emailVerificationToken = newToken;
-    user.tokenExpiry = newTokenExpiry;
+    user.emailVerificationToken = verificationToken;
+    user.tokenExpiry = tokenExpiry;
     await user.save();
 
     // Send verification email
-    const emailResult = await sendVerificationEmail(user.email, user.firstName, newToken);
-    
+    const nameParts = user.name.split(' ');
+    const firstName = nameParts[0];
+    const emailResult = await sendVerificationEmail(user.email, firstName, verificationToken);
+
     if (!emailResult.success) {
       return {
         success: false,
         error: 'Failed to send verification email',
-        code: 'EMAIL_SEND_ERROR',
+        code: 'EMAIL_SEND_FAILED',
       };
     }
 
@@ -469,11 +458,11 @@ export const resendVerificationEmail = async (email: string): Promise<ServiceRes
       },
     };
   } catch (error) {
-    console.error('Resend verification error:', error);
+    console.error('Resend verification email error:', error);
     return {
       success: false,
       error: 'Internal server error',
-      code: 'INTERNAL_ERROR',
+      code: 'SERVER_ERROR',
     };
   }
 };
@@ -483,7 +472,7 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
   try {
     const { email, password } = userData;
 
-    // Validation
+    // Validate input
     if (!email || !password) {
       return {
         success: false,
@@ -494,7 +483,6 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
 
     // Find user by email with password included
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
-    
     if (!user) {
       return {
         success: false,
@@ -503,44 +491,43 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
       };
     }
 
-    // Check if account is locked due to too many failed attempts
+    // Check if account is locked
     if (user.isLocked()) {
-      const lockTime = new Date(user.lockUntil as Date).toISOString();
+      const lockTime = user.lockUntil ? new Date(user.lockUntil).toISOString() : 'unknown';
       return {
         success: false,
-        error: `Account is locked until ${lockTime}`,
+        error: 'Account is locked due to too many failed attempts',
         code: 'ACCOUNT_LOCKED',
+        details: [`Account will be unlocked at ${lockTime}`],
       };
     }
 
-    // Check if password is correct
-    const isPasswordValid = await user.comparePassword(password);
-    
-    // Handle failed login attempt
-    if (!isPasswordValid) {
+    // Verify password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
       // Increment login attempts
       user.loginAttempts += 1;
-      
-      // Lock account if 5 or more failed attempts
+
+      // Lock account after 5 failed attempts for 15 minutes
       if (user.loginAttempts >= 5) {
-        // Lock for 15 minutes
-        user.lockUntil = new Date(Date.now() + 15 * 60 * 1000);
+        user.lockUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
       }
-      
+
       await user.save();
-      
+
       return {
         success: false,
         error: 'Invalid email or password',
         code: 'INVALID_CREDENTIALS',
+        details: user.loginAttempts >= 5 ? ['Account locked due to too many failed attempts'] : undefined,
       };
     }
 
-    // Check if email is verified (using isActive field)
+    // Check if email is verified
     if (!user.isActive) {
       return {
         success: false,
-        error: 'Email not verified. Please verify your email first.',
+        error: 'Email not verified',
         code: 'EMAIL_NOT_VERIFIED',
       };
     }
@@ -553,31 +540,31 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
     // Generate tokens
     const accessToken = generateAccessToken(String(user._id));
     const refreshToken = generateRefreshToken(String(user._id));
-    
-    // Calculate token expiry dates
+
+    // Store refresh token with expiry
     const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-    
-    // Store refresh token in user document
-    user.refreshTokens.push({
+    const refreshTokenObj: IRefreshToken = {
       token: refreshToken,
       expiresAt: refreshTokenExpiry,
-      createdAt: new Date()
-    });
-    
+      createdAt: new Date(),
+    };
+
     // Limit stored refresh tokens to 5 most recent
-    if (user.refreshTokens.length > 5) {
-      user.refreshTokens = user.refreshTokens.slice(-5);
+    if (user.refreshTokens.length >= 5) {
+      user.refreshTokens = user.refreshTokens.slice(-4);
     }
-    
+    user.refreshTokens.push(refreshTokenObj);
+
     await user.save();
 
-    // Prepare user data for response
+    // Prepare user response
+    const nameParts = user.name.split(' ');
     const userResponse = {
       id: String(user._id),
-      firstName: user.name.split(' ')[0], // Using name field from user model
-      lastName: user.name.split(' ').slice(1).join(' '), // Using name field from user model
+      firstName: nameParts[0],
+      lastName: nameParts.slice(1).join(' '),
       email: user.email,
-      isEmailVerified: user.isActive, // Using isActive as isEmailVerified
+      isEmailVerified: user.isActive,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
     };
@@ -588,14 +575,14 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
         user: userResponse,
         accessToken,
         refreshToken,
-      }
+      },
     };
   } catch (error) {
     console.error('Login error:', error);
     return {
       success: false,
       error: 'Internal server error',
-      code: 'INTERNAL_ERROR',
+      code: 'SERVER_ERROR',
     };
   }
 };
@@ -611,12 +598,12 @@ export const logoutUser = async (refreshToken: string): Promise<ServiceResponse>
       };
     }
 
-    // Verify refresh token
+    // Verify token
     const decoded = verifyToken(refreshToken);
-    if (!decoded || decoded.type !== 'refresh_token') {
+    if (!decoded) {
       return {
         success: false,
-        error: 'Invalid or expired token',
+        error: 'Invalid refresh token',
         code: 'INVALID_TOKEN',
       };
     }
@@ -631,23 +618,25 @@ export const logoutUser = async (refreshToken: string): Promise<ServiceResponse>
       };
     }
 
-    // Filter out the provided refresh token
+    // Filter out the token
     user.refreshTokens = user.refreshTokens.filter(
-      (token: IRefreshToken) => token.token !== refreshToken
+      (tokenObj) => tokenObj.token !== refreshToken
     );
 
     await user.save();
 
     return {
       success: true,
-      data: {}
+      data: {
+        message: 'Logged out successfully',
+      },
     };
   } catch (error) {
     console.error('Logout error:', error);
     return {
       success: false,
       error: 'Internal server error',
-      code: 'INTERNAL_ERROR',
+      code: 'SERVER_ERROR',
     };
   }
 };
@@ -663,17 +652,17 @@ export const refreshUserToken = async (refreshToken: string): Promise<ServiceRes
       };
     }
 
-    // Verify refresh token
+    // Verify token
     const decoded = verifyToken(refreshToken);
-    if (!decoded || decoded.type !== 'refresh_token') {
+    if (!decoded) {
       return {
         success: false,
-        error: 'Invalid or expired refresh token',
-        code: 'INVALID_REFRESH_TOKEN',
+        error: 'Invalid refresh token',
+        code: 'INVALID_TOKEN',
       };
     }
 
-    // Find user and check if refresh token exists in their tokens array
+    // Find user and check if token exists and is valid
     const user = await User.findById(decoded.userId);
     if (!user) {
       return {
@@ -683,48 +672,49 @@ export const refreshUserToken = async (refreshToken: string): Promise<ServiceRes
       };
     }
 
-    // Find the specific refresh token in the user's tokens array
+    // Find the token in the user's refresh tokens
     const tokenIndex = user.refreshTokens.findIndex(
-      (token: IRefreshToken) => token.token === refreshToken
+      (tokenObj) => tokenObj.token === refreshToken
     );
 
     if (tokenIndex === -1) {
       return {
         success: false,
-        error: 'Invalid or expired refresh token',
-        code: 'INVALID_REFRESH_TOKEN',
+        error: 'Invalid refresh token',
+        code: 'INVALID_TOKEN',
       };
     }
 
-    // Check if token is expired in our database
-    const tokenData = user.refreshTokens[tokenIndex];
-    if (new Date() > tokenData.expiresAt) {
+    // Check if token is expired
+    const tokenObj = user.refreshTokens[tokenIndex];
+    if (tokenObj.expiresAt < new Date()) {
       // Remove expired token
       user.refreshTokens.splice(tokenIndex, 1);
       await user.save();
-      
+
       return {
         success: false,
-        error: 'Refresh token has expired',
-        code: 'EXPIRED_REFRESH_TOKEN',
+        error: 'Refresh token expired',
+        code: 'TOKEN_EXPIRED',
       };
     }
 
-    // Generate new tokens (token rotation)
+    // Generate new tokens (token rotation for security)
     const newAccessToken = generateAccessToken(String(user._id));
     const newRefreshToken = generateRefreshToken(String(user._id));
-    
-    // Calculate new refresh token expiry
-    const newRefreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-    
-    // Remove the old refresh token and add the new one
+
+    // Replace old refresh token with new one
     user.refreshTokens.splice(tokenIndex, 1);
-    user.refreshTokens.push({
-      token: newRefreshToken,
-      expiresAt: newRefreshTokenExpiry,
-      createdAt: new Date()
-    });
     
+    // Add new refresh token
+    const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    const refreshTokenObj: IRefreshToken = {
+      token: newRefreshToken,
+      expiresAt: refreshTokenExpiry,
+      createdAt: new Date(),
+    };
+    
+    user.refreshTokens.push(refreshTokenObj);
     await user.save();
 
     return {
@@ -739,7 +729,7 @@ export const refreshUserToken = async (refreshToken: string): Promise<ServiceRes
     return {
       success: false,
       error: 'Internal server error',
-      code: 'INTERNAL_ERROR',
+      code: 'SERVER_ERROR',
     };
   }
 };
@@ -752,8 +742,6 @@ export const userAuthService = {
   loginUser,
   logoutUser,
   refreshUserToken,
-  generateVerificationToken,
-  sendVerificationEmail,
 };
 
 export default userAuthService;

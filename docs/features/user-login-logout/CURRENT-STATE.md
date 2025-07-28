@@ -1,6 +1,6 @@
 # User Login Logout Current State
 
-## Last Updated: 2025-07-28T18:30:46+05:30
+## Last Updated: 2025-07-28T18:44:30+05:30
 
 ## What Exists Now:
 <!-- AI updates this after each task -->
@@ -17,6 +17,8 @@
 - ✅ User model updated with refreshTokens array, lastLoginAt, loginAttempts, lockUntil fields
 - ✅ Auth service updated with loginUser, logoutUser, refreshUserToken methods
 - ✅ Rate limiting logic implemented for login attempts
+- ✅ User model extended with emailVerificationToken and tokenExpiry fields
+- ✅ Fixed TypeScript property errors in auth service
 
 ### Missing for Login/Logout:
 - ❌ Login functionality in auth controller

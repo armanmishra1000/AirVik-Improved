@@ -14,7 +14,9 @@ export interface IUser {
   password: string;
   name: string;
   role: string;
-  isActive: boolean;
+  isActive: boolean; // Used as isEmailVerified in API responses
+  emailVerificationToken?: string; // For email verification
+  tokenExpiry?: Date; // For token expiration
   refreshTokens: IRefreshToken[];
   lastLoginAt?: Date;
   loginAttempts: number;
@@ -64,6 +66,12 @@ const userSchema = new Schema<IUserDocument>(
     isActive: {
       type: Boolean,
       default: true
+    },
+    emailVerificationToken: {
+      type: String
+    },
+    tokenExpiry: {
+      type: Date
     },
     refreshTokens: [{
       token: {
