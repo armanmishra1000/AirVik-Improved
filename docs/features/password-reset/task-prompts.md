@@ -8,14 +8,16 @@
 
 ## Backend Task B1: Extend MongoDB User Model
 ```
+use planning mode:
+
 MANDATORY FIRST STEPS:
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/shared/contracts/models/user.contract.ts
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/backend/src/models/user.model.ts
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/shared/contracts/models/user.contract.ts
+- Read and analyze: /Airvik-Main/Airvik-Improved/backend/src/models/user.model.ts
 
 List what you found to prove you read them.
 
@@ -27,7 +29,7 @@ YOUR TASK:
 Extend existing MongoDB user model with password reset token fields
 
 FILE TO MODIFY:
-/Users/niravramani/Projects/Airvik-Main/Airvik-Improved/backend/src/models/user.model.ts (MAXIMUM 400 lines)
+/Airvik-Main/Airvik-Improved/backend/src/models/user.model.ts (MAXIMUM 400 lines)
 
 REQUIREMENTS FROM CONTRACTS:
 - Must add passwordResetToken: String (optional)
@@ -49,17 +51,17 @@ DO NOT:
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Users/niravramani/Projects/Airvik-Main/Airvik-Improved
+cd /Airvik-Main/Airvik-Improved
 git add backend/src/models/user.model.ts
 git commit -m "feat(password-reset): extend user model with reset token fields"
-git push origin feature/password-reset
+git push origin yash/feature/password-reset-jwt-refresh-jenali
 
 AFTER COMPLETING:
-Update /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md:
+Update /Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md:
 - Add to "What Exists Now": ✅ Extended backend/src/models/user.model.ts - Added passwordResetToken and passwordResetExpiry fields
 - Update "Next Task": B2
 - Add to "Git Status": Last commit hash and message
-Update /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/progress.md task checklist
+Update /Airvik-Main/Airvik-Improved/docs/features/password-reset/progress.md task checklist
 
 TEST YOUR WORK:
 The developer will test by checking MongoDB accepts new fields
@@ -67,21 +69,23 @@ The developer will test by checking MongoDB accepts new fields
 
 ## Backend Task B2: Extend Auth Service Layer
 ```
+use planning mode:
+
 MANDATORY FIRST STEPS:
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
 - Confirm user model was extended in B1
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/shared/contracts/services/auth-service.contract.ts
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/backend/src/services/auth/user-auth.service.ts
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/shared/contracts/services/auth-service.contract.ts
+- Read and analyze: /Airvik-Main/Airvik-Improved/backend/src/services/auth/user-auth.service.ts
 
 YOUR TASK:
 Extend existing auth service with password reset business logic methods
 
 FILE TO MODIFY:
-/Users/niravramani/Projects/Airvik-Main/Airvik-Improved/backend/src/services/auth/user-auth.service.ts (MAXIMUM 400 lines)
+/Airvik-Main/Airvik-Improved/backend/src/services/auth/user-auth.service.ts (MAXIMUM 400 lines)
 
 REQUIREMENTS FROM CONTRACTS:
 - Add requestPasswordReset(email: string): Promise<ServiceResponse>
@@ -108,10 +112,10 @@ DO NOT:
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Users/niravramani/Projects/Airvik-Main/Airvik-Improved
+cd /Airvik-Main/Airvik-Improved
 git add backend/src/services/auth/user-auth.service.ts
 git commit -m "feat(password-reset): add service methods for password reset"
-git push origin feature/password-reset
+git push origin yash/feature/password-reset-jwt-refresh-jenali
 
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to B3
@@ -120,21 +124,23 @@ Update progress.md task checklist
 
 ## Backend Task B3: Extend Auth Controller
 ```
+use planning mode:
+
 MANDATORY FIRST STEPS:
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
 - Verify service methods exist from B2
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/shared/contracts/api/auth-api.contract.ts
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/backend/src/controllers/auth/user-auth.controller.ts
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/shared/contracts/api/auth-api.contract.ts
+- Read and analyze: /Airvik-Main/Airvik-Improved/backend/src/controllers/auth/user-auth.controller.ts
 
 YOUR TASK:
 Extend existing auth controller with password reset HTTP request handling
 
 FILE TO MODIFY:
-/Users/niravramani/Projects/Airvik-Main/Airvik-Improved/backend/src/controllers/auth/user-auth.controller.ts (MAXIMUM 400 lines)
+/Airvik-Main/Airvik-Improved/backend/src/controllers/auth/user-auth.controller.ts (MAXIMUM 400 lines)
 
 REQUIREMENTS FROM CONTRACTS:
 - Add requestPasswordReset(req: Request, res: Response): Promise<Response>
@@ -165,10 +171,10 @@ DO NOT:
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Users/niravramani/Projects/Airvik-Main/Airvik-Improved
+cd /Airvik-Main/Airvik-Improved
 git add backend/src/controllers/auth/user-auth.controller.ts
 git commit -m "feat(password-reset): add controller endpoints for password reset"
-git push origin feature/password-reset
+git push origin yash/feature/password-reset-jwt-refresh-jenali
 
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to B4
@@ -177,22 +183,24 @@ Update progress.md task checklist
 
 ## Backend Task B4: Extend Auth Routes
 ```
+use planning mode:
+
 MANDATORY FIRST STEPS:
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
 - Verify controller methods exist from B3
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/shared/contracts/api/auth-api.contract.ts
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/backend/src/routes/auth.routes.ts
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/shared/contracts/api/auth-api.contract.ts
+- Read and analyze: /Airvik-Main/Airvik-Improved/backend/src/routes/auth.routes.ts
 - Check existing route patterns for rate limiting
 
 YOUR TASK:
 Extend existing auth routes with password reset endpoints
 
 FILE TO MODIFY:
-/Users/niravramani/Projects/Airvik-Main/Airvik-Improved/backend/src/routes/auth.routes.ts (MAXIMUM 200 lines)
+/Airvik-Main/Airvik-Improved/backend/src/routes/auth.routes.ts (MAXIMUM 200 lines)
 
 REQUIREMENTS FROM CONTRACTS:
 - Add POST /request-password-reset → requestPasswordReset
@@ -219,10 +227,10 @@ DO NOT:
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Users/niravramani/Projects/Airvik-Main/Airvik-Improved
+cd /Airvik-Main/Airvik-Improved
 git add backend/src/routes/auth.routes.ts
 git commit -m "feat(password-reset): add routes for password reset endpoints"
-git push origin feature/password-reset
+git push origin yash/feature/password-reset-jwt-refresh-jenali
 
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to B5
@@ -231,12 +239,14 @@ Update progress.md task checklist
 
 ## Backend Task B5: Extend Postman Collection
 ```
+use planning mode:
+
 MANDATORY FIRST STEPS:
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
 - Find and read existing Postman collection file
 - Verify all backend files exist from B1-B4
 
@@ -244,7 +254,7 @@ YOUR TASK:
 Extend existing Postman collection with password reset endpoint tests for Newman CLI testing
 
 FILE TO MODIFY:
-/Users/niravramani/Projects/Airvik-Main/Airvik-Improved/postman/user-registration-email-verification.postman_collection.json
+/Airvik-Main/Airvik-Improved/postman/user-registration-email-verification.postman_collection.json
 
 REQUIREMENTS:
 Add these requests to existing collection:
@@ -279,15 +289,15 @@ DO NOT:
 
 TESTING COMMAND:
 After creation, test with:
-cd /Users/niravramani/Projects/Airvik-Main/Airvik-Improved
+cd /Airvik-Main/Airvik-Improved
 newman run postman/user-registration-email-verification.postman_collection.json --environment postman/environment.json
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Users/niravramani/Projects/Airvik-Main/Airvik-Improved
+cd /Airvik-Main/Airvik-Improved
 git add postman/
 git commit -m "feat(password-reset): add postman tests for password reset endpoints"
-git push origin feature/password-reset
+git push origin yash/feature/password-reset-jwt-refresh-jenali
 
 AFTER COMPLETING:
 Update CURRENT-STATE.md - mark backend phase COMPLETE
@@ -296,21 +306,23 @@ Update progress.md task checklist
 
 ## Frontend Task F1: Extend TypeScript Types
 ```
+use planning mode:
+
 MANDATORY FIRST STEPS:
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/shared/contracts/api/auth-api.contract.ts
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/frontend/src/types/auth.types.ts
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/shared/contracts/api/auth-api.contract.ts
+- Read and analyze: /Airvik-Main/Airvik-Improved/frontend/src/types/auth.types.ts
 - Verify backend is complete and tested
 
 YOUR TASK:
 Extend existing TypeScript types with password reset interfaces
 
 FILE TO MODIFY:
-/Users/niravramani/Projects/Airvik-Main/Airvik-Improved/frontend/src/types/auth.types.ts (MAXIMUM 200 lines)
+/Airvik-Main/Airvik-Improved/frontend/src/types/auth.types.ts (MAXIMUM 200 lines)
 
 REQUIREMENTS FROM CONTRACTS:
 Add these interfaces (exact names from auth-api.contract.ts):
@@ -346,10 +358,10 @@ DO NOT:
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Users/niravramani/Projects/Airvik-Main/Airvik-Improved
+cd /Airvik-Main/Airvik-Improved
 git add frontend/src/types/auth.types.ts
 git commit -m "feat(password-reset): add TypeScript types for password reset"
-git push origin feature/password-reset
+git push origin yash/feature/password-reset-jwt-refresh-jenali
 
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to F2
@@ -358,20 +370,22 @@ Update progress.md task checklist
 
 ## Frontend Task F2: Extend API Service
 ```
+use planning mode:
+
 MANDATORY FIRST STEPS:
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/frontend/src/services/auth.service.ts
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/frontend/src/services/auth.service.ts
 - Verify types exist from F1
 
 YOUR TASK:
 Extend existing API service with password reset API methods
 
 FILE TO MODIFY:
-/Users/niravramani/Projects/Airvik-Main/Airvik-Improved/frontend/src/services/auth.service.ts (MAXIMUM 400 lines)
+/Airvik-Main/Airvik-Improved/frontend/src/services/auth.service.ts (MAXIMUM 400 lines)
 
 REQUIREMENTS FROM CONTRACTS:
 Add these methods:
@@ -400,10 +414,10 @@ DO NOT:
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Users/niravramani/Projects/Airvik-Main/Airvik-Improved
+cd /Airvik-Main/Airvik-Improved
 git add frontend/src/services/auth.service.ts
 git commit -m "feat(password-reset): add API service methods for password reset"
-git push origin feature/password-reset
+git push origin yash/feature/password-reset-jwt-refresh-jenali
 
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to F3
@@ -412,12 +426,14 @@ Update progress.md task checklist
 
 ## Frontend Task F3: Create Password Reset UI Components
 ```
+use planning mode:
+
 MANDATORY FIRST STEPS:
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
 - Check existing auth components for UI patterns
 - Verify API service exists from F2
 
@@ -425,8 +441,8 @@ YOUR TASK:
 Create password reset UI components with mock data first
 
 FILES TO CREATE:
-1. /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/frontend/src/components/auth/ForgotPasswordForm.tsx (MAXIMUM 400 lines)
-2. /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/frontend/src/components/auth/ResetPasswordForm.tsx (MAXIMUM 400 lines)
+1. /Airvik-Main/Airvik-Improved/frontend/src/components/auth/ForgotPasswordForm.tsx (MAXIMUM 400 lines)
+2. /Airvik-Main/Airvik-Improved/frontend/src/components/auth/ResetPasswordForm.tsx (MAXIMUM 400 lines)
 
 COMPONENT 1 - ForgotPasswordForm:
 - Email input with validation
@@ -472,10 +488,10 @@ DO NOT:
 
 GIT OPERATIONS:
 After creating successfully:
-cd /Users/niravramani/Projects/Airvik-Main/Airvik-Improved
+cd /Airvik-Main/Airvik-Improved
 git add frontend/src/components/auth/
 git commit -m "feat(password-reset): add password reset UI components with mock data"
-git push origin feature/password-reset
+git push origin yash/feature/password-reset-jwt-refresh-jenali
 
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to F4
@@ -484,12 +500,14 @@ Update progress.md task checklist
 
 ## Frontend Task F4: Create Password Reset Pages
 ```
+use planning mode:
+
 MANDATORY FIRST STEPS:
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
 - Verify components exist from F3
 - Check existing Next.js app structure
 
@@ -497,8 +515,8 @@ YOUR TASK:
 Create Next.js pages for password reset flow
 
 FILES TO CREATE:
-1. /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/frontend/src/app/auth/forgot-password/page.tsx (MAXIMUM 200 lines)
-2. /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/frontend/src/app/auth/reset-password/page.tsx (MAXIMUM 200 lines)
+1. /Airvik-Main/Airvik-Improved/frontend/src/app/auth/forgot-password/page.tsx (MAXIMUM 200 lines)
+2. /Airvik-Main/Airvik-Improved/frontend/src/app/auth/reset-password/page.tsx (MAXIMUM 200 lines)
 
 PAGE 1 - Forgot Password:
 - Import and use ForgotPasswordForm component
@@ -541,10 +559,10 @@ DO NOT:
 
 GIT OPERATIONS:
 After creating successfully:
-cd /Users/niravramani/Projects/Airvik-Main/Airvik-Improved
+cd /Airvik-Main/Airvik-Improved
 git add frontend/src/app/auth/
 git commit -m "feat(password-reset): add Next.js pages for password reset flow"
-git push origin feature/password-reset
+git push origin yash/feature/password-reset-jwt-refresh-jenali
 
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to F5
@@ -553,12 +571,14 @@ Update progress.md task checklist
 
 ## Frontend Task F5: Backend Integration
 ```
+use planning mode:
+
 MANDATORY FIRST STEPS:
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
-- Read and analyze: /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/CURRENT-STATE.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/API-CONTRACT.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/spec.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/api.md
+- Read and analyze: /Airvik-Main/Airvik-Improved/docs/features/password-reset/tasks.md
 - Verify all frontend files exist from F1-F4
 - Test backend endpoints with Postman first
 
@@ -566,8 +586,8 @@ YOUR TASK:
 Connect frontend components to real backend API, replacing mock data
 
 FILES TO MODIFY:
-1. /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/frontend/src/components/auth/ForgotPasswordForm.tsx
-2. /Users/niravramani/Projects/Airvik-Main/Airvik-Improved/frontend/src/components/auth/ResetPasswordForm.tsx
+1. /Airvik-Main/Airvik-Improved/frontend/src/components/auth/ForgotPasswordForm.tsx
+2. /Airvik-Main/Airvik-Improved/frontend/src/components/auth/ResetPasswordForm.tsx
 
 INTEGRATION CHANGES:
 
@@ -619,10 +639,10 @@ DO NOT:
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Users/niravramani/Projects/Airvik-Main/Airvik-Improved
+cd /Airvik-Main/Airvik-Improved
 git add frontend/src/components/auth/
 git commit -m "feat(password-reset): complete backend integration for password reset"
-git push origin feature/password-reset
+git push origin yash/feature/password-reset-jwt-refresh-jenali
 
 AFTER COMPLETING:
 Update CURRENT-STATE.md:
