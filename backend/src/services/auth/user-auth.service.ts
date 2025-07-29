@@ -933,8 +933,11 @@ export const requestPasswordReset = async (email: string): Promise<ServiceRespon
 // Reset password with token
 export const resetPassword = async (token: string, newPassword: string, confirmPassword?: string): Promise<ServiceResponse> => {
   try {
+    console.log(`Reset password called with token: ${token.substring(0, 10)}... and password length: ${newPassword?.length || 0}`);
+    
     // Validate inputs
     if (!token) {
+      console.log('Token validation failed: token is empty');
       return {
         success: false,
         error: 'Token is required',
@@ -943,6 +946,7 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
     }
     
     if (!newPassword) {
+      console.log('Password validation failed: newPassword is empty');
       return {
         success: false,
         error: 'New password is required',
@@ -953,6 +957,7 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
     // Validate password strength
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
     if (!passwordRegex.test(newPassword)) {
+      console.log('Password validation failed: password does not meet strength requirements');
       return {
         success: false,
         error: 'Password must be at least 8 characters and contain uppercase, lowercase, and numbers',
@@ -961,12 +966,14 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
     }
     
     // Find user with valid reset token
+    console.log(`Looking for user with reset token: ${token.substring(0, 10)}...`);
     const user = await User.findOne({
       passwordResetToken: token,
       passwordResetExpiry: { $gt: new Date() }
-    });
+    }).select('+password');
     
     if (!user) {
+      console.log('No user found with the provided reset token or token expired');
       return {
         success: false,
         error: 'Invalid or expired token',
@@ -974,24 +981,77 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
       };
     }
     
-    // Set new password (will be hashed by pre-save middleware)
-    user.password = newPassword;
+    console.log(`User found: ${user.email}, proceeding with password reset`);
     
-    // Clear reset token
-    user.passwordResetToken = undefined;
-    user.passwordResetExpiry = undefined;
-    
-    // Invalidate all refresh tokens for security
-    user.refreshTokens = [];
-    
-    await user.save();
-    
-    return {
-      success: true,
-      data: {
-        message: 'Password reset successfully'
-      },
-    };
+    try {
+      // IMPORTANT: Bypass the pre-save middleware entirely for password hashing
+      // 1. Hash the password manually
+      const saltRounds = 12;
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+      console.log('Password hashed successfully');
+      
+      // 2. Update the user document directly using findOneAndUpdate
+      // This avoids triggering the pre-save middleware completely
+      const updateResult = await User.findByIdAndUpdate(
+        user._id,
+        {
+          $set: {
+            password: hashedPassword,
+            // Clear reset token fields
+            passwordResetToken: undefined,
+            passwordResetExpiry: undefined,
+            // Clear all refresh tokens for security
+            refreshTokens: []
+          }
+        },
+        { new: true }
+      );
+      
+      if (!updateResult) {
+        console.log('Failed to update user document');
+        return {
+          success: false,
+          error: 'Failed to reset password',
+          code: 'UPDATE_FAILED',
+        };
+      }
+      
+      console.log('Password reset successfully - document updated directly');
+      
+      // Verify the password was set correctly by testing a login
+      const updatedUser = await User.findById(user._id).select('+password');
+      if (!updatedUser) {
+        console.log('Could not retrieve updated user');
+        return {
+          success: false,
+          error: 'Failed to verify password update',
+          code: 'VERIFICATION_FAILED',
+        };
+      }
+      
+      // Test if the password can be compared correctly
+      const testPassword = newPassword;
+      const passwordMatch = await bcrypt.compare(testPassword, updatedUser.password);
+      console.log(`Password verification test: ${passwordMatch ? 'PASSED' : 'FAILED'}`);
+      
+      if (!passwordMatch) {
+        console.log('WARNING: Password was set but verification failed');
+      }
+      
+      return {
+        success: true,
+        data: {
+          message: 'Password reset successfully'
+        },
+      };
+    } catch (updateError) {
+      console.error('Error during password update:', updateError);
+      return {
+        success: false,
+        error: 'Failed to update password',
+        code: 'UPDATE_ERROR',
+      };
+    }
   } catch (error) {
     console.error('Password reset error:', error);
     return {

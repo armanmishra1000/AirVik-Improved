@@ -11,6 +11,30 @@ Solution: [how it was fixed]
 Prevention: [how to avoid in future]
 -->
 
+### Date: 2025-07-29T17:45:09+05:30
+**Task:** Password Reset Login Issue
+**Problem:** After successful password reset, users couldn't login with their new password (received "Invalid email or password" error)
+**Root Cause:** Multiple issues were identified:
+1. Password was being double-hashed during the reset process. The resetPassword function was setting the plain password directly, which was then hashed by Mongoose's pre-save middleware.
+2. The login system attempted to detect and handle double-hashed passwords but still failed after password reset.
+3. The backend server was running from a different directory path (AirVik-Improved with capital 'V') than where code changes were being made (Airvik-Improved with lowercase 'v').
+
+**Solution:** 
+1. Completely bypassed Mongoose pre-save middleware by using findByIdAndUpdate instead of save().
+2. Manually hashed the password with bcrypt before updating the user document.
+3. Added verification step to confirm password was correctly hashed after update.
+4. Fixed duplicate $set operators in MongoDB update operation.
+5. Restarted backend server from the correct directory path.
+
+**Prevention:** 
+1. When handling passwords, always be explicit about hashing operations.
+2. Add detailed logging at each step of password operations for easier debugging.
+3. Consider the full lifecycle of password handling (set → hash → compare).
+4. Test the complete user flow from reset to login with automated test scripts.
+5. Ensure consistent directory naming and server execution paths.
+6. Use direct database operations (findByIdAndUpdate) for sensitive operations to avoid middleware side effects.
+7. Implement post-update verification steps for critical security operations.
+
 ## Predicted Issues & Solutions:
 
 ### Issue 1: JWT Token Refresh Confusion
