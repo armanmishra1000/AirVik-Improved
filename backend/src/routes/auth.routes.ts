@@ -41,6 +41,19 @@ const resendLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Password reset rate limiters
+const passwordResetRequestLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // 5 requests per hour per IP
+  message: {
+    success: false,
+    error: 'Too many password reset requests. Please try again later.',
+    code: 'RATE_LIMITED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Additional rate limiters for login and token refresh
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -111,5 +124,19 @@ router.post('/logout', userAuthController.logoutUser);
  * @access  Public
  */
 router.post('/refresh-token', refreshTokenLimiter, userAuthController.refreshToken);
+
+/**
+ * @route   POST /api/v1/auth/request-password-reset
+ * @desc    Request a password reset email
+ * @access  Public
+ */
+router.post('/request-password-reset', passwordResetRequestLimiter, userAuthController.requestPasswordReset);
+
+/**
+ * @route   POST /api/v1/auth/reset-password
+ * @desc    Reset password with token
+ * @access  Public
+ */
+router.post('/reset-password', userAuthController.resetPassword);
 
 export default router;
