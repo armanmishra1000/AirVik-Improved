@@ -738,6 +738,246 @@ export const refreshUserToken = async (refreshToken: string): Promise<ServiceRes
   }
 };
 
+// Send password reset email with HTML template
+const sendPasswordResetEmail = async (
+  email: string,
+  firstName: string,
+  token: string
+): Promise<ServiceResponse> => {
+  try {
+    const transporter = createEmailTransporter();
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/reset-password?token=${token}`;
+
+    // HTML email template
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Reset Your Password</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+          }
+          .container {
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+          }
+          .header {
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+          }
+          .content {
+            padding: 20px;
+          }
+          .button {
+            display: inline-block;
+            background-color: #4a90e2;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+          }
+          .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2>Password Reset</h2>
+          </div>
+          <div class="content">
+            <p>Hello ${firstName},</p>
+            <p>We received a request to reset your password for your Airvik Hotel System account. Please click the button below to reset your password:</p>
+            <p><a href="${resetUrl}" class="button">Reset Password</a></p>
+            <p>Or copy and paste this link in your browser:</p>
+            <p>${resetUrl}</p>
+            <p>This link will expire in 15 minutes.</p>
+            <p>If you did not request a password reset, you can safely ignore this email.</p>
+            <p>Best regards,<br>The Airvik Hotel Team</p>
+          </div>
+          <div class="footer">
+            <p>This is an automated message, please do not reply to this email.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Send email
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || '"Airvik Hotel" <noreply@airvik.com>',
+      to: email,
+      subject: 'Reset Your Password',
+      html: htmlContent,
+    });
+
+    return {
+      success: true,
+      message: 'Password reset email sent successfully',
+    };
+  } catch (error) {
+    console.error('Email sending error:', error);
+    return {
+      success: false,
+      error: 'Failed to send password reset email',
+      code: 'EMAIL_SEND_FAILED',
+    };
+  }
+};
+
+// Generate secure random token for password reset
+const generatePasswordResetToken = (): string => {
+  const buffer = require('crypto').randomBytes(32);
+  return buffer.toString('hex');
+};
+
+// Request password reset
+export const requestPasswordReset = async (email: string): Promise<ServiceResponse> => {
+  try {
+    // Validate email
+    if (!email) {
+      return {
+        success: false,
+        error: 'Email is required',
+        code: 'VALIDATION_ERROR',
+      };
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return {
+        success: false,
+        error: 'Email not found',
+        code: 'EMAIL_NOT_FOUND',
+      };
+    }
+
+    // Generate reset token
+    const resetToken = generatePasswordResetToken();
+    
+    // Set token expiry (15 minutes from now)
+    const resetTokenExpiry = new Date(Date.now() + 15 * 60 * 1000);
+    
+    // Store token and expiry in user document
+    user.passwordResetToken = resetToken;
+    user.passwordResetExpiry = resetTokenExpiry;
+    await user.save();
+    
+    // Send password reset email
+    const emailResult = await sendPasswordResetEmail(
+      user.email,
+      user.name,
+      resetToken
+    );
+    
+    if (!emailResult.success) {
+      return emailResult;
+    }
+    
+    return {
+      success: true,
+      data: {
+        message: 'Password reset email sent successfully'
+      },
+    };
+  } catch (error) {
+    console.error('Password reset request error:', error);
+    return {
+      success: false,
+      error: 'Internal server error',
+      code: 'SERVER_ERROR',
+    };
+  }
+};
+
+// Reset password with token
+export const resetPassword = async (token: string, newPassword: string): Promise<ServiceResponse> => {
+  try {
+    // Validate inputs
+    if (!token) {
+      return {
+        success: false,
+        error: 'Token is required',
+        code: 'VALIDATION_ERROR',
+      };
+    }
+    
+    if (!newPassword) {
+      return {
+        success: false,
+        error: 'New password is required',
+        code: 'VALIDATION_ERROR',
+      };
+    }
+    
+    // Validate password strength
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      return {
+        success: false,
+        error: 'Password must be at least 8 characters and contain uppercase, lowercase, and numbers',
+        code: 'VALIDATION_ERROR',
+      };
+    }
+    
+    // Find user with valid reset token
+    const user = await User.findOne({
+      passwordResetToken: token,
+      passwordResetExpiry: { $gt: new Date() }
+    });
+    
+    if (!user) {
+      return {
+        success: false,
+        error: 'Invalid or expired token',
+        code: 'INVALID_RESET_TOKEN',
+      };
+    }
+    
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    
+    // Update user password and clear reset token
+    user.password = hashedPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpiry = undefined;
+    
+    // Invalidate all refresh tokens for security
+    user.refreshTokens = [];
+    
+    await user.save();
+    
+    return {
+      success: true,
+      data: {
+        message: 'Password reset successfully'
+      },
+    };
+  } catch (error) {
+    console.error('Password reset error:', error);
+    return {
+      success: false,
+      error: 'Internal server error',
+      code: 'SERVER_ERROR',
+    };
+  }
+};
+
 // Export all functions
 export const userAuthService = {
   registerUser,
@@ -746,6 +986,8 @@ export const userAuthService = {
   loginUser,
   logoutUser,
   refreshUserToken,
+  requestPasswordReset,
+  resetPassword,
 };
 
 export default userAuthService;
