@@ -955,7 +955,7 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
     }
     
     // Validate password strength
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!passwordRegex.test(newPassword)) {
       console.log('Password validation failed: password does not meet strength requirements');
       return {
@@ -964,6 +964,7 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
         code: 'VALIDATION_ERROR',
       };
     }
+    console.log('Password validation passed');
     
     // Find user with valid reset token
     console.log(`Looking for user with reset token: ${token.substring(0, 10)}...`);
