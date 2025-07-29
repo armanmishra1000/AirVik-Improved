@@ -92,6 +92,22 @@ export interface ResendVerificationRequest {
   email: string;
 }
 
+/**
+ * Request password reset request payload
+ */
+export interface RequestPasswordResetRequest {
+  email: string;
+}
+
+/**
+ * Reset password request payload
+ */
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 // ============================================================================
 // API RESPONSE TYPES
 // ============================================================================
@@ -153,6 +169,20 @@ export interface ResendVerificationResponseData {
   message: string;
 }
 
+/**
+ * Request password reset success response data
+ */
+export interface RequestPasswordResetSuccessData {
+  message: string;
+}
+
+/**
+ * Reset password success response data
+ */
+export interface ResetPasswordSuccessData {
+  message: string;
+}
+
 // ============================================================================
 // COMPLETE API RESPONSE TYPES
 // ============================================================================
@@ -172,6 +202,16 @@ export type VerifyEmailResponse = ApiResponse<EmailVerificationResponseData>;
  */
 export type ResendVerificationResponse = ApiResponse<ResendVerificationResponseData>;
 
+/**
+ * Request password reset API response
+ */
+export type RequestPasswordResetResponse = ApiResponse<RequestPasswordResetSuccessData>;
+
+/**
+ * Reset password API response
+ */
+export type ResetPasswordResponse = ApiResponse<ResetPasswordSuccessData>;
+
 // ============================================================================
 // ERROR CODE TYPES
 // ============================================================================
@@ -190,7 +230,11 @@ export type ApiErrorCode =
   | 'INTERNAL_ERROR'
   | 'INVALID_CREDENTIALS'
   | 'EMAIL_NOT_VERIFIED'
-  | 'INVALID_REFRESH_TOKEN';
+  | 'INVALID_REFRESH_TOKEN'
+  | 'INVALID_RESET_TOKEN'
+  | 'EXPIRED_RESET_TOKEN'
+  | 'RESET_TOKEN_USED'
+  | 'EMAIL_SEND_ERROR';
 
 /**
  * Validation error details
@@ -261,6 +305,8 @@ export interface AuthLoadingState {
   isLoggingIn: boolean;
   isLoggingOut: boolean;
   isRefreshingToken: boolean;
+  isRequestingPasswordReset: boolean;
+  isResettingPassword: boolean;
 }
 
 /**
@@ -359,6 +405,8 @@ export interface AuthService {
   loginUser: (data: LoginRequest) => Promise<LoginResponse>;
   logoutUser: (data: LogoutRequest) => Promise<LogoutResponse>;
   refreshToken: (data: RefreshTokenRequest) => Promise<RefreshTokenResponse>;
+  requestPasswordReset: (data: RequestPasswordResetRequest) => Promise<RequestPasswordResetResponse>;
+  resetPassword: (data: ResetPasswordRequest) => Promise<ResetPasswordResponse>;
 }
 
 /**
