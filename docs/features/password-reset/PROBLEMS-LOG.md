@@ -11,13 +11,14 @@ Solution: [how it was fixed]
 Prevention: [how to avoid in future]
 -->
 
-### Date: 2025-07-29T17:45:09+05:30
+### Date: 2025-07-29T17:58:20+05:30
 **Task:** Password Reset Login Issue
 **Problem:** After successful password reset, users couldn't login with their new password (received "Invalid email or password" error)
 **Root Cause:** Multiple issues were identified:
 1. Password was being double-hashed during the reset process. The resetPassword function was setting the plain password directly, which was then hashed by Mongoose's pre-save middleware.
 2. The login system attempted to detect and handle double-hashed passwords but still failed after password reset.
 3. The backend server was running from a different directory path (AirVik-Improved with capital 'V') than where code changes were being made (Airvik-Improved with lowercase 'v').
+4. Password validation regex in resetPassword function was too restrictive, not allowing special characters in passwords.
 
 **Solution:** 
 1. Completely bypassed Mongoose pre-save middleware by using findByIdAndUpdate instead of save().
@@ -25,6 +26,7 @@ Prevention: [how to avoid in future]
 3. Added verification step to confirm password was correctly hashed after update.
 4. Fixed duplicate $set operators in MongoDB update operation.
 5. Restarted backend server from the correct directory path.
+6. Updated password validation regex to allow special characters while maintaining security requirements.
 
 **Prevention:** 
 1. When handling passwords, always be explicit about hashing operations.
@@ -34,6 +36,8 @@ Prevention: [how to avoid in future]
 5. Ensure consistent directory naming and server execution paths.
 6. Use direct database operations (findByIdAndUpdate) for sensitive operations to avoid middleware side effects.
 7. Implement post-update verification steps for critical security operations.
+8. Align password validation requirements between frontend and backend.
+9. Test password reset with various password formats including special characters.
 
 ## Predicted Issues & Solutions:
 

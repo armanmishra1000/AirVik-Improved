@@ -1,6 +1,6 @@
 # Password Reset & JWT Token Refresh Current State
 
-## Last Updated: 2025-07-29T17:45:09+05:30
+## Last Updated: 2025-07-29T17:58:20+05:30
 
 ## Recent Fixes:
 ✅ Fixed password reset login bug (2025-07-29)
@@ -10,6 +10,7 @@
 - Added verification step to confirm password hash correctness
 - Fixed duplicate $set operators in MongoDB update operation
 - Ensured backend server runs from correct directory path
+- Updated password validation regex to allow special characters
 - Verified fix with comprehensive test script
 
 ## What Exists Now:
