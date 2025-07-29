@@ -285,9 +285,7 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
     await savedUser.save();
 
     // Send verification email
-    const nameParts = savedUser.name.split(' ');
-    const firstNameFromName = nameParts[0];
-    const emailResult = await sendVerificationEmail(savedUser.email, firstNameFromName, actualToken);
+    const emailResult = await sendVerificationEmail(savedUser.email, savedUser.firstName, actualToken);
     
     if (!emailResult.success) {
       // If email fails, we still return success for user creation but log the error
@@ -295,11 +293,10 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
     }
 
     // Prepare response
-    const nameParts2 = savedUser.name.split(' ');
     const userResponse = {
       id: String(savedUser._id),
-      firstName: nameParts2[0],
-      lastName: nameParts2.slice(1).join(' '),
+      firstName: savedUser.firstName,
+      lastName: savedUser.lastName,
       email: savedUser.email,
       isEmailVerified: savedUser.isActive,
       createdAt: savedUser.createdAt.toISOString(),
@@ -435,9 +432,7 @@ export const resendVerificationEmail = async (email: string): Promise<ServiceRes
     await user.save();
 
     // Send verification email
-    const nameParts = user.name.split(' ');
-    const firstName = nameParts[0];
-    const emailResult = await sendVerificationEmail(user.email, firstName, verificationToken);
+    const emailResult = await sendVerificationEmail(user.email, user.firstName, verificationToken);
 
     if (!emailResult.success) {
       return {
@@ -478,7 +473,7 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
     }
 
     // Find user by email with password included and ensure all required fields are loaded
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password name email role isActive refreshTokens lastLoginAt loginAttempts lockUntil emailVerificationToken tokenExpiry createdAt updatedAt');
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password firstName lastName email role isActive refreshTokens lastLoginAt loginAttempts lockUntil emailVerificationToken tokenExpiry createdAt updatedAt');
     if (!user) {
       return {
         success: false,
@@ -488,11 +483,11 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
     }
 
     // Fix: Ensure name field exists (handle legacy users without name)
-    if (!user.name) {
+    if (!user.firstName) {
       // Extract name from email or set a default
       const emailPrefix = user.email.split('@')[0];
-      user.name = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
-      console.log(`Fixed missing name field for user ${user.email}: set to '${user.name}'`);
+      user.firstName = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+      console.log(`Fixed missing name field for user ${user.email}: set to '${user.firstName}'`);
     }
 
     // Check if account is locked
@@ -562,11 +557,10 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
     await user.save();
 
     // Prepare user response
-    const nameParts = user.name.split(' ');
     const userResponse = {
       id: String(user._id),
-      firstName: nameParts[0],
-      lastName: nameParts.slice(1).join(' '),
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       isEmailVerified: user.isActive,
       createdAt: user.createdAt.toISOString(),
@@ -881,7 +875,7 @@ export const requestPasswordReset = async (email: string): Promise<ServiceRespon
     // Send password reset email
     const emailResult = await sendPasswordResetEmail(
       user.email,
-      user.name,
+      user.firstName,
       resetToken
     );
     
