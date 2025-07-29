@@ -234,6 +234,245 @@
 			"response": []
 		},
 		{
+			"name": "Request Password Reset",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.have.property('message');",
+							"    pm.expect(jsonData.data.message).to.equal('Password reset email sent successfully');",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 5000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+							"});",
+							"",
+							"// Store a sample reset token for testing (in real scenario, this would come from email)",
+							"if (pm.response.code === 200) {",
+							"    pm.environment.set('resetToken', 'sample_reset_token_for_testing');",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"test@example.com\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/request-password-reset",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"request-password-reset"
+					]
+				},
+				"description": "Request a password reset email for the specified email address. Returns success message if email exists."
+			},
+			"response": []
+		},
+		{
+			"name": "Reset Password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.have.property('message');",
+							"    pm.expect(jsonData.data.message).to.equal('Password reset successfully');",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 5000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"NewPass123\",\n  \"confirmPassword\": \"NewPass123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/reset-password",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"reset-password"
+					]
+				},
+				"description": "Reset user password using the reset token from email. Requires token, new password, and password confirmation."
+			},
+			"response": []
+		},
+		{
+			"name": "Request Password Reset Error - Email Not Found",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Response has error structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.false;",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"    pm.expect(jsonData).to.have.property('code');",
+							"});",
+							"",
+							"pm.test(\"Error message and code are correct\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.error).to.equal('Email not found');",
+							"    pm.expect(jsonData.code).to.equal('EMAIL_NOT_FOUND');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"nonexistent@example.com\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/request-password-reset",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"request-password-reset"
+					]
+				},
+				"description": "Test password reset request with non-existent email to verify error handling."
+			},
+			"response": []
+		},
+		{
+			"name": "Reset Password Error - Invalid Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Response has error structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.false;",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"    pm.expect(jsonData).to.have.property('code');",
+							"});",
+							"",
+							"pm.test(\"Error message and code are correct\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.error).to.equal('Invalid or expired token');",
+							"    pm.expect(jsonData.code).to.equal('INVALID_RESET_TOKEN');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"token\": \"invalid_reset_token\",\n  \"newPassword\": \"NewPass123\",\n  \"confirmPassword\": \"NewPass123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/reset-password",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"reset-password"
+					]
+				},
+				"description": "Test password reset with invalid token to verify error handling."
+			},
+			"response": []
+		},
+		{
 			"name": "Login Error - Invalid Credentials",
 			"event": [
 				{
@@ -433,6 +672,11 @@
 		{
 			"key": "baseUrl",
 			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "resetToken",
+			"value": "",
 			"type": "string"
 		}
 	]
