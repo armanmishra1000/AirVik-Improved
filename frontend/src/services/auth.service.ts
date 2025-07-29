@@ -97,41 +97,21 @@ async function createApiRequest(
   const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
   
   try {
-    // Log detailed request information for debugging
-    console.log('API Request Details:', {
-      url,
-      method: config.method || 'GET',
-      headers,
-      body: config.body ? JSON.parse(config.body as string) : undefined
-    });
     
     const response = await fetch(url, {
       ...config,
       signal: controller.signal
     });
     
-    // Log response status
-    console.log(`API Response Status: ${response.status} for ${url}`);
-    
-    // Try to log response body for debugging (clone to avoid consuming the stream)
-    try {
-      const responseClone = response.clone();
-      const responseBody = await responseClone.text();
-      console.log('API Response Body:', responseBody ? JSON.parse(responseBody) : null);
-    } catch (e) {
-      console.log('Could not parse response body for logging');
-    }
     
     clearTimeout(timeoutId);
     
     // Handle 401 errors for token refresh
     if (response.status === 401 && !endpoint.includes('/refresh-token') && !endpoint.includes('/logout')) {
-      console.log('Received 401 unauthorized, attempting token refresh...');
       
       const refreshResult = await handleTokenRefresh();
       
       if (refreshResult.success && refreshResult.data && refreshResult.data.accessToken) {
-        console.log('Token refresh successful, retrying original request');
         
         // Retry the original request with new token
         return createApiRequest(
@@ -568,17 +548,14 @@ async function handleTokenRefresh(): Promise<RefreshTokenResponse> {
 export async function loginUser(data: LoginRequest): Promise<LoginResponse> {
   try {
     // Debug: Log the login request data received by the service
-    console.log('Auth service loginUser received:', JSON.stringify(data));
     
     // Validate required fields
     validateRequestData(data, ['email', 'password']);
     
     // Debug: Log after validation
-    console.log('Auth service validation passed');
     
     // Make API request
     const requestBody = JSON.stringify(data);
-    console.log('Auth service sending request body:', requestBody);
     
     const response = await createApiRequest(AUTH_ENDPOINTS.login, {
       method: 'POST',
@@ -586,7 +563,6 @@ export async function loginUser(data: LoginRequest): Promise<LoginResponse> {
     });
     
     // Debug: Log raw response
-    console.log('Auth service raw response status:', response.status);
     
     // Handle response
     const result = await handleApiResponse<{
@@ -604,7 +580,6 @@ export async function loginUser(data: LoginRequest): Promise<LoginResponse> {
     }>(response);
     
     // Debug: Log processed response
-    console.log('Auth service processed response:', JSON.stringify(result));
     
     // Store tokens if login successful
     if (result.success) {
@@ -817,20 +792,12 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<ApiResp
     // Include all required fields: token, newPassword, and confirmPassword
     const { token, newPassword, confirmPassword } = data;
     
-    // Log request for debugging
-    console.log('Sending password reset request:', { 
-      token: token.substring(0, 10) + '...', 
-      hasPassword: !!newPassword,
-      hasConfirmPassword: !!confirmPassword 
-    });
-    
     const response = await createApiRequest(AUTH_ENDPOINTS.resetPassword, {
       method: 'POST',
       body: JSON.stringify({ token, newPassword, confirmPassword })
     });
     
     // Log response status for debugging
-    console.log('Password reset response status:', response.status);
     
     // Handle specific HTTP status codes
     if (response.status === 404) {
@@ -846,7 +813,6 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<ApiResp
       // Try to parse the response to get more specific error
       try {
         const errorData = await response.clone().json();
-        console.log('400 Error response details:', errorData);
         
         if (errorData && !errorData.success) {
           // Extract the error code if available
@@ -1127,8 +1093,6 @@ export function logApiConfig(): void {
   }
   
   console.group('Auth API Configuration');
-  console.log('Base URL:', API_CONFIG.baseUrl);
-  console.log('Timeout:', API_CONFIG.timeout);
-  console.log('Endpoints:', AUTH_ENDPOINTS);
+  // Base URL, timeout and endpoints logging removed
   console.groupEnd();
 }

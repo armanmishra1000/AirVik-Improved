@@ -304,8 +304,6 @@ const loginSchema = Joi.object({
 
 export const loginUser = async (req: Request, res: Response): Promise<Response> => {
   try {
-    // Debug: Log the request body
-    console.log('Login request body:', JSON.stringify(req.body));
     
     // Validate input
     const { error, value } = loginSchema.validate(req.body, { abortEarly: false });
@@ -640,14 +638,9 @@ const resetPasswordSchema = Joi.object({
 
 export const resetPassword = async (req: Request, res: Response): Promise<Response> => {
   try {
-    // Debug: Log the request body and headers
-    console.log('Reset password request body:', JSON.stringify(req.body));
-    console.log('Reset password request headers:', JSON.stringify(req.headers));
-    console.log('Reset password request content-type:', req.headers['content-type']);
     
     // Check if the request body is empty or malformed
     if (!req.body || Object.keys(req.body).length === 0) {
-      console.error('Reset password request body is empty or malformed');
       return sendError(
         res,
         'Request body is empty or malformed',
@@ -661,7 +654,6 @@ export const resetPassword = async (req: Request, res: Response): Promise<Respon
     
     // Log validation result
     if (error) {
-      console.log('Reset password validation errors:', error.details);
       const validationErrors = error.details.map(detail => detail.message);
       return sendError(
         res,

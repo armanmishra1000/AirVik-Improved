@@ -492,7 +492,7 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
       // Extract name from email or set a default
       const emailPrefix = user.email.split('@')[0];
       user.name = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
-      console.log(`Fixed missing name field for user ${user.email}: set to '${user.name}'`);
+      // Name field fixed
     }
 
     // Check if account is locked
@@ -511,7 +511,7 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
   
     // Special handling for potentially double-hashed passwords from previous bug
     if (!isMatch) {
-      console.log('Regular password comparison failed, checking for double-hashed password...');
+      // Check for double-hashed password
       
       // If normal comparison fails, check if this might be a double-hashed password
       // This is a temporary fix to handle passwords that were double-hashed during reset
@@ -524,11 +524,11 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
         isMatch = await bcrypt.compare(tempHash, user.password);
         
         if (isMatch) {
-          console.log('Double-hashed password detected, fixing user password...');
+          // Double-hashed password detected
           // If it matches, update the password to be correctly hashed just once
           user.password = password; // Will be hashed by pre-save middleware
           await user.save();
-          console.log('User password fixed successfully');
+          // Password fixed
         }
       } catch (err) {
         console.error('Error checking for double-hashed password:', err);
@@ -536,7 +536,7 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
     }
     
     if (!isMatch) {
-      console.log('Password comparison failed after double-hash check attempt');
+      // Password comparison failed
       user.loginAttempts += 1;
       if (user.loginAttempts >= 5) {
         user.lockUntil = new Date(Date.now() + 15 * 60 * 1000);
@@ -549,7 +549,7 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
         details: user.loginAttempts >= 5 ? ['Account locked due to too many failed attempts'] : undefined,
       };
     } else {
-      console.log('Password comparison successful - login proceeding');
+      // Password comparison successful
     }
 
     // Check if email is verified
@@ -933,11 +933,11 @@ export const requestPasswordReset = async (email: string): Promise<ServiceRespon
 // Reset password with token
 export const resetPassword = async (token: string, newPassword: string, confirmPassword?: string): Promise<ServiceResponse> => {
   try {
-    console.log(`Reset password called with token: ${token.substring(0, 10)}... and password length: ${newPassword?.length || 0}`);
+    // Reset password function called
     
     // Validate inputs
     if (!token) {
-      console.log('Token validation failed: token is empty');
+      // Token validation failed
       return {
         success: false,
         error: 'Token is required',
@@ -946,7 +946,7 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
     }
     
     if (!newPassword) {
-      console.log('Password validation failed: newPassword is empty');
+      // Password validation failed
       return {
         success: false,
         error: 'New password is required',
@@ -957,24 +957,24 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
     // Validate password strength
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!passwordRegex.test(newPassword)) {
-      console.log('Password validation failed: password does not meet strength requirements');
+      // Password validation failed - strength requirements
       return {
         success: false,
         error: 'Password must be at least 8 characters and contain uppercase, lowercase, and numbers',
         code: 'VALIDATION_ERROR',
       };
     }
-    console.log('Password validation passed');
+    // Password validation passed
     
     // Find user with valid reset token
-    console.log(`Looking for user with reset token: ${token.substring(0, 10)}...`);
+    // Looking for user with reset token
     const user = await User.findOne({
       passwordResetToken: token,
       passwordResetExpiry: { $gt: new Date() }
     }).select('+password');
     
     if (!user) {
-      console.log('No user found with the provided reset token or token expired');
+      // No user found with token
       return {
         success: false,
         error: 'Invalid or expired token',
@@ -982,14 +982,14 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
       };
     }
     
-    console.log(`User found: ${user.email}, proceeding with password reset`);
+    // User found, proceeding with password reset
     
     try {
       // IMPORTANT: Bypass the pre-save middleware entirely for password hashing
       // 1. Hash the password manually
       const saltRounds = 12;
       const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-      console.log('Password hashed successfully');
+      // Password hashed successfully
       
       // 2. Update the user document directly using findOneAndUpdate
       // This avoids triggering the pre-save middleware completely
@@ -1009,7 +1009,7 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
       );
       
       if (!updateResult) {
-        console.log('Failed to update user document');
+        // Failed to update user document
         return {
           success: false,
           error: 'Failed to reset password',
@@ -1017,12 +1017,12 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
         };
       }
       
-      console.log('Password reset successfully - document updated directly');
+      // Password reset successfully
       
       // Verify the password was set correctly by testing a login
       const updatedUser = await User.findById(user._id).select('+password');
       if (!updatedUser) {
-        console.log('Could not retrieve updated user');
+        // Could not retrieve updated user
         return {
           success: false,
           error: 'Failed to verify password update',
@@ -1033,10 +1033,10 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
       // Test if the password can be compared correctly
       const testPassword = newPassword;
       const passwordMatch = await bcrypt.compare(testPassword, updatedUser.password);
-      console.log(`Password verification test: ${passwordMatch ? 'PASSED' : 'FAILED'}`);
+      // Password verification test completed
       
       if (!passwordMatch) {
-        console.log('WARNING: Password was set but verification failed');
+        // WARNING: Password verification failed
       }
       
       return {

@@ -37,7 +37,9 @@ const LoginForm: React.FC = () => {
       isResendingVerification: false,
       isLoggingIn: false,
       isLoggingOut: false,
-      isRefreshingToken: false
+      isRefreshingToken: false,
+      isRequestingPasswordReset: false,
+      isResettingPassword: false
     },
     error: null,
     success: null,
@@ -215,7 +217,6 @@ const LoginForm: React.FC = () => {
    */
   const loginApi = async (data: LoginFormData): Promise<void> => {
     // Debug: Log the login request data
-    console.log('Login request data:', JSON.stringify(data));
     
     const { loginUser } = await import('@/src/services/auth.service');
     
@@ -223,7 +224,6 @@ const LoginForm: React.FC = () => {
       const response = await loginUser(data);
       
       // Debug: Log the login response
-      console.log('Login response:', JSON.stringify(response));
       
       if (!response.success) {
         throw new Error(response.error || 'Login failed. Please try again.');

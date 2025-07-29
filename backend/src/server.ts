@@ -23,15 +23,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Debug middleware for auth requests
-app.use((req, res, next) => {
-  if (req.path.includes('/api/v1/auth/')) {
-    console.log(`[DEBUG] ${req.method} ${req.path}`);
-    console.log('[DEBUG] Headers:', JSON.stringify(req.headers));
-    console.log('[DEBUG] Body:', JSON.stringify(req.body));
-  }
-  next();
-});
 
 // Health check route
 app.get('/api/v1/health', (req, res) => {

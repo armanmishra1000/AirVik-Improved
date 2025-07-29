@@ -127,7 +127,6 @@ const ResetPasswordForm: React.FC = () => {
 
       // If we found a token, update the form data
       if (tokenFromUrl) {
-        console.log('Found token in URL:', tokenFromUrl);
         setFormData(prev => ({
           ...prev,
           token: tokenFromUrl
@@ -215,7 +214,6 @@ const ResetPasswordForm: React.FC = () => {
     
     try {
       // Log form submission for debugging
-      console.log('Submitting password reset form with token:', formData.token);
       
       // API request data - send all required fields according to the API contract
       const requestData: ResetPasswordRequest = {
