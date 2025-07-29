@@ -6,7 +6,7 @@
 3. Report "done" or exact error message
 4. AI will update state files automatically
 
-## Backend Task B1: Extend MongoDB User Model
+<!-- ## Backend Task B1: Extend MongoDB User Model
 ```
 use planning mode:
 
@@ -65,8 +65,8 @@ Update /Airvik-Main/Airvik-Improved/docs/features/password-reset/progress.md tas
 
 TEST YOUR WORK:
 The developer will test by checking MongoDB accepts new fields
-```
-
+``` -->
+<!-- 
 ## Backend Task B2: Extend Auth Service Layer
 ```
 use planning mode:
@@ -112,7 +112,6 @@ DO NOT:
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Airvik-Main/Airvik-Improved
 git add backend/src/services/auth/user-auth.service.ts
 git commit -m "feat(password-reset): add service methods for password reset"
 git push origin yash/feature/password-reset-jwt-refresh-jenali
@@ -120,8 +119,8 @@ git push origin yash/feature/password-reset-jwt-refresh-jenali
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to B3
 Update progress.md task checklist
-```
-
+``` -->
+<!-- 
 ## Backend Task B3: Extend Auth Controller
 ```
 use planning mode:
@@ -171,7 +170,6 @@ DO NOT:
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Airvik-Main/Airvik-Improved
 git add backend/src/controllers/auth/user-auth.controller.ts
 git commit -m "feat(password-reset): add controller endpoints for password reset"
 git push origin yash/feature/password-reset-jwt-refresh-jenali
@@ -179,8 +177,8 @@ git push origin yash/feature/password-reset-jwt-refresh-jenali
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to B4
 Update progress.md task checklist
-```
-
+``` -->
+<!-- 
 ## Backend Task B4: Extend Auth Routes
 ```
 use planning mode:
@@ -227,7 +225,6 @@ DO NOT:
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Airvik-Main/Airvik-Improved
 git add backend/src/routes/auth.routes.ts
 git commit -m "feat(password-reset): add routes for password reset endpoints"
 git push origin yash/feature/password-reset-jwt-refresh-jenali
@@ -235,8 +232,8 @@ git push origin yash/feature/password-reset-jwt-refresh-jenali
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to B5
 Update progress.md task checklist
-```
-
+``` -->
+<!-- 
 ## Backend Task B5: Extend Postman Collection
 ```
 use planning mode:
@@ -289,12 +286,10 @@ DO NOT:
 
 TESTING COMMAND:
 After creation, test with:
-cd /Airvik-Main/Airvik-Improved
 newman run postman/user-registration-email-verification.postman_collection.json --environment postman/environment.json
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Airvik-Main/Airvik-Improved
 git add postman/
 git commit -m "feat(password-reset): add postman tests for password reset endpoints"
 git push origin yash/feature/password-reset-jwt-refresh-jenali
@@ -302,8 +297,8 @@ git push origin yash/feature/password-reset-jwt-refresh-jenali
 AFTER COMPLETING:
 Update CURRENT-STATE.md - mark backend phase COMPLETE
 Update progress.md task checklist
-```
-
+``` -->
+<!-- 
 ## Frontend Task F1: Extend TypeScript Types
 ```
 use planning mode:
@@ -366,8 +361,8 @@ git push origin yash/feature/password-reset-jwt-refresh-jenali
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to F2
 Update progress.md task checklist
-```
-
+``` -->
+<!-- 
 ## Frontend Task F2: Extend API Service
 ```
 use planning mode:
@@ -414,7 +409,6 @@ DO NOT:
 
 GIT OPERATIONS:
 After modifying successfully:
-cd /Airvik-Main/Airvik-Improved
 git add frontend/src/services/auth.service.ts
 git commit -m "feat(password-reset): add API service methods for password reset"
 git push origin yash/feature/password-reset-jwt-refresh-jenali
@@ -422,8 +416,8 @@ git push origin yash/feature/password-reset-jwt-refresh-jenali
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to F3
 Update progress.md task checklist
-```
-
+``` -->
+<!-- 
 ## Frontend Task F3: Create Password Reset UI Components
 ```
 use planning mode:
@@ -488,7 +482,6 @@ DO NOT:
 
 GIT OPERATIONS:
 After creating successfully:
-cd /Airvik-Main/Airvik-Improved
 git add frontend/src/components/auth/
 git commit -m "feat(password-reset): add password reset UI components with mock data"
 git push origin yash/feature/password-reset-jwt-refresh-jenali
@@ -496,8 +489,8 @@ git push origin yash/feature/password-reset-jwt-refresh-jenali
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to F4
 Update progress.md task checklist
-```
-
+``` -->
+<!-- 
 ## Frontend Task F4: Create Password Reset Pages
 ```
 use planning mode:
@@ -559,7 +552,6 @@ DO NOT:
 
 GIT OPERATIONS:
 After creating successfully:
-cd /Airvik-Main/Airvik-Improved
 git add frontend/src/app/auth/
 git commit -m "feat(password-reset): add Next.js pages for password reset flow"
 git push origin yash/feature/password-reset-jwt-refresh-jenali
@@ -567,7 +559,7 @@ git push origin yash/feature/password-reset-jwt-refresh-jenali
 AFTER COMPLETING:
 Update CURRENT-STATE.md and set next task to F5
 Update progress.md task checklist
-```
+``` -->
 
 ## Frontend Task F5: Backend Integration
 ```

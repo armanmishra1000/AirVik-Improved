@@ -12,8 +12,7 @@ export interface IRefreshToken {
 export interface IUser {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   role: string;
   isActive: boolean; // Used as isEmailVerified in API responses
   emailVerificationToken?: string; // For email verification
@@ -54,19 +53,12 @@ const userSchema = new Schema<IUserDocument>(
       minlength: [6, 'Password must be at least 6 characters long'],
       select: false // Don't include password in queries by default
     },
-    firstName: {
+    name: {
       type: String,
-      required: [true, 'First name is required'],
+      required: [true, 'Name is required'],
       trim: true,
-      minlength: [2, 'First name must be at least 2 characters long'],
-      maxlength: [50, 'First name must be less than 50 characters']
-    },
-    lastName: {
-      type: String,
-      required: [true, 'Last name is required'],
-      trim: true,
-      minlength: [2, 'Last name must be at least 2 characters long'],
-      maxlength: [50, 'Last name must be less than 50 characters']
+      minlength: [2, 'Name must be at least 2 characters long'],
+      maxlength: [100, 'Name must be less than 100 characters']
     },
     role: {
       type: String,

@@ -94,16 +94,50 @@ const ResetPasswordForm: React.FC = () => {
   // EFFECTS
   // ============================================================================
   
-  // Extract token from URL query parameters on component mount
+  // Extract token from URL query parameters or path on component mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      let tokenFromUrl = '';
+      const pathname = window.location.pathname;
       const params = new URLSearchParams(window.location.search);
-      const tokenFromUrl = params.get('token');
       
+      // Case 1: Check for token in query parameters (?token=xyz)
+      const queryToken = params.get('token');
+      if (queryToken) {
+        tokenFromUrl = queryToken;
+      }
+      
+      // Case 2: Check for token=xyz format in the path (as seen in screenshot)
+      // This handles the format in the screenshot: /reset-password/token=82c60d13bad0df00dc0075ddc3064570a2c014
+      else if (pathname.includes('/reset-password/token=')) {
+        const tokenMatch = pathname.match(/\/reset-password\/token=([a-zA-Z0-9]{20,})/i);
+        if (tokenMatch && tokenMatch[1]) {
+          tokenFromUrl = tokenMatch[1];
+        }
+      }
+      
+      // Case 3: Check for token directly in path (/reset-password/xyz)
+      else if (pathname.startsWith('/reset-password/')) {
+        const pathParts = pathname.split('/');
+        const lastPart = pathParts[pathParts.length - 1];
+        if (lastPart && lastPart.length >= 20 && /^[a-zA-Z0-9]{20,}$/.test(lastPart)) {
+          tokenFromUrl = lastPart;
+        }
+      }
+
+      // If we found a token, update the form data
       if (tokenFromUrl) {
+        console.log('Found token in URL:', tokenFromUrl);
         setFormData(prev => ({
           ...prev,
           token: tokenFromUrl
+        }));
+      } else {
+        console.warn('No token found in URL');
+        // Set error state for no token found
+        setUiState(prev => ({
+          ...prev,
+          error: 'Invalid or missing password reset token. Please request a new password reset link.'
         }));
       }
     }
@@ -180,80 +214,82 @@ const ResetPasswordForm: React.FC = () => {
     }));
     
     try {
-      // Call the real API using the auth service
-      const result = await resetPassword({
+      // Log form submission for debugging
+      console.log('Submitting password reset form with token:', formData.token);
+      
+      // API request data - send all required fields according to the API contract
+      const requestData: ResetPasswordRequest = {
         token: formData.token,
         newPassword: formData.newPassword,
         confirmPassword: formData.confirmPassword
-      });
+      };
       
-      if (!result.success) {
-        // Handle specific error cases based on error code
-        let errorMessage = result.error || 'An unexpected error occurred';
-        
-        // Map error codes to user-friendly messages
-        switch (result.code) {
-          case 'INVALID_TOKEN':
-            errorMessage = 'The password reset link is invalid or has expired. Please request a new one.';
-            break;
-          case 'TOKEN_EXPIRED':
-            errorMessage = 'The password reset link has expired. Please request a new one.';
-            break;
-          case 'PASSWORD_MISMATCH':
-            errorMessage = 'Passwords do not match. Please try again.';
-            break;
-          case 'PASSWORD_WEAK':
-            errorMessage = 'Password is too weak. It must contain at least 8 characters, including uppercase, lowercase, and numbers.';
-            break;
-          case 'VALIDATION_ERROR':
-            errorMessage = 'Please check your input and try again.';
-            break;
-          case 'NETWORK_ERROR':
-            errorMessage = 'Network error. Please check your internet connection and try again.';
-            break;
-          case 'TIMEOUT_ERROR':
-            errorMessage = 'Request timed out. Please try again.';
-            break;
-          default:
-            // Use the error message from the API if available
-            break;
-        }
-        
-        // Set error state
-        setUiState(prev => ({
-          ...prev,
-          loading: {
-            ...prev.loading,
-            isResettingPassword: false
-          },
-          error: errorMessage
-        }));
-        return;
-      }
+      // Call the API using the auth service
+      const response = await resetPassword(requestData);
       
-      // Set success state with auto-redirect
+      // Handle success
       setUiState(prev => ({
         ...prev,
         loading: {
           ...prev.loading,
           isResettingPassword: false
         },
-        success: 'Your password has been successfully reset. Redirecting to login page...'
+        success: 'Your password has been reset successfully. You will be redirected to the login page shortly.',
+        error: null,
+        isFormSubmitted: false
       }));
       
-      // Reset form after successful submission
+      // Clear form data for security
       setFormData({
         token: '',
         newPassword: '',
         confirmPassword: ''
       });
       
-      // Auto-redirect to login page after 3 seconds
+      // Redirect to login page after a short delay
       setTimeout(() => {
         router.push('/auth/login');
       }, 3000);
       
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      
+      // Default error message
+      let errorMessage = 'Failed to reset password. Please try again.';
+      
+      // Handle structured API errors
+      if (error && typeof error === 'object') {
+        // Handle standardized API error format
+        if ('success' in error && error.success === false) {
+          errorMessage = error.error || errorMessage;
+          
+          // Process specific error codes if available
+          if (error.code) {
+            switch(error.code) {
+              case 'INVALID_TOKEN':
+                errorMessage = 'The password reset link is invalid. Please request a new one.';
+                break;
+              case 'TOKEN_EXPIRED':
+                errorMessage = 'The password reset link has expired. Please request a new one.';
+                break;
+              case 'VALIDATION_ERROR':
+                if (error.details && Array.isArray(error.details)) {
+                  errorMessage = error.details.join(', ');
+                } else {
+                  errorMessage = 'Password must be at least 8 characters and include uppercase, lowercase, and numbers.';
+                }
+                break;
+            }
+          }
+        } else if (error.status === 400) {
+          // Handle 400 Bad Request errors
+          errorMessage = 'Invalid request. Please check your password format.';
+        } else if (error.message) {
+          // Standard error object
+          errorMessage = error.message;
+        }
+      }
+      
       // Set error state
       setUiState(prev => ({
         ...prev,
@@ -261,7 +297,7 @@ const ResetPasswordForm: React.FC = () => {
           ...prev.loading,
           isResettingPassword: false
         },
-        error: error instanceof Error ? error.message : 'An unexpected error occurred'
+        error: errorMessage
       }));
     }
   };
@@ -466,7 +502,7 @@ const ResetPasswordForm: React.FC = () => {
                 </p>
               )}
               <p className="mt-1 text-xs text-gray-500">
-                This token was sent to your email address.
+                This token was sent to your email address or included in the reset link.
               </p>
             </div>
             

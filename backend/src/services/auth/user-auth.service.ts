@@ -285,7 +285,9 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
     await savedUser.save();
 
     // Send verification email
-    const emailResult = await sendVerificationEmail(savedUser.email, savedUser.firstName, actualToken);
+    const nameParts = savedUser.name.split(' ');
+    const firstNameFromName = nameParts[0];
+    const emailResult = await sendVerificationEmail(savedUser.email, firstNameFromName, actualToken);
     
     if (!emailResult.success) {
       // If email fails, we still return success for user creation but log the error
@@ -293,10 +295,11 @@ export const registerUser = async (userData: RegisterUserData): Promise<ServiceR
     }
 
     // Prepare response
+    const nameParts2 = savedUser.name.split(' ');
     const userResponse = {
       id: String(savedUser._id),
-      firstName: savedUser.firstName,
-      lastName: savedUser.lastName,
+      firstName: nameParts2[0],
+      lastName: nameParts2.slice(1).join(' '),
       email: savedUser.email,
       isEmailVerified: savedUser.isActive,
       createdAt: savedUser.createdAt.toISOString(),
@@ -432,7 +435,9 @@ export const resendVerificationEmail = async (email: string): Promise<ServiceRes
     await user.save();
 
     // Send verification email
-    const emailResult = await sendVerificationEmail(user.email, user.firstName, verificationToken);
+    const nameParts = user.name.split(' ');
+    const firstName = nameParts[0];
+    const emailResult = await sendVerificationEmail(user.email, firstName, verificationToken);
 
     if (!emailResult.success) {
       return {
@@ -473,7 +478,7 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
     }
 
     // Find user by email with password included and ensure all required fields are loaded
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password firstName lastName email role isActive refreshTokens lastLoginAt loginAttempts lockUntil emailVerificationToken tokenExpiry createdAt updatedAt');
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password name email role isActive refreshTokens lastLoginAt loginAttempts lockUntil emailVerificationToken tokenExpiry createdAt updatedAt');
     if (!user) {
       return {
         success: false,
@@ -483,11 +488,11 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
     }
 
     // Fix: Ensure name field exists (handle legacy users without name)
-    if (!user.firstName) {
+    if (!user.name) {
       // Extract name from email or set a default
       const emailPrefix = user.email.split('@')[0];
-      user.firstName = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
-      console.log(`Fixed missing name field for user ${user.email}: set to '${user.firstName}'`);
+      user.name = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+      console.log(`Fixed missing name field for user ${user.email}: set to '${user.name}'`);
     }
 
     // Check if account is locked
@@ -502,24 +507,49 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
     }
 
     // Verify password
-    const isMatch = await user.comparePassword(password);
+    let isMatch = await user.comparePassword(password);
+  
+    // Special handling for potentially double-hashed passwords from previous bug
     if (!isMatch) {
-      // Increment login attempts
-      user.loginAttempts += 1;
-
-      // Lock account after 5 failed attempts for 15 minutes
-      if (user.loginAttempts >= 5) {
-        user.lockUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+      console.log('Regular password comparison failed, checking for double-hashed password...');
+      
+      // If normal comparison fails, check if this might be a double-hashed password
+      // This is a temporary fix to handle passwords that were double-hashed during reset
+      try {
+        // Get the hash that would have been stored if password was hashed twice
+        const bcrypt = require('bcrypt');
+        const tempHash = await bcrypt.hash(password, 12); // First hash
+        
+        // Compare the stored password with what would be a double hash
+        isMatch = await bcrypt.compare(tempHash, user.password);
+        
+        if (isMatch) {
+          console.log('Double-hashed password detected, fixing user password...');
+          // If it matches, update the password to be correctly hashed just once
+          user.password = password; // Will be hashed by pre-save middleware
+          await user.save();
+          console.log('User password fixed successfully');
+        }
+      } catch (err) {
+        console.error('Error checking for double-hashed password:', err);
       }
-
+    }
+    
+    if (!isMatch) {
+      console.log('Password comparison failed after double-hash check attempt');
+      user.loginAttempts += 1;
+      if (user.loginAttempts >= 5) {
+        user.lockUntil = new Date(Date.now() + 15 * 60 * 1000);
+      }
       await user.save();
-
       return {
         success: false,
         error: 'Invalid email or password',
         code: 'INVALID_CREDENTIALS',
         details: user.loginAttempts >= 5 ? ['Account locked due to too many failed attempts'] : undefined,
       };
+    } else {
+      console.log('Password comparison successful - login proceeding');
     }
 
     // Check if email is verified
@@ -557,10 +587,11 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
     await user.save();
 
     // Prepare user response
+    const nameParts = user.name.split(' ');
     const userResponse = {
       id: String(user._id),
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName: nameParts[0],
+      lastName: nameParts.slice(1).join(' '),
       email: user.email,
       isEmailVerified: user.isActive,
       createdAt: user.createdAt.toISOString(),
@@ -875,7 +906,7 @@ export const requestPasswordReset = async (email: string): Promise<ServiceRespon
     // Send password reset email
     const emailResult = await sendPasswordResetEmail(
       user.email,
-      user.firstName,
+      user.name,
       resetToken
     );
     
@@ -900,7 +931,7 @@ export const requestPasswordReset = async (email: string): Promise<ServiceRespon
 };
 
 // Reset password with token
-export const resetPassword = async (token: string, newPassword: string): Promise<ServiceResponse> => {
+export const resetPassword = async (token: string, newPassword: string, confirmPassword?: string): Promise<ServiceResponse> => {
   try {
     // Validate inputs
     if (!token) {
@@ -943,11 +974,10 @@ export const resetPassword = async (token: string, newPassword: string): Promise
       };
     }
     
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    // Set new password (will be hashed by pre-save middleware)
+    user.password = newPassword;
     
-    // Update user password and clear reset token
-    user.password = hashedPassword;
+    // Clear reset token
     user.passwordResetToken = undefined;
     user.passwordResetExpiry = undefined;
     

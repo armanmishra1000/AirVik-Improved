@@ -304,6 +304,9 @@ const loginSchema = Joi.object({
 
 export const loginUser = async (req: Request, res: Response): Promise<Response> => {
   try {
+    // Debug: Log the request body
+    console.log('Login request body:', JSON.stringify(req.body));
+    
     // Validate input
     const { error, value } = loginSchema.validate(req.body, { abortEarly: false });
     
@@ -637,10 +640,28 @@ const resetPasswordSchema = Joi.object({
 
 export const resetPassword = async (req: Request, res: Response): Promise<Response> => {
   try {
+    // Debug: Log the request body and headers
+    console.log('Reset password request body:', JSON.stringify(req.body));
+    console.log('Reset password request headers:', JSON.stringify(req.headers));
+    console.log('Reset password request content-type:', req.headers['content-type']);
+    
+    // Check if the request body is empty or malformed
+    if (!req.body || Object.keys(req.body).length === 0) {
+      console.error('Reset password request body is empty or malformed');
+      return sendError(
+        res,
+        'Request body is empty or malformed',
+        'INVALID_REQUEST',
+        400
+      );
+    }
+    
     // Validate input
     const { error, value } = resetPasswordSchema.validate(req.body, { abortEarly: false });
     
+    // Log validation result
     if (error) {
+      console.log('Reset password validation errors:', error.details);
       const validationErrors = error.details.map(detail => detail.message);
       return sendError(
         res,
@@ -652,7 +673,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<Respon
     }
 
     // Call service layer
-    const result = await userAuthService.resetPassword(value.token, value.newPassword);
+    const result = await userAuthService.resetPassword(value.token, value.newPassword, value.confirmPassword);
 
     if (!result.success) {
       // Handle specific error codes with appropriate HTTP status

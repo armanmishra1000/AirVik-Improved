@@ -136,6 +136,7 @@ export interface ApiErrorResponse extends BaseApiResponse {
   error: string;
   code?: string;
   details?: string[];
+  status?: number; // HTTP status code from the response
 }
 
 /**

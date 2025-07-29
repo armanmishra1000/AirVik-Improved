@@ -181,6 +181,7 @@ export interface UserModelStatics {
  * CRITICAL: API responses split "name" into firstName/lastName
  * Model stores: name: "John Doe"
  * API returns: firstName: "John", lastName: "Doe"
+ * 
  */
 export interface ApiUserResponse {
   id: string;

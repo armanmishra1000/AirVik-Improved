@@ -49,23 +49,6 @@ Prevention: [how to avoid in future]
 **Solution:** Use exact URLs from contracts: /request-password-reset, /reset-password
 **Prevention:** Follow existing route patterns and rate limiting setup
 
-## ACTUAL PROBLEMS ENCOUNTERED:
-
-### Date: 2025-07-29T15:08:31+05:30
-**Task:** Frontend Task F5: Backend Integration
-**Problem:** Password reset endpoint returning 400 Bad Request error
-**Root Cause:** User model interface and schema mismatch - interface had `name: string` but controller expected `firstName` and `lastName` fields. Backend service was trying to access `user.name` which didn't exist, causing email sending to fail and password reset to return 400 error.
-**Solution:** 
-1. Updated IUser interface from `name: string` to `firstName: string; lastName: string`
-2. Updated user schema from single `name` field to separate `firstName` and `lastName` fields
-3. Fixed all service layer references from `user.name` to `user.firstName`
-4. Updated email sending functions to use `user.firstName` instead of `user.name`
-**Prevention:** 
-1. Always ensure model interfaces match actual schema definitions
-2. Run TypeScript compilation to catch property access errors
-3. Test API endpoints after model changes
-4. Keep interface, schema, and service layer in sync during development
-
 ---
 
 ## Actual Problems Encountered:

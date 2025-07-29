@@ -97,10 +97,30 @@ async function createApiRequest(
   const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
   
   try {
+    // Log detailed request information for debugging
+    console.log('API Request Details:', {
+      url,
+      method: config.method || 'GET',
+      headers,
+      body: config.body ? JSON.parse(config.body as string) : undefined
+    });
+    
     const response = await fetch(url, {
       ...config,
       signal: controller.signal
     });
+    
+    // Log response status
+    console.log(`API Response Status: ${response.status} for ${url}`);
+    
+    // Try to log response body for debugging (clone to avoid consuming the stream)
+    try {
+      const responseClone = response.clone();
+      const responseBody = await responseClone.text();
+      console.log('API Response Body:', responseBody ? JSON.parse(responseBody) : null);
+    } catch (e) {
+      console.log('Could not parse response body for logging');
+    }
     
     clearTimeout(timeoutId);
     
@@ -161,6 +181,14 @@ async function handleApiResponse<T>(response: Response): Promise<ApiResponse<T>>
       throw new Error('Invalid API response format: missing success field');
     }
     
+    // Add HTTP status code to error responses
+    if (!data.success) {
+      return {
+        ...data,
+        status: response.status
+      } as ApiErrorResponse;
+    }
+    
     return data as ApiResponse<T>;
   } catch (error) {
     // Handle JSON parsing errors
@@ -168,7 +196,8 @@ async function handleApiResponse<T>(response: Response): Promise<ApiResponse<T>>
       return {
         success: false,
         error: 'Invalid response format from server',
-        code: 'INVALID_RESPONSE'
+        code: 'INVALID_RESPONSE',
+        status: response.status
       } as ApiErrorResponse;
     }
     
@@ -184,7 +213,8 @@ function createNetworkErrorResponse(error: unknown): ApiErrorResponse {
     return {
       success: false,
       error: 'Network error. Please check your internet connection.',
-      code: 'NETWORK_ERROR'
+      code: 'NETWORK_ERROR',
+      status: 0 // Standard status code for network errors
     };
   }
   
@@ -192,14 +222,16 @@ function createNetworkErrorResponse(error: unknown): ApiErrorResponse {
     return {
       success: false,
       error: 'Request timeout. Please try again.',
-      code: 'TIMEOUT_ERROR'
+      code: 'TIMEOUT_ERROR',
+      status: 408 // Request Timeout
     };
   }
   
   return {
     success: false,
     error: 'An unexpected error occurred. Please try again.',
-    code: 'UNKNOWN_ERROR'
+    code: 'UNKNOWN_ERROR',
+    status: 500 // Internal Server Error as fallback
   };
 }
 
@@ -776,15 +808,95 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<ApiResp
       return {
         success: false,
         error: 'Passwords do not match',
-        code: 'VALIDATION_ERROR'
+        code: 'PASSWORD_MISMATCH',
+        status: 400
       };
     }
     
     // Make API request
+    // Include all required fields: token, newPassword, and confirmPassword
+    const { token, newPassword, confirmPassword } = data;
+    
+    // Log request for debugging
+    console.log('Sending password reset request:', { 
+      token: token.substring(0, 10) + '...', 
+      hasPassword: !!newPassword,
+      hasConfirmPassword: !!confirmPassword 
+    });
+    
     const response = await createApiRequest(AUTH_ENDPOINTS.resetPassword, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify({ token, newPassword, confirmPassword })
     });
+    
+    // Log response status for debugging
+    console.log('Password reset response status:', response.status);
+    
+    // Handle specific HTTP status codes
+    if (response.status === 404) {
+      return {
+        success: false,
+        error: 'The password reset token was not found. Please request a new password reset link.',
+        code: 'TOKEN_NOT_FOUND',
+        status: 404
+      };
+    }
+    
+    if (response.status === 400) {
+      // Try to parse the response to get more specific error
+      try {
+        const errorData = await response.clone().json();
+        console.log('400 Error response details:', errorData);
+        
+        if (errorData && !errorData.success) {
+          // Extract the error code if available
+          const errorCode = errorData.code || '';
+          const errorMessage = errorData.error || 'Invalid request';
+          
+          // Check for common error patterns
+          if (errorMessage.toLowerCase().includes('expired')) {
+            return {
+              success: false,
+              error: 'The password reset link has expired. Please request a new one.',
+              code: 'TOKEN_EXPIRED',
+              status: 400
+            };
+          } else if (errorMessage.toLowerCase().includes('invalid') && errorMessage.toLowerCase().includes('token')) {
+            return {
+              success: false,
+              error: 'The password reset link is invalid. Please request a new one.',
+              code: 'INVALID_TOKEN',
+              status: 400
+            };
+          } else if (errorMessage.toLowerCase().includes('password') && errorMessage.toLowerCase().includes('match')) {
+            return {
+              success: false,
+              error: 'Passwords do not match. Please try again.',
+              code: 'PASSWORD_MISMATCH',
+              status: 400
+            };
+          } else if (errorMessage.toLowerCase().includes('weak') || errorMessage.toLowerCase().includes('strength')) {
+            return {
+              success: false,
+              error: 'Password is too weak. It must contain at least 8 characters, including uppercase, lowercase, and numbers.',
+              code: 'PASSWORD_WEAK',
+              status: 400
+            };
+          }
+          
+          // Return the original error with status code
+          return {
+            success: false,
+            error: errorMessage,
+            code: errorCode || 'VALIDATION_ERROR',
+            status: 400
+          };
+        }
+      } catch (e) {
+        console.error('Error parsing 400 response:', e);
+        // Ignore parsing errors and continue with normal flow
+      }
+    }
     
     // Handle response
     return await handleApiResponse<ResetPasswordSuccessData>(response);
