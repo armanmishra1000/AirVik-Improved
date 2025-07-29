@@ -15,6 +15,10 @@ import {
   LogoutResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
+  RequestPasswordResetRequest,
+  RequestPasswordResetSuccessData,
+  ResetPasswordRequest,
+  ResetPasswordSuccessData,
   ApiResponse,
   ApiSuccessResponse,
   ApiErrorResponse
@@ -45,7 +49,9 @@ const AUTH_ENDPOINTS = {
   resendVerification: '/api/v1/auth/resend-verification',
   login: '/api/v1/auth/login',
   logout: '/api/v1/auth/logout',
-  refreshToken: '/api/v1/auth/refresh-token'
+  refreshToken: '/api/v1/auth/refresh-token',
+  requestPasswordReset: '/api/v1/auth/request-password-reset',
+  resetPassword: '/api/v1/auth/reset-password'
 } as const;
 
 // ============================================================================
@@ -696,6 +702,99 @@ export async function refreshToken(data: RefreshTokenRequest): Promise<RefreshTo
   }
 }
 
+/**
+ * Request a password reset email
+ * 
+ * @param email - User email address
+ * @returns Promise<ApiResponse<RequestPasswordResetSuccessData>> - API response with success or error
+ * 
+ * @example
+ * ```typescript
+ * const result = await requestPasswordReset('user@example.com');
+ * 
+ * if (result.success) {
+ *   console.log('Password reset email sent');
+ * } else {
+ *   console.error('Password reset request failed:', result.error);
+ * }
+ * ```
+ */
+export async function requestPasswordReset(email: string): Promise<ApiResponse<RequestPasswordResetSuccessData>> {
+  try {
+    // Validate email
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return {
+        success: false,
+        error: 'Valid email address is required',
+        code: 'VALIDATION_ERROR'
+      };
+    }
+    
+    // Make API request
+    const response = await createApiRequest(AUTH_ENDPOINTS.requestPasswordReset, {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
+    
+    // Handle response
+    return await handleApiResponse<RequestPasswordResetSuccessData>(response);
+    
+  } catch (error) {
+    console.error('Password reset request API error:', error);
+    return createNetworkErrorResponse(error);
+  }
+}
+
+/**
+ * Reset password with token
+ * 
+ * @param data - Reset password request data with token and new password
+ * @returns Promise<ApiResponse<ResetPasswordSuccessData>> - API response with success or error
+ * 
+ * @example
+ * ```typescript
+ * const result = await resetPassword({
+ *   token: 'reset-token-from-email',
+ *   newPassword: 'NewSecurePassword123!',
+ *   confirmPassword: 'NewSecurePassword123!'
+ * });
+ * 
+ * if (result.success) {
+ *   console.log('Password reset successful');
+ * } else {
+ *   console.error('Password reset failed:', result.error);
+ * }
+ * ```
+ */
+export async function resetPassword(data: ResetPasswordRequest): Promise<ApiResponse<ResetPasswordSuccessData>> {
+  try {
+    // Validate required fields
+    validateRequestData(data, ['token', 'newPassword', 'confirmPassword']);
+    
+    // Validate password match
+    if (data.newPassword !== data.confirmPassword) {
+      return {
+        success: false,
+        error: 'Passwords do not match',
+        code: 'VALIDATION_ERROR'
+      };
+    }
+    
+    // Make API request
+    const response = await createApiRequest(AUTH_ENDPOINTS.resetPassword, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    
+    // Handle response
+    return await handleApiResponse<ResetPasswordSuccessData>(response);
+    
+  } catch (error) {
+    console.error('Password reset API error:', error);
+    return createNetworkErrorResponse(error);
+  }
+}
+
 // ============================================================================
 // AUTH SERVICE CLASS (OPTIONAL ALTERNATIVE INTERFACE)
 // ============================================================================
@@ -763,6 +862,20 @@ export class AuthService {
   public async refreshToken(data: RefreshTokenRequest): Promise<RefreshTokenResponse> {
     return refreshToken(data);
   }
+
+  /**
+   * Request a password reset email
+   */
+  public async requestPasswordReset(email: string): Promise<ApiResponse<RequestPasswordResetSuccessData>> {
+    return requestPasswordReset(email);
+  }
+
+  /**
+   * Reset password with token
+   */
+  public async resetPassword(data: ResetPasswordRequest): Promise<ApiResponse<ResetPasswordSuccessData>> {
+    return resetPassword(data);
+  }
 }
 
 // ============================================================================
@@ -784,6 +897,8 @@ export const authApi = {
   loginUser,
   logoutUser,
   refreshToken,
+  requestPasswordReset,
+  resetPassword,
   getStoredTokens,
   setStoredTokens,
   clearStoredTokens
