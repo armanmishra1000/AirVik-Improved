@@ -523,6 +523,185 @@ export const refreshToken = async (req: Request, res: Response): Promise<Respons
   }
 };
 
+/**
+ * Request password reset
+ * POST /api/v1/auth/request-password-reset
+ */
+const requestPasswordResetSchema = Joi.object({
+  email: Joi.string()
+    .trim()
+    .lowercase()
+    .email()
+    .required()
+    .messages({
+      'string.empty': 'Email is required',
+      'string.email': 'Invalid email format',
+    }),
+});
+
+export const requestPasswordReset = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    // Validate input
+    const { error, value } = requestPasswordResetSchema.validate(req.body, { abortEarly: false });
+    
+    if (error) {
+      const validationErrors = error.details.map(detail => detail.message);
+      return sendError(
+        res,
+        'Validation failed',
+        'VALIDATION_ERROR',
+        400,
+        validationErrors
+      );
+    }
+
+    // Call service layer
+    const result = await userAuthService.requestPasswordReset(value.email);
+
+    if (!result.success) {
+      // Handle specific error codes with appropriate HTTP status
+      let statusCode = 400;
+      
+      switch (result.code) {
+        case 'EMAIL_NOT_FOUND':
+          statusCode = 404;
+          break;
+        case 'RATE_LIMITED':
+          statusCode = 429;
+          break;
+        case 'EMAIL_SEND_ERROR':
+          statusCode = 400;
+          break;
+        case 'SERVER_ERROR':
+          statusCode = 500;
+          break;
+        default:
+          statusCode = 400;
+      }
+
+      return sendError(
+        res,
+        result.error || 'Password reset request failed',
+        result.code,
+        statusCode,
+        result.details
+      );
+    }
+
+    // Success response (200 OK)
+    return sendSuccess(
+      res,
+      result.data,
+      undefined,
+      200
+    );
+
+  } catch (error) {
+    console.error('Request password reset controller error:', error);
+    return sendError(
+      res,
+      'Internal server error',
+      'INTERNAL_ERROR',
+      500
+    );
+  }
+};
+
+/**
+ * Reset password
+ * POST /api/v1/auth/reset-password
+ */
+const resetPasswordSchema = Joi.object({
+  token: Joi.string()
+    .required()
+    .messages({
+      'string.empty': 'Token is required',
+    }),
+  newPassword: Joi.string()
+    .min(8)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .required()
+    .messages({
+      'string.empty': 'New password is required',
+      'string.min': 'New password must be at least 8 characters long',
+      'string.pattern.base': 'New password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number',
+    }),
+  confirmPassword: Joi.string()
+    .valid(Joi.ref('newPassword'))
+    .required()
+    .messages({
+      'any.only': 'Passwords do not match',
+      'string.empty': 'Confirm password is required',
+    }),
+});
+
+export const resetPassword = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    // Validate input
+    const { error, value } = resetPasswordSchema.validate(req.body, { abortEarly: false });
+    
+    if (error) {
+      const validationErrors = error.details.map(detail => detail.message);
+      return sendError(
+        res,
+        'Validation failed',
+        'VALIDATION_ERROR',
+        400,
+        validationErrors
+      );
+    }
+
+    // Call service layer
+    const result = await userAuthService.resetPassword(value.token, value.newPassword);
+
+    if (!result.success) {
+      // Handle specific error codes with appropriate HTTP status
+      let statusCode = 400;
+      
+      switch (result.code) {
+        case 'INVALID_RESET_TOKEN':
+        case 'EXPIRED_RESET_TOKEN':
+        case 'RESET_TOKEN_USED':
+          statusCode = 400;
+          break;
+        case 'USER_NOT_FOUND':
+          statusCode = 404;
+          break;
+        case 'SERVER_ERROR':
+          statusCode = 500;
+          break;
+        default:
+          statusCode = 400;
+      }
+
+      return sendError(
+        res,
+        result.error || 'Password reset failed',
+        result.code,
+        statusCode,
+        result.details
+      );
+    }
+
+    // Success response (200 OK)
+    return sendSuccess(
+      res,
+      result.data,
+      undefined,
+      200
+    );
+
+  } catch (error) {
+    console.error('Reset password controller error:', error);
+    return sendError(
+      res,
+      'Internal server error',
+      'INTERNAL_ERROR',
+      500
+    );
+  }
+};
+
 // Export all controller functions
 export const userAuthController = {
   registerUser,
@@ -531,6 +710,8 @@ export const userAuthController = {
   loginUser,
   logoutUser,
   refreshToken,
+  requestPasswordReset,
+  resetPassword,
 };
 
 export default userAuthController;
