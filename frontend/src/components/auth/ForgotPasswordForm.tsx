@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { requestPasswordReset } from '@/src/services/auth.service';
 import { RequestPasswordResetRequest } from '@/src/types/auth.types';
 
 // Define interfaces for form data and validation
@@ -99,11 +100,15 @@ const ForgotPasswordForm: React.FC = () => {
       isFormSubmitted: true
     }));
     
-    // Validate all fields
-    const validationResult = validateForm();
-    setValidation(validationResult);
+    // Validate email
+    const emailValidation = validateField('email', formData.email);
+    setValidation(prev => ({
+      ...prev,
+      email: emailValidation,
+      isFormValid: emailValidation.isValid
+    }));
     
-    if (!validationResult.isFormValid) {
+    if (!emailValidation.isValid) {
       return;
     }
     
@@ -118,36 +123,60 @@ const ForgotPasswordForm: React.FC = () => {
     }));
     
     try {
-      // Mock API call - simulate 1 second delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call the real API using the auth service
+      const result = await requestPasswordReset(formData.email);
       
-      // Mock successful response
-      const mockEmail = formData.email.toLowerCase();
-      
-      // Simulate different responses based on email patterns for testing
-      if (mockEmail.includes('error')) {
-        throw new Error('User with this email address not found');
+      if (result.success) {
+        // Set success state
+        setUiState(prev => ({
+          ...prev,
+          loading: {
+            ...prev.loading,
+            isRequestingPasswordReset: false
+          },
+          success: result.message || 'Password reset instructions have been sent to your email address.'
+        }));
+        
+        // Reset form after successful submission
+        setFormData({ email: '' });
+      } else {
+        // Handle specific error cases based on error code
+        let errorMessage = result.error || 'An unexpected error occurred';
+        
+        // Map error codes to user-friendly messages
+        switch (result.code) {
+          case 'USER_NOT_FOUND':
+            errorMessage = 'No account found with this email address.';
+            break;
+          case 'RATE_LIMIT_EXCEEDED':
+            errorMessage = 'Too many password reset requests. Please try again later.';
+            break;
+          case 'VALIDATION_ERROR':
+            errorMessage = 'Please enter a valid email address.';
+            break;
+          case 'NETWORK_ERROR':
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+            break;
+          case 'TIMEOUT_ERROR':
+            errorMessage = 'Request timed out. Please try again.';
+            break;
+          default:
+            // Use the error message from the API if available
+            break;
+        }
+        
+        // Set error state
+        setUiState(prev => ({
+          ...prev,
+          loading: {
+            ...prev.loading,
+            isRequestingPasswordReset: false
+          },
+          error: errorMessage
+        }));
       }
-      
-      if (mockEmail.includes('rate')) {
-        throw new Error('Too many requests. Please try again later');
-      }
-      
-      // Set success state
-      setUiState(prev => ({
-        ...prev,
-        loading: {
-          ...prev.loading,
-          isRequestingPasswordReset: false
-        },
-        success: `Password reset instructions have been sent to ${formData.email}. Please check your inbox.`
-      }));
-      
-      // Reset form after successful submission
-      setFormData({ email: '' });
-      
     } catch (error) {
-      // Set error state
+      // Set error state for unexpected errors
       setUiState(prev => ({
         ...prev,
         loading: {

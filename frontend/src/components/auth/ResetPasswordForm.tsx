@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { resetPassword } from '@/src/services/auth.service';
 import { ResetPasswordRequest } from '@/src/types/auth.types';
 
 // Define interfaces for form data and validation
@@ -50,6 +52,8 @@ const ResetPasswordForm: React.FC = () => {
   // ============================================================================
   // STATE MANAGEMENT
   // ============================================================================
+  
+  const router = useRouter();
   
   // Form data state
   const [formData, setFormData] = useState<ResetPasswordFormData>({
@@ -176,28 +180,65 @@ const ResetPasswordForm: React.FC = () => {
     }));
     
     try {
-      // Mock API call - simulate 1 second delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call the real API using the auth service
+      const result = await resetPassword({
+        token: formData.token,
+        newPassword: formData.newPassword,
+        confirmPassword: formData.confirmPassword
+      });
       
-      // Mock different responses based on token patterns for testing
-      const mockToken = formData.token.toLowerCase();
-      
-      if (mockToken.includes('invalid')) {
-        throw new Error('Invalid or expired password reset token');
+      if (!result.success) {
+        // Handle specific error cases based on error code
+        let errorMessage = result.error || 'An unexpected error occurred';
+        
+        // Map error codes to user-friendly messages
+        switch (result.code) {
+          case 'INVALID_TOKEN':
+            errorMessage = 'The password reset link is invalid or has expired. Please request a new one.';
+            break;
+          case 'TOKEN_EXPIRED':
+            errorMessage = 'The password reset link has expired. Please request a new one.';
+            break;
+          case 'PASSWORD_MISMATCH':
+            errorMessage = 'Passwords do not match. Please try again.';
+            break;
+          case 'PASSWORD_WEAK':
+            errorMessage = 'Password is too weak. It must contain at least 8 characters, including uppercase, lowercase, and numbers.';
+            break;
+          case 'VALIDATION_ERROR':
+            errorMessage = 'Please check your input and try again.';
+            break;
+          case 'NETWORK_ERROR':
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+            break;
+          case 'TIMEOUT_ERROR':
+            errorMessage = 'Request timed out. Please try again.';
+            break;
+          default:
+            // Use the error message from the API if available
+            break;
+        }
+        
+        // Set error state
+        setUiState(prev => ({
+          ...prev,
+          loading: {
+            ...prev.loading,
+            isResettingPassword: false
+          },
+          error: errorMessage
+        }));
+        return;
       }
       
-      if (mockToken.includes('expired')) {
-        throw new Error('Password reset token has expired');
-      }
-      
-      // Set success state
+      // Set success state with auto-redirect
       setUiState(prev => ({
         ...prev,
         loading: {
           ...prev.loading,
           isResettingPassword: false
         },
-        success: 'Your password has been successfully reset. You can now log in with your new password.'
+        success: 'Your password has been successfully reset. Redirecting to login page...'
       }));
       
       // Reset form after successful submission
@@ -206,6 +247,11 @@ const ResetPasswordForm: React.FC = () => {
         newPassword: '',
         confirmPassword: ''
       });
+      
+      // Auto-redirect to login page after 3 seconds
+      setTimeout(() => {
+        router.push('/auth/login');
+      }, 3000);
       
     } catch (error) {
       // Set error state
