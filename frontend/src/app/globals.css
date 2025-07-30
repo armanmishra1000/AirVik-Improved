@@ -1,3 +1,6 @@
+/* Import design tokens */
+@import '../styles/tokens.css';
+
 /* Tailwind directives - IDE may show warnings but they work correctly */
 @tailwind base;
 @tailwind components;
