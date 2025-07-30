@@ -7,9 +7,9 @@
 :root {
   /* Colors */
   --color-primary: #E61E4D;
-  --color-text: #222;
+  --color-text: #222222;
   --color-muted: #6a6a6a;
-  --color-neutral: #ddd;
+  --color-neutral: #dddddd;
   --color-gray-bg: #f7f7f7;
   
   /* Spacing and sizing */

@@ -18,22 +18,55 @@ This guide establishes design tokens, styling patterns, and UI development rules
 }
 ```
 
-### Tailwind Extension
+## Shadcn UI Integration
 
-The Tailwind configuration extends the theme using CSS variables to ensure consistency:
+The project uses Shadcn UI for component library with custom theming to match our brand colors.
+
+### HSL Color System
+
+Shadcn UI uses HSL color format in CSS variables. Our primary color (#E61E4D) is converted to HSL format:
+
+```css
+:root {
+  /* Primary brand color in HSL format */
+  --primary: 348 76% 51%;
+  --primary-foreground: 0 0% 100%;
+  
+  /* Other Shadcn UI system colors */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 3.9%;
+  /* ... other color variables ... */
+}
+```
+
+### Tailwind Configuration
+
+The Tailwind configuration extends the theme using both our custom CSS variables and Shadcn UI's HSL variables:
 
 ```javascript
 theme: {
   extend: {
     colors: {
-      primary: 'var(--color-primary)',
+      /* Shadcn UI components use these HSL variables */
+      primary: {
+        DEFAULT: 'hsl(var(--primary))',
+        foreground: 'hsl(var(--primary-foreground))'
+      },
+      /* Our custom color tokens */
       text: 'var(--color-text)',
-      muted: 'var(--color-muted)',
+      muted: {
+        DEFAULT: 'var(--color-muted)',
+        foreground: 'hsl(var(--muted-foreground))'
+      },
       neutral: 'var(--color-neutral)',
       'gray-bg': 'var(--color-gray-bg)',
+      /* ... other Shadcn UI colors ... */
     },
     borderRadius: {
       DEFAULT: 'var(--radius)',
+      lg: 'var(--radius)',
+      md: 'calc(var(--radius) - 2px)',
+      sm: 'calc(var(--radius) - 4px)'
     },
     spacing: {
       DEFAULT: 'var(--space)',
@@ -42,12 +75,57 @@ theme: {
 },
 ```
 
+## Component Usage Guide
+
+### Shadcn UI Components
+
+When using Shadcn UI components, import them from the components/ui directory:
+
+```tsx
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+```
+
+### Icon Libraries
+
+
+The project supports both React Icons and Lucide Icons:
+
+```tsx
+// React Icons
+import { FaHotel, FaUser } from 'react-icons/fa';
+import { MdEmail } from 'react-icons/md';
+
+// Lucide Icons
+import { Search, Home, Settings } from 'lucide-react';
+```
+
+### Using Brand Colors
+
+Apply brand colors using Tailwind classes:
+
+```tsx
+// Primary brand color
+<Button>Primary Button</Button>
+
+// Text colors
+<p className="text-text">Main text</p>
+<p className="text-muted">Secondary text</p>
+
+// Background colors
+<div className="bg-neutral">Neutral background</div>
+<div className="bg-gray-bg">Light gray background</div>
+```
+
 ## Allowed Actions
 
 - Add or replace class names with token-based alternatives
 - Wrap JSX in shared atomic components
 - Edit CSS variables for theming
 - Create new component variants using existing tokens
+- Use Shadcn UI components with our brand color system
 - Add new tokens following the established pattern
 
 ## Forbidden Actions

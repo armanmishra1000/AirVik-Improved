@@ -1,136 +1,127 @@
 {
   "layout": {
-    "grid": "grid-cols-1 lg:grid-cols-2",
+    "grid": "grid grid-cols-1 lg:grid-cols-2",
     "spacing": {
-      "container": "p-8",
-      "section": "space-y-6",
-      "form": "space-y-4",
-      "input": "space-y-2"
+      "container": "p-4 sm:p-6 md:p-8",
+      "form": "space-y-6",
+      "section": "space-y-4",
+      "field": "space-y-2"
     }
   },
   "typography": {
     "fontFamily": "font-sans",
     "sizes": {
-      "hero": "text-4xl lg:text-5xl",
-      "heading": "text-2xl",
-      "subheading": "text-lg",
-      "body": "text-base",
-      "small": "text-sm",
-      "caption": "text-xs"
+      "heading": {
+        "main": "text-2xl font-bold",
+        "subtitle": "text-sm"
+      },
+      "body": "text-sm",
+      "label": "text-sm font-medium",
+      "input": "text-sm",
+      "error": "text-xs",
+      "link": "text-sm font-medium"
     },
     "weights": {
-      "bold": "font-bold",
-      "semibold": "font-semibold",
+      "regular": "font-normal",
       "medium": "font-medium",
-      "normal": "font-normal"
+      "bold": "font-bold"
     }
   },
   "colors": {
-    "primary": "bg-blue-600",
-    "primaryHover": "hover:bg-blue-700",
-    "text": "text-gray-900",
-    "textMuted": "text-gray-600",
-    "textLight": "text-white",
-    "background": "bg-white",
-    "backgroundGray": "bg-gray-50",
-    "border": "border-gray-300",
-    "borderFocus": "focus:border-blue-500"
+    "primary": "hsl(var(--primary))",
+    "primary-foreground": "hsl(var(--primary-foreground))",
+    "text": "var(--color-text)",
+    "muted": "var(--color-muted)",
+    "background": {
+      "page": "bg-white",
+      "card": "bg-white",
+      "input": "bg-white",
+      "success": "bg-green-100"
+    },
+    "border": {
+      "default": "border-gray-300",
+      "focus": "focus:border-primary",
+      "error": "border-red-500"
+    },
+    "icon": {
+      "default": "text-gray-500",
+      "success": "text-green-600"
+    }
   },
   "components": {
+    "Card": {
+      "padding": "p-6 sm:p-8",
+      "background": "bg-white",
+      "border": "border border-gray-200",
+      "shadow": "shadow-md"
+    },
     "Button/Primary": {
-      "base": "w-full py-3 px-4 rounded-lg font-medium transition-colors",
-      "colors": "bg-blue-600 hover:bg-blue-700 text-white",
+      "padding": "py-2 px-4",
+      "background": "bg-primary hover:bg-primary/90",
+      "text": "text-primary-foreground",
+      "radius": "rounded-md",
       "states": {
-        "disabled": "disabled:opacity-50 disabled:cursor-not-allowed"
+        "disabled": "opacity-50 cursor-not-allowed",
+        "loading": "opacity-80"
       }
     },
     "Button/Social": {
-      "base": "w-full py-3 px-4 rounded-lg font-medium border transition-colors",
-      "colors": "bg-white border-gray-300 text-gray-700 hover:bg-gray-50",
-      "layout": "flex items-center justify-center space-x-2"
+      "padding": "py-2 px-4",
+      "background": "bg-white",
+      "text": "text-text",
+      "border": "border border-gray-300",
+      "radius": "rounded-md",
+      "hover": "hover:bg-gray-50"
     },
     "Input/Text": {
-      "base": "w-full px-3 py-3 rounded-lg border transition-colors",
-      "colors": "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500",
+      "padding": "px-3 py-2",
+      "background": "bg-white",
+      "border": "border border-gray-300",
+      "radius": "rounded-md",
       "states": {
-        "error": "border-red-500 focus:border-red-500 focus:ring-red-500",
-        "disabled": "disabled:bg-gray-100 disabled:cursor-not-allowed"
+        "focus": "focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary",
+        "error": "border-red-500",
+        "disabled": "bg-gray-100 opacity-70 cursor-not-allowed"
       }
     },
-    "Input/Password": {
-      "base": "w-full px-3 py-3 pr-10 rounded-lg border transition-colors relative",
-      "colors": "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500",
-      "icon": "absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+    "Form/Divider": {
+      "line": "border-t border-gray-300",
+      "text": "text-sm text-muted bg-white px-2"
     },
     "Checkbox": {
-      "base": "h-4 w-4 rounded border-gray-300",
-      "colors": "text-blue-600 focus:ring-blue-500"
-    },
-    "Label": {
-      "base": "block text-sm font-medium",
-      "colors": "text-gray-700"
-    },
-    "Link": {
-      "base": "font-medium transition-colors",
-      "colors": "text-blue-600 hover:text-blue-700"
-    },
-    "Card/Hero": {
-      "base": "h-full rounded-l-2xl p-8 flex flex-col justify-between",
-      "colors": "bg-blue-600 text-white",
-      "content": "space-y-8"
-    },
-    "Card/Form": {
-      "base": "h-full p-8 flex flex-col justify-center",
-      "colors": "bg-white",
-      "content": "max-w-md mx-auto w-full space-y-6"
-    },
-    "Testimonial": {
-      "base": "space-y-4",
-      "quote": "text-lg leading-relaxed",
-      "author": "flex items-center space-x-3",
-      "avatar": "w-12 h-12 rounded-full",
-      "name": "font-semibold",
-      "title": "text-sm opacity-90"
-    },
-    "PasswordStrength": {
-      "container": "space-y-2",
-      "indicator": "flex space-x-1",
-      "dot": "h-1 w-full rounded-full",
-      "requirements": "space-y-1",
-      "requirement": "flex items-center space-x-2 text-xs",
-      "icon": "h-3 w-3",
-      "colors": {
-        "weak": "bg-red-500",
-        "medium": "bg-yellow-500",
-        "strong": "bg-green-500",
-        "inactive": "bg-gray-200",
-        "valid": "text-green-600",
-        "invalid": "text-gray-400"
-      }
+      "size": "h-4 w-4",
+      "color": "text-primary",
+      "border": "border-gray-300 rounded"
     }
   },
   "effects": {
-    "shadow": {
-      "card": "shadow-2xl",
-      "input": "focus:shadow-sm"
-    },
+    "shadow/card": "shadow-md",
+    "shadow/button": "shadow-sm",
     "radius": {
-      "default": "rounded-lg",
-      "large": "rounded-2xl",
-      "full": "rounded-full"
+      "default": "rounded-md",
+      "full": "rounded-full",
+      "sm": "rounded-sm",
+      "lg": "rounded-lg"
     },
-    "transition": "transition-colors duration-200"
+    "transition": "transition-all duration-200"
   },
-  "spacing": {
-    "container": "max-w-7xl mx-auto",
-    "section": "py-12",
-    "element": "space-y-4",
-    "tight": "space-y-2",
-    "loose": "space-y-6"
+  "layout/register": {
+    "container": "min-h-screen flex flex-col lg:flex-row",
+    "form-side": "flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 lg:flex-none",
+    "image-side": "hidden lg:block lg:flex-1 bg-cover bg-center",
+    "form-container": "max-w-md w-full mx-auto",
+    "logo-container": "flex justify-start mb-8",
+    "form-card": "bg-white p-6 sm:p-8 rounded-lg shadow-md",
+    "social-buttons": "grid grid-cols-1 gap-3 mt-6",
+    "divider": "relative my-6",
+    "divider-line": "absolute inset-0 flex items-center",
+    "divider-text": "relative flex justify-center text-sm",
+    "footer": "mt-6 text-center"
   },
-  "accessibility": {
-    "focusRing": "focus:outline-none focus:ring-2 focus:ring-offset-2",
-    "screenReader": "sr-only",
-    "contrast": "WCAG AA compliant - all color combinations meet 4.5:1 ratio"
+  "testimonial": {
+    "container": "absolute bottom-8 right-8 max-w-sm bg-white/95 p-4 rounded-lg shadow-lg",
+    "rating": "flex items-center space-x-1 mb-2",
+    "star": "text-yellow-500",
+    "quote": "text-sm italic text-text"
   }
 }

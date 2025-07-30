@@ -6,6 +6,10 @@ import Link from 'next/link';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { registerUser } from '@/src/services/auth.service';
 import type { RegistrationFormData, ApiResponse, User } from '@/src/types/auth.types';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Check } from 'lucide-react';
 
 interface RegisterPageState {
   isLoading: boolean;
@@ -110,94 +114,92 @@ export default function RegisterPage() {
 
   if (state.isSuccess) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-white flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-                <svg
-                  className="h-6 w-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Registration Successful!
-              </h2>
-              <p className="text-gray-600 mb-6">
-                We've sent a verification email to{' '}
-                <span className="font-medium text-gray-900">{state.registeredEmail}</span>.
-                Please check your inbox and click the verification link to activate your account.
-              </p>
-              
-              <div className="space-y-4">
-                <button
-                  onClick={handleResendVerification}
-                  disabled={state.isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {state.isLoading ? 'Sending...' : 'Resend Verification Email'}
-                </button>
-                
-                <Link
-                  href="/auth/login"
-                  className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Go to Login
-                </Link>
-              </div>
-
-              {state.error && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-sm text-red-600">{state.error}</p>
+          <h2 className="text-2xl font-bold text-center text-text mb-6">
+            Create your account
+          </h2>
+          <Card className="border border-gray-200 shadow-md rounded-lg">
+            <CardContent className="p-6 sm:p-8">
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                  <Check className="h-6 w-6 text-green-600" />
                 </div>
-              )}
-            </div>
-          </div>
+                <h2 className="text-2xl font-bold text-text mb-4">
+                  Registration Successful!
+                </h2>
+                <p className="text-sm text-muted mb-6">
+                  We've sent a verification email to{' '}
+                  <span className="font-medium text-text">{state.registeredEmail}</span>.
+                  Please check your inbox and click the verification link to activate your account.
+                </p>
+                
+                <div className="space-y-4">
+                  <Button
+                    onClick={handleResendVerification}
+                    disabled={state.isLoading}
+                    variant="outline"
+                    className="w-full py-2 px-4 text-sm font-medium transition-all duration-200"
+                  >
+                    {state.isLoading ? 'Sending...' : 'Resend Verification Email'}
+                  </Button>
+                  
+                  <Button
+                    asChild
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 px-4 rounded-md shadow-sm text-sm font-medium transition-all duration-200"
+                  >
+                    <Link href="/auth/login">
+                      Go to Login
+                    </Link>
+                  </Button>
+                </div>
+
+                {state.error && (
+                  <div className="mt-4 p-3 bg-red-50 border border-red-500 rounded-md">
+                    <p className="text-xs text-red-600">{state.error}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">AirVik Hotel System</h1>
-          <h2 className="mt-6 text-2xl font-bold text-gray-900">Create your account</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link href="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <div className="flex justify-start mb-8">
+            <h1 className="text-2xl font-bold text-text">AirVik Hotel System</h1>
+          </div>
+          
+          <Card className="border border-gray-200 shadow-md rounded-lg">
+            <CardContent className="p-6 sm:p-8">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-text">Create your account</h2>
+            <p className="text-sm text-muted mt-2">
+              Already have an account?{' '}
+              <Link href="/auth/login" className="text-sm font-medium text-primary hover:text-primary/90">
+                Sign in
+              </Link>
+            </p>
+          </div>
+          
           <form method="post" className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {state.error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-600">{state.error}</p>
+              <div className="p-3 bg-red-50 border border-red-500 rounded-md">
+                <p className="text-xs text-red-600">{state.error}</p>
               </div>
             )}
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-2">
+                <label htmlFor="firstName" className="block text-sm font-medium text-text">
                   First Name
                 </label>
-                <div className="mt-1">
-                  <input
+                <div>
+                  <Input
                     {...register('firstName', {
                       required: 'First name is required',
                       minLength: { value: 2, message: 'First name must be at least 2 characters' },
@@ -205,21 +207,21 @@ export default function RegisterPage() {
                     })}
                     type="text"
                     autoComplete="given-name"
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                     placeholder="John"
                   />
                   {errors.firstName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
+                    <p className="mt-1 text-xs text-red-600">{errors.firstName.message}</p>
                   )}
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-2">
+                <label htmlFor="lastName" className="block text-sm font-medium text-text">
                   Last Name
                 </label>
-                <div className="mt-1">
-                  <input
+                <div>
+                  <Input
                     {...register('lastName', {
                       required: 'Last name is required',
                       minLength: { value: 2, message: 'Last name must be at least 2 characters' },
@@ -227,22 +229,22 @@ export default function RegisterPage() {
                     })}
                     type="text"
                     autoComplete="family-name"
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                     placeholder="Doe"
                   />
                   {errors.lastName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
+                    <p className="mt-1 text-xs text-red-600">{errors.lastName.message}</p>
                   )}
                 </div>
               </div>
             </div>
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-medium text-text">
                 Email Address
               </label>
-              <div className="mt-1">
-                <input
+              <div>
+                <Input
                   {...register('email', {
                     required: 'Email is required',
                     pattern: {
@@ -252,21 +254,21 @@ export default function RegisterPage() {
                   })}
                   type="email"
                   autoComplete="email"
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                   placeholder="john@example.com"
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
                 )}
               </div>
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-sm font-medium text-text">
                 Password
               </label>
-              <div className="mt-1">
-                <input
+              <div>
+                <Input
                   {...register('password', {
                     required: 'Password is required',
                     minLength: { value: 8, message: 'Password must be at least 8 characters' },
@@ -277,39 +279,39 @@ export default function RegisterPage() {
                   })}
                   type="password"
                   autoComplete="new-password"
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
                 )}
               </div>
             </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-text">
                 Confirm Password
               </label>
-              <div className="mt-1">
-                <input
+              <div>
+                <Input
                   {...register('confirmPassword', {
                     required: 'Please confirm your password',
                     validate: (value) => value === password || 'Passwords do not match',
                   })}
                   type="password"
                   autoComplete="new-password"
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.confirmPassword.message}</p>
                 )}
               </div>
             </div>
 
             <div>
-              <button
+              <Button
                 type="submit"
                 disabled={state.isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md shadow-sm text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {state.isLoading ? (
                   <div className="flex items-center">
@@ -338,7 +340,7 @@ export default function RegisterPage() {
                 ) : (
                   'Create Account'
                 )}
-              </button>
+              </Button>
             </div>
           </form>
 
@@ -348,13 +350,14 @@ export default function RegisterPage() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
+                <span className="px-2 bg-white text-sm text-muted">
                   By creating an account, you agree to our Terms of Service and Privacy Policy
                 </span>
               </div>
             </div>
           </div>
-        </div>
+            </CardContent>
+          </Card>
       </div>
     </div>
   );
