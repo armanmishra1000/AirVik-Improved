@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { LoginFormData, LoginFormValidation, FieldValidation, AuthUIState } from '@/src/types/auth.types';
 
@@ -148,7 +148,7 @@ const LoginForm: React.FC = () => {
   /**
    * Validate a single field
    */
-  const validateField = (field: keyof LoginFormData, value: string): FieldValidation => {
+  const validateField = useCallback((field: keyof LoginFormData, value: string): FieldValidation => {
     switch (field) {
       case 'email':
         if (!value.trim()) {
@@ -172,12 +172,12 @@ const LoginForm: React.FC = () => {
       default:
         return { isValid: true };
     }
-  };
+  }, []);
   
   /**
    * Validate the entire form
    */
-  const validateForm = (): LoginFormValidation => {
+  const validateForm = useCallback((): LoginFormValidation => {
     const emailValidation = validateField('email', formData.email);
     const passwordValidation = validateField('password', formData.password);
     
@@ -191,7 +191,7 @@ const LoginForm: React.FC = () => {
     
     setValidation(newValidation);
     return newValidation;
-  };
+  }, [formData, validateField, setValidation]);
   
   /**
    * Validate fields on blur
@@ -249,7 +249,7 @@ const LoginForm: React.FC = () => {
     if (uiState.isFormSubmitted) {
       validateForm();
     }
-  }, [formData, uiState.isFormSubmitted]);
+  }, [formData, uiState.isFormSubmitted, validateForm]);
   
   // ============================================================================
   // RENDER
@@ -391,7 +391,7 @@ const LoginForm: React.FC = () => {
           {/* Registration Link */}
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link 
                 href="/auth/register"
                 className="font-medium text-blue-600 hover:text-blue-800"

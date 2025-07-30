@@ -18,5 +18,11 @@ module.exports = {
     ],
     'import-notation': 'string',
   },
-  ignoreFiles: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx', '**/styles/tokens.css'],
+  overrides: [
+    {
+      files: ['src/styles/tokens.css'],
+      rules: { 'color-no-hex': null },
+    },
+  ],
+  ignoreFiles: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
 };
