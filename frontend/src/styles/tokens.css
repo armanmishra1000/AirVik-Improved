@@ -7,9 +7,9 @@
 :root {
   /* Colors */
   --color-primary: #E61E4D;
-  --color-text: #222222;
+  --color-text: #222;
   --color-muted: #6a6a6a;
-  --color-neutral: #dddddd;
+  --color-neutral: #ddd;
   --color-gray-bg: #f7f7f7;
   
   /* Spacing and sizing */
@@ -20,8 +20,8 @@
 /* Dark mode variant - can be toggled with .dark class */
 .dark:root {
   --color-primary: #FF385C;
-  --color-text: #FFFFFF;
+  --color-text: #FFF;
   --color-muted: #A0A0A0;
-  --color-neutral: #555555;
-  --color-gray-bg: #333333;
+  --color-neutral: #555;
+  --color-gray-bg: #333;
 }
