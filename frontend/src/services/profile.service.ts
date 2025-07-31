@@ -8,7 +8,7 @@ import {
 } from '../types/profile.types';
 
 // API base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 // Get authentication token from sessionStorage (matching auth service)
 const getAuthToken = (): string | null => {
@@ -64,7 +64,7 @@ apiClient.interceptors.response.use(
  */
 export const viewProfile = async (): Promise<ProfileServiceResponse<ViewProfileResponse['data']>> => {
   try {
-    const response: AxiosResponse<ViewProfileResponse> = await apiClient.get('/profile/view');
+    const response: AxiosResponse<ViewProfileResponse> = await apiClient.get('/api/v1/profile/view');
     
     if (response.data.success) {
       return {
@@ -104,7 +104,7 @@ export const viewProfile = async (): Promise<ProfileServiceResponse<ViewProfileR
  */
 export const updateProfile = async (data: UpdateProfileRequest): Promise<ProfileServiceResponse<UpdateProfileResponse['data']>> => {
   try {
-    const response: AxiosResponse<UpdateProfileResponse> = await apiClient.put('/profile/update', data);
+    const response: AxiosResponse<UpdateProfileResponse> = await apiClient.put('/api/v1/profile/update', data);
     
     if (response.data.success) {
       return {
