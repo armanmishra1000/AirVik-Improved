@@ -3,6 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { LoginFormData, LoginFormValidation, FieldValidation, AuthUIState } from '@/src/types/auth.types';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 /**
  * LoginForm Component
@@ -251,7 +255,7 @@ export default function LoginForm() {
   // ============================================================================
   
   return (
-    <div className="bg-background shadow-sm rounded p-6 border border-gray-200">
+    <Card className="bg-background border border-[#B0B0B0] shadow-sm rounded px-6 py-12">
       <div className="w-full">
         <h2 className="text-2xl font-bold text-text mb-6 text-center">
           Login to Airvik Hotel System
@@ -280,14 +284,14 @@ export default function LoginForm() {
             >
               Email Address
             </label>
-            <input
+            <Input
               type="email"
               id="email"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
               onBlur={() => handleBlur('email')}
-              className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
+              className={`w-full px-4 py-3 border border-[#B0B0B0] rounded-md focus:outline-none ${
                 !validation.email.isValid && uiState.isFormSubmitted
                   ? 'border-red-500'
                   : 'border-gray-300'
@@ -312,14 +316,14 @@ export default function LoginForm() {
               Password
             </label>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
                 onBlur={() => handleBlur('password')}
-                className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary ${
+                className={`w-full px-4 py-3 border border-[#B0B0B0] rounded-md focus:outline-none ${
                   !validation.password.isValid && uiState.isFormSubmitted
                     ? 'border-red-500'
                     : 'border-gray-300'
@@ -335,9 +339,9 @@ export default function LoginForm() {
                 tabIndex={-1}
               >
                 {showPassword ? (
-                  <span>Hide</span>
+                  <span><FaEye size="1.5em"/></span>
                 ) : (
-                  <span>Show</span>
+                  <span><FaEyeSlash size="1.5em"/></span>
                 )}
               </button>
             </div>
@@ -360,7 +364,7 @@ export default function LoginForm() {
           
           {/* Submit Button */}
           <div className="mb-4">
-            <button
+            <Button
               type="submit"
               disabled={uiState.loading.isLoggingIn}
               className={`w-full flex justify-center py-2 px-4 border border-transparent rounded text-sm font-medium text-primary-foreground ${
@@ -380,7 +384,7 @@ export default function LoginForm() {
               ) : (
                 'Login'
               )}
-            </button>
+            </Button>
           </div>
           
           {/* Registration Link */}
@@ -397,6 +401,6 @@ export default function LoginForm() {
           </div>
         </form>
       </div>
-    </div>
+    </Card>
   );
 }

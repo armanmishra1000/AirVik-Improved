@@ -1,0 +1,135 @@
+{
+  "layout": {
+    "grid": "flex flex-col",
+    "spacing": {
+      "container": "p-6",
+      "between-elements": "space-y-6",
+      "form-groups": "space-y-4"
+    }
+  },
+  "typography": {
+    "fontFamily": "sans-serif",
+    "sizes": {
+      "heading": "text-2xl",
+      "subheading": "text-base",
+      "label": "text-sm",
+      "input": "text-base",
+      "button": "text-sm",
+      "link": "text-sm",
+      "error": "text-sm"
+    },
+    "weights": {
+      "heading": "font-bold",
+      "subheading": "font-normal",
+      "label": "font-medium",
+      "button": "font-medium",
+      "link": "font-medium"
+    }
+  },
+  "colors": {
+    "primary": "{color.primary}",
+    "text": "{color.text}",
+    "muted": "{color.muted}",
+    "background": {
+      "page": "bg-gray-bg",
+      "card": "bg-background"
+    },
+    "input": {
+      "border": "border-gray-300",
+      "text": "text-text",
+      "placeholder": "text-muted"
+    },
+    "button": {
+      "primary": {
+        "background": "bg-primary",
+        "text": "text-primary-foreground",
+        "hover": "hover:bg-primary/90"
+      }
+    },
+    "link": {
+      "default": "text-primary",
+      "hover": "hover:text-primary/80"
+    },
+    "error": "text-red-600",
+    "breadcrumb": {
+      "text": "text-muted",
+      "active": "text-primary",
+      "separator": "text-muted"
+    }
+  },
+  "components": {
+    "Button/Primary": {
+      "padding": "py-2 px-4",
+      "radius": "{radius}",
+      "typography": {
+        "size": "text-sm",
+        "weight": "font-medium"
+      },
+      "states": {
+        "default": "bg-primary text-primary-foreground",
+        "hover": "hover:bg-primary/90",
+        "focus": "focus:ring-2 focus:ring-primary/25 focus:outline-none",
+        "disabled": "bg-primary/70 cursor-not-allowed"
+      }
+    },
+    "Input/Text": {
+      "border": "border border-gray-300",
+      "padding": "px-3 py-2",
+      "radius": "{radius}",
+      "typography": {
+        "size": "text-base"
+      },
+      "states": {
+        "default": "border-gray-300",
+        "focus": "focus:border-primary focus:ring-2 focus:ring-primary/25 focus:outline-none",
+        "error": "border-red-500",
+        "disabled": "bg-gray-100 cursor-not-allowed"
+      }
+    },
+    "Card": {
+      "padding": "p-6",
+      "background": "bg-background",
+      "radius": "{radius}",
+      "border": "border border-gray-200"
+    },
+    "Form/Group": {
+      "spacing": "space-y-1"
+    },
+    "Link": {
+      "typography": {
+        "size": "text-sm",
+        "weight": "font-medium"
+      },
+      "states": {
+        "default": "text-primary",
+        "hover": "hover:text-primary/80"
+      }
+    },
+    "Breadcrumb": {
+      "typography": {
+        "size": "text-sm"
+      },
+      "colors": {
+        "default": "text-muted",
+        "active": "text-primary",
+        "separator": "text-muted"
+      },
+      "spacing": "space-x-1"
+    },
+    "PasswordToggle": {
+      "position": "absolute right-3 inset-y-0",
+      "display": "flex items-center",
+      "typography": {
+        "size": "text-sm"
+      },
+      "colors": {
+        "default": "text-muted",
+        "hover": "hover:text-text"
+      }
+    }
+  },
+  "effects": {
+    "shadow/card": "shadow-sm",
+    "radius": "{radius}"
+  }
+}

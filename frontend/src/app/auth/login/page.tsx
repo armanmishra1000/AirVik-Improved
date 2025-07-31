@@ -21,7 +21,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 bg-gray-bg">
       <div className="w-full max-w-md">
         {/* Breadcrumbs */}
-        <nav className="mb-8">
+        {/* <nav className="mb-8">
           <ol className="flex text-sm space-x-1">
             <li className="flex items-center">
               <a href="/" className="text-muted hover:text-primary">Home</a>
@@ -53,7 +53,7 @@ export default function LoginPage() {
             </li>
             <li className="text-primary font-medium">Login</li>
           </ol>
-        </nav>
+        </nav> */}
 
         {/* Page Title */}
         <div className="text-center mb-8">
