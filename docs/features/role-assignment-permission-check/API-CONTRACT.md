@@ -2,17 +2,18 @@
 
 ## RULE: Frontend and Backend MUST follow this EXACTLY
 
-### 1. Assign Role - POST /api/v1/roles/assign
+**CRITICAL: This contract is based on existing shared/contracts/ - USE EXACT PROPERTY NAMES**
+
+### Assign Role Endpoint
 **Backend MUST provide:**
 - Method: POST
 - URL: /api/v1/roles/assign
-- Middleware: requireAuth(), requireRole("admin")
 - Request Body:
 ```json
 {
-  "userId": "507f1f77bcf86cd799439011",
-  "role": "staff",
-  "reason": "Promoted to staff position"
+  "userId": "string (24-char MongoDB ObjectId)",
+  "role": "user|staff|admin",
+  "reason": "string (optional, max 500 chars)"
 }
 ```
 
@@ -22,48 +23,42 @@
   "success": true,
   "data": {
     "user": {
-      "id": "507f1f77bcf86cd799439011",
-      "firstName": "John",
-      "lastName": "Doe",
-      "email": "john.doe@example.com",
-      "role": "staff",
-      "isEmailVerified": true,
-      "createdAt": "2025-07-30T03:36:01.000Z",
-      "updatedAt": "2025-07-30T03:36:01.000Z"
+      "id": "string",
+      "firstName": "string",
+      "lastName": "string", 
+      "email": "string",
+      "role": "user|staff|admin",
+      "isEmailVerified": "boolean",
+      "createdAt": "string (ISO date)",
+      "updatedAt": "string (ISO date)"
     },
-    "previousRole": "user",
-    "newRole": "staff",
+    "previousRole": "user|staff|admin",
+    "newRole": "user|staff|admin",
     "assignedBy": {
-      "id": "507f1f77bcf86cd799439012",
-      "firstName": "Admin",
-      "lastName": "User",
-      "email": "admin@example.com"
+      "id": "string",
+      "firstName": "string",
+      "lastName": "string",
+      "email": "string"
     },
-    "reason": "Promoted to staff position",
-    "message": "Role assigned successfully"
+    "reason": "string (optional)",
+    "message": "string"
   }
 }
 ```
 
-**Error Response (403):**
+**Error Response (400/403/404):**
 ```json
 {
   "success": false,
-  "error": "You do not have permission to assign this role",
-  "code": "ROLE_ASSIGNMENT_DENIED"
+  "error": "Human readable message",
+  "code": "VALIDATION_ERROR|USER_NOT_FOUND|ROLE_ASSIGNMENT_DENIED|INSUFFICIENT_PERMISSIONS|INVALID_ROLE|SELF_ROLE_MODIFICATION|ROLE_ALREADY_ASSIGNED"
 }
 ```
 
-**Frontend MUST expect:**
-- Exact same response structure
-- No variations allowed
-
-### 2. Get User Role - GET /api/v1/roles/user/:userId/role
+### Get User Role Endpoint
 **Backend MUST provide:**
 - Method: GET
 - URL: /api/v1/roles/user/:userId/role
-- Middleware: requireAuth(), requireAnyRole(["admin", "staff"])
-- URL Parameters: userId (MongoDB ObjectId)
 
 **Success Response (200):**
 ```json
@@ -71,43 +66,29 @@
   "success": true,
   "data": {
     "user": {
-      "id": "507f1f77bcf86cd799439011",
-      "firstName": "John",
-      "lastName": "Doe",
-      "email": "john.doe@example.com",
-      "role": "staff",
-      "isEmailVerified": true,
-      "createdAt": "2025-07-30T03:36:01.000Z",
-      "updatedAt": "2025-07-30T03:36:01.000Z"
+      "id": "string",
+      "firstName": "string",
+      "lastName": "string",
+      "email": "string", 
+      "role": "user|staff|admin",
+      "isEmailVerified": "boolean",
+      "createdAt": "string (ISO date)",
+      "updatedAt": "string (ISO date)"
     }
   }
 }
 ```
 
-**Error Response (404):**
-```json
-{
-  "success": false,
-  "error": "User not found",
-  "code": "USER_NOT_FOUND"
-}
-```
-
-**Frontend MUST expect:**
-- Exact same response structure
-- No variations allowed
-
-### 3. Update Role - PUT /api/v1/roles/update
+### Update Role Endpoint
 **Backend MUST provide:**
 - Method: PUT
 - URL: /api/v1/roles/update
-- Middleware: requireAuth(), requireRole("admin")
 - Request Body:
 ```json
 {
-  "userId": "507f1f77bcf86cd799439011",
-  "newRole": "admin",
-  "reason": "Promoted to administrator"
+  "userId": "string (24-char MongoDB ObjectId)",
+  "newRole": "user|staff|admin",
+  "reason": "string (optional, max 500 chars)"
 }
 ```
 
@@ -117,53 +98,37 @@
   "success": true,
   "data": {
     "user": {
-      "id": "507f1f77bcf86cd799439011",
-      "firstName": "John",
-      "lastName": "Doe",
-      "email": "john.doe@example.com",
-      "role": "admin",
-      "isEmailVerified": true,
-      "createdAt": "2025-07-30T03:36:01.000Z",
-      "updatedAt": "2025-07-30T03:36:01.000Z"
+      "id": "string",
+      "firstName": "string",
+      "lastName": "string",
+      "email": "string",
+      "role": "user|staff|admin", 
+      "isEmailVerified": "boolean",
+      "createdAt": "string (ISO date)",
+      "updatedAt": "string (ISO date)"
     },
-    "previousRole": "staff",
-    "newRole": "admin",
+    "previousRole": "user|staff|admin",
+    "newRole": "user|staff|admin",
     "updatedBy": {
-      "id": "507f1f77bcf86cd799439012",
-      "firstName": "Admin",
-      "lastName": "User",
-      "email": "admin@example.com"
+      "id": "string",
+      "firstName": "string", 
+      "lastName": "string",
+      "email": "string"
     },
-    "reason": "Promoted to administrator",
-    "message": "Role updated successfully"
+    "reason": "string (optional)",
+    "message": "string"
   }
 }
 ```
 
-**Error Response (403):**
-```json
-{
-  "success": false,
-  "error": "You cannot modify your own role",
-  "code": "SELF_ROLE_MODIFICATION"
-}
-```
-
-**Frontend MUST expect:**
-- Exact same response structure
-- No variations allowed
-
-### 4. Get Users By Role - GET /api/v1/roles/users-by-role
+### Get Users By Role Endpoint
 **Backend MUST provide:**
 - Method: GET
 - URL: /api/v1/roles/users-by-role
-- Middleware: requireAuth(), requireAnyRole(["admin", "staff"])
 - Query Parameters:
-  - role (optional): user | staff | admin
-  - page (optional): number (default: 1)
-  - limit (optional): number (default: 10, max: 100)
-  - sortBy (optional): name | email | createdAt (default: createdAt)
-  - sortOrder (optional): asc | desc (default: desc)
+```
+?role=user|staff|admin&page=1&limit=10&sortBy=name|email|createdAt&sortOrder=asc|desc
+```
 
 **Success Response (200):**
 ```json
@@ -172,56 +137,42 @@
   "data": {
     "users": [
       {
-        "id": "507f1f77bcf86cd799439011",
-        "firstName": "John",
-        "lastName": "Doe",
-        "email": "john.doe@example.com",
-        "role": "staff",
-        "isEmailVerified": true,
-        "createdAt": "2025-07-30T03:36:01.000Z",
-        "updatedAt": "2025-07-30T03:36:01.000Z"
+        "id": "string",
+        "firstName": "string",
+        "lastName": "string",
+        "email": "string",
+        "role": "user|staff|admin",
+        "isEmailVerified": "boolean",
+        "createdAt": "string (ISO date)",
+        "updatedAt": "string (ISO date)"
       }
     ],
     "pagination": {
-      "totalCount": 25,
-      "currentPage": 1,
-      "totalPages": 3,
-      "limit": 10,
-      "hasNextPage": true,
-      "hasPreviousPage": false
+      "totalCount": "number",
+      "currentPage": "number", 
+      "totalPages": "number",
+      "limit": "number",
+      "hasNextPage": "boolean",
+      "hasPreviousPage": "boolean"
     },
     "filters": {
-      "role": "staff",
-      "sortBy": "createdAt",
-      "sortOrder": "desc"
+      "role": "user|staff|admin (optional)",
+      "sortBy": "string",
+      "sortOrder": "string"
     }
   }
 }
 ```
 
-**Error Response (400):**
-```json
-{
-  "success": false,
-  "error": "Invalid role specified",
-  "code": "INVALID_ROLE"
-}
-```
-
-**Frontend MUST expect:**
-- Exact same response structure
-- No variations allowed
-
-### 5. Validate Assignment - POST /api/v1/roles/validate-assignment
+### Validate Assignment Endpoint
 **Backend MUST provide:**
 - Method: POST
 - URL: /api/v1/roles/validate-assignment
-- Middleware: requireAuth(), requireAnyRole(["admin", "staff"])
 - Request Body:
 ```json
 {
-  "targetUserId": "507f1f77bcf86cd799439011",
-  "targetRole": "admin"
+  "targetUserId": "string (24-char MongoDB ObjectId)",
+  "targetRole": "user|staff|admin"
 }
 ```
 
@@ -230,65 +181,42 @@
 {
   "success": true,
   "data": {
-    "canAssign": true,
+    "canAssign": "boolean",
     "validation": {
-      "isValid": true,
-      "requiredRole": "admin",
-      "currentUserRole": "admin",
-      "targetRole": "admin",
-      "reason": "Admin can assign admin role"
+      "isValid": "boolean",
+      "requiredRole": "user|staff|admin (optional)",
+      "currentUserRole": "user|staff|admin",
+      "targetRole": "user|staff|admin",
+      "reason": "string (optional)"
     },
-    "message": "Role assignment is allowed"
+    "message": "string"
   }
 }
 ```
 
-**Success Response - Not Allowed (200):**
-```json
-{
-  "success": true,
-  "data": {
-    "canAssign": false,
-    "validation": {
-      "isValid": false,
-      "requiredRole": "admin",
-      "currentUserRole": "staff",
-      "targetRole": "admin",
-      "reason": "Only admins can assign admin role"
-    },
-    "message": "Role assignment is not allowed"
-  }
-}
-```
+## Permission Check Middleware
+**Backend MUST provide middleware functions:**
 
-**Error Response (404):**
-```json
-{
-  "success": false,
-  "error": "User not found",
-  "code": "USER_NOT_FOUND"
-}
-```
+### requireRole(role)
+- Middleware that checks if user has specific role
+- Returns 403 if insufficient permissions
+
+### requireAnyRole(roles)
+- Middleware that checks if user has any of the specified roles
+- Returns 403 if user doesn't have any required role
+
+### requirePermission(permission)
+- Middleware that checks if user has specific permission
+- Returns 403 if permission denied
+
+### Available Permissions:
+- view_users, create_users, update_users, delete_users, assign_roles
+- view_rooms, create_rooms, update_rooms, delete_rooms, manage_room_availability
+- view_all_bookings, view_own_bookings, create_bookings, update_bookings, delete_bookings, cancel_bookings
+- view_system_logs, manage_settings, backup_restore
+- view_own_profile, update_own_profile
 
 **Frontend MUST expect:**
 - Exact same response structure
 - No variations allowed
-
-## CRITICAL VALIDATION RULES:
-1. **userId/targetUserId:** Must be valid 24-character MongoDB ObjectId
-2. **role/newRole/targetRole:** Must be one of: "user", "staff", "admin"
-3. **reason:** Optional string, max 500 characters
-4. **page:** Positive integer, minimum 1
-5. **limit:** Positive integer, minimum 1, maximum 100
-6. **sortBy:** Must be one of: "name", "email", "createdAt"
-7. **sortOrder:** Must be one of: "asc", "desc"
-
-## AUTHENTICATION & AUTHORIZATION:
-- **All endpoints:** Require authentication (requireAuth())
-- **Assign/Update Role:** Only admins (requireRole("admin"))
-- **Get Role/Users/Validate:** Admins and staff (requireAnyRole(["admin", "staff"]))
-
-## RATE LIMITING:
-- **Assign/Update Role:** 10 requests per 15 minutes
-- **Get Users:** 60 requests per minute
-- **Get Role/Validate:** 30 requests per minute
+- Use exact error codes specified in contracts
