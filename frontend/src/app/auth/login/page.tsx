@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
-import LoginForm from '@/src/components/auth/LoginForm';
+import LoginForm from '../../../components/auth/LoginForm';
 
 /**
  * Metadata for the login page
@@ -18,15 +18,15 @@ export const metadata: Metadata = {
  */
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 bg-gray-bg">
       <div className="w-full max-w-md">
         {/* Breadcrumbs */}
         <nav className="mb-8">
-          <ol className="flex text-sm text-gray-500">
+          <ol className="flex text-sm space-x-1">
             <li className="flex items-center">
-              <a href="/" className="hover:text-blue-600">Home</a>
+              <a href="/" className="text-muted hover:text-primary">Home</a>
               <svg 
-                className="h-5 w-5 text-gray-400 mx-1" 
+                className="h-5 w-5 text-muted mx-1" 
                 fill="currentColor" 
                 viewBox="0 0 20 20"
               >
@@ -38,9 +38,9 @@ export default function LoginPage() {
               </svg>
             </li>
             <li className="flex items-center">
-              <a href="/auth" className="hover:text-blue-600">Authentication</a>
+              <a href="/auth" className="text-muted hover:text-primary">Authentication</a>
               <svg 
-                className="h-5 w-5 text-gray-400 mx-1" 
+                className="h-5 w-5 text-muted mx-1" 
                 fill="currentColor" 
                 viewBox="0 0 20 20"
               >
@@ -51,16 +51,16 @@ export default function LoginPage() {
                 />
               </svg>
             </li>
-            <li className="text-blue-600 font-medium">Login</li>
+            <li className="text-primary font-medium">Login</li>
           </ol>
         </nav>
 
         {/* Page Title */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-gray-900">
+          <h1 className="text-2xl font-bold text-text">
             Welcome Back
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-muted">
             Login to manage your hotel bookings and reservations
           </p>
         </div>
