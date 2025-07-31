@@ -86,6 +86,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 ```
 
 ### Icon Libraries
@@ -100,6 +102,70 @@ import { MdEmail } from 'react-icons/md';
 
 // Lucide Icons
 import { Search, Home, Settings } from 'lucide-react';
+```
+
+### Toast Notifications
+
+We use Sonner for toast notifications with custom styling that matches our design system. The toast component is configured in the root layout and can be used throughout the application.
+
+#### Setup
+
+1. **Provider Setup** (in `app/layout.tsx`):
+
+```tsx
+import { Toaster } from 'sonner';
+
+// Inside your root layout component
+<Toaster 
+  position="top-right"
+  toastOptions={{
+    classNames: {
+      toast: 'group toast group-[.toaster]:bg-white group-[.toaster]:text-foreground',
+      description: 'group-[.toast]:text-muted-foreground',
+      error: 'group-[.toast]:border-red-500 group-[.toast]:bg-red-50',
+      icon: 'hidden',
+    },
+    className: '!p-0',
+  }}
+  closeButton={false}
+/>
+```
+
+2. **Usage in Components**:
+
+```tsx
+import { toast } from 'sonner';
+import { FaExclamation } from 'react-icons/fa';
+
+// Example error toast
+const showError = (message: string) => {
+  toast.error(
+    <div className="flex items-start p-2">
+      <div className="flex-shrink-0">
+        <div className="flex items-center justify-center size-10 rounded-full bg-red-500">
+          <FaExclamation className="text-white text-lg" />
+        </div>
+      </div>
+      <div className="ml-3">
+        <h3 className="text-sm font-medium text-gray-900">Let's try that again</h3>
+        <div className="mt-1 text-sm text-gray-500">
+          <p>{message}</p>
+        </div>
+      </div>
+    </div>,
+    {
+      duration: 4000,
+      className: 'p-2 bg-white',
+      style: {
+        border: '1px solid #DDDDDD',
+        borderRadius: '0.75rem',
+        boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        padding: '1rem',
+      },
+      icon: null,
+    }
+  );
+};
 ```
 
 ### Using Brand Colors
