@@ -37,7 +37,7 @@ Create service layer for user profile management (view and update profile)
 
 ### CODE STRUCTURE:
 - Import existing User model from ../../models/user.model.ts
-- Import ServiceResponse interface from auth service contract
+- Import ServiceResponse interface from ../auth/user-auth.service.ts (existing implementation)
 - Use exact method names from user-profile-service.contract.ts: viewUserProfile, updateUserProfile
 - Return data structure must match API-CONTRACT.md exactly
 - Transform model.name ↔ API firstName/lastName
