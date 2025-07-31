@@ -18,7 +18,7 @@ const EditProfilePage: React.FC = () => {
   useEffect(() => {
     const checkAuth = () => {
       if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('accessToken');
+        const token = sessionStorage.getItem('airvik_access_token');
         if (!token) {
           router.push('/auth/login');
           return;
@@ -52,7 +52,7 @@ const EditProfilePage: React.FC = () => {
     };
 
     // Only fetch if we have a token
-    if (typeof window !== 'undefined' && localStorage.getItem('accessToken')) {
+    if (typeof window !== 'undefined' && sessionStorage.getItem('airvik_access_token')) {
       fetchProfile();
     }
   }, []);

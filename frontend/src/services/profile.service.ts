@@ -10,10 +10,10 @@ import {
 // API base URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
-// Get authentication token from localStorage
+// Get authentication token from sessionStorage (matching auth service)
 const getAuthToken = (): string | null => {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('accessToken');
+    return sessionStorage.getItem('airvik_access_token');
   }
   return null;
 };
@@ -49,8 +49,8 @@ apiClient.interceptors.response.use(
     // Handle 401 Unauthorized - redirect to login
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        sessionStorage.removeItem('airvik_access_token');
+        localStorage.removeItem('airvik_refresh_token');
         window.location.href = '/auth/login';
       }
     }
