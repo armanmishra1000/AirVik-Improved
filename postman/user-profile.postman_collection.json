@@ -1,0 +1,334 @@
+{
+  "info": {
+    "name": "User Profile API Tests",
+    "description": "Collection for testing user profile endpoints including view and update functionality",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "View Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/profile/view",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "profile", "view"]
+        },
+        "description": "View current user's profile information"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has success flag\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "});",
+              "",
+              "pm.test(\"Response has user data\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.data).to.have.property('user');",
+              "    pm.expect(response.data.user).to.have.property('id');",
+              "    pm.expect(response.data.user).to.have.property('firstName');",
+              "    pm.expect(response.data.user).to.have.property('lastName');",
+              "    pm.expect(response.data.user).to.have.property('email');",
+              "    pm.expect(response.data.user).to.have.property('isEmailVerified');",
+              "    pm.expect(response.data.user).to.have.property('createdAt');",
+              "    pm.expect(response.data.user).to.have.property('updatedAt');",
+              "});",
+              "",
+              "pm.test(\"User ID is valid\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.data.user.id).to.be.a('string');",
+              "    pm.expect(response.data.user.id.length).to.be.greaterThan(0);",
+              "});",
+              "",
+              "// Store user ID for other tests",
+              "if (pm.response.code === 200) {",
+              "    const response = pm.response.json();",
+              "    pm.collectionVariables.set('userId', response.data.user.id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Profile - Valid Data",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/profile/update",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "profile", "update"]
+        },
+        "description": "Update user profile with valid data"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has success flag\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "});",
+              "",
+              "pm.test(\"Response has updated user data\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.data).to.have.property('user');",
+              "    pm.expect(response.data).to.have.property('message');",
+              "    pm.expect(response.data.message).to.equal('Profile updated successfully');",
+              "});",
+              "",
+              "pm.test(\"Updated data matches request\", function () {",
+              "    const response = pm.response.json();",
+              "    const requestBody = JSON.parse(pm.request.body.raw);",
+              "    pm.expect(response.data.user.firstName).to.equal(requestBody.firstName);",
+              "    pm.expect(response.data.user.lastName).to.equal(requestBody.lastName);",
+              "    pm.expect(response.data.user.email).to.equal(requestBody.email);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Profile - Invalid Email",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"invalid-email\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/profile/update",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "profile", "update"]
+        },
+        "description": "Test validation error for invalid email format"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Response has error flag\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.false;",
+              "});",
+              "",
+              "pm.test(\"Response has validation error code\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.code).to.equal('VALIDATION_ERROR');",
+              "});",
+              "",
+              "pm.test(\"Response has validation details\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.details).to.be.an('array');",
+              "    pm.expect(response.details.length).to.be.greaterThan(0);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Profile - Short Names",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"J\",\n  \"lastName\": \"D\",\n  \"email\": \"j.d@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/profile/update",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "profile", "update"]
+        },
+        "description": "Test validation error for names that are too short"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Response has validation error code\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.code).to.equal('VALIDATION_ERROR');",
+              "});",
+              "",
+              "pm.test(\"Response has validation details for both names\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.details).to.be.an('array');",
+              "    pm.expect(response.details.length).to.be.greaterThan(1);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "View Profile - No Authentication",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/profile/view",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "profile", "view"]
+        },
+        "description": "Test unauthorized access without authentication token"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 401\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"Response has error flag\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.false;",
+              "});",
+              "",
+              "pm.test(\"Response has authentication error code\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.code).to.equal('AUTHENTICATION_REQUIRED');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Profile - No Authentication",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/profile/update",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "profile", "update"]
+        },
+        "description": "Test unauthorized access without authentication token"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 401\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"Response has error flag\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"Response has authentication error code\", function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.code).to.equal('AUTHENTICATION_REQUIRED');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+} 
