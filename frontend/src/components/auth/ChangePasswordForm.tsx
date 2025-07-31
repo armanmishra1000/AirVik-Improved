@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { changePassword } from '@/src/services/auth.service';
 import {
   ChangePasswordFormData,
@@ -430,13 +429,14 @@ const ChangePasswordForm: React.FC = () => {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600 hover:text-gray-800"
                   onClick={() => togglePasswordVisibility('currentPassword')}
+                  tabIndex={-1}
                 >
                   {showCurrentPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                    <span className="text-sm">Hide</span>
                   ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
+                    <span className="text-sm">Show</span>
                   )}
                 </button>
               </div>
@@ -466,13 +466,14 @@ const ChangePasswordForm: React.FC = () => {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600 hover:text-gray-800"
                   onClick={() => togglePasswordVisibility('newPassword')}
+                  tabIndex={-1}
                 >
                   {showNewPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                    <span className="text-sm">Hide</span>
                   ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
+                    <span className="text-sm">Show</span>
                   )}
                 </button>
               </div>
@@ -525,13 +526,14 @@ const ChangePasswordForm: React.FC = () => {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600 hover:text-gray-800"
                   onClick={() => togglePasswordVisibility('confirmPassword')}
+                  tabIndex={-1}
                 >
                   {showConfirmPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                    <span className="text-sm">Hide</span>
                   ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
+                    <span className="text-sm">Show</span>
                   )}
                 </button>
               </div>
