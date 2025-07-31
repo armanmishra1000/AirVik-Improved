@@ -616,7 +616,7 @@ const resetPasswordSchema = Joi.object({
   token: Joi.string()
     .required()
     .messages({
-      'string.empty': 'Token is required',
+      'string.empty': 'Reset token is required',
     }),
   newPassword: Joi.string()
     .min(8)
@@ -624,8 +624,8 @@ const resetPasswordSchema = Joi.object({
     .required()
     .messages({
       'string.empty': 'New password is required',
-      'string.min': 'New password must be at least 8 characters long',
-      'string.pattern.base': 'New password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number',
+      'string.min': 'Password must be at least 8 characters long',
+      'string.pattern.base': 'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number',
     }),
   confirmPassword: Joi.string()
     .valid(Joi.ref('newPassword'))
@@ -633,6 +633,23 @@ const resetPasswordSchema = Joi.object({
     .messages({
       'any.only': 'Passwords do not match',
       'string.empty': 'Confirm password is required',
+    }),
+});
+
+const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string()
+    .required()
+    .messages({
+      'string.empty': 'Current password is required',
+    }),
+  newPassword: Joi.string()
+    .min(8)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .required()
+    .messages({
+      'string.empty': 'New password is required',
+      'string.min': 'Password must be at least 8 characters long',
+      'string.pattern.base': 'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number',
     }),
 });
 
@@ -715,6 +732,89 @@ export const resetPassword = async (req: Request, res: Response): Promise<Respon
   }
 };
 
+/**
+ * Change user password
+ * PUT /api/v1/auth/change-password
+ */
+export const changePassword = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    // Validate input
+    const { error, value } = changePasswordSchema.validate(req.body, { abortEarly: false });
+    
+    if (error) {
+      const validationErrors = error.details.map(detail => detail.message);
+      return sendError(
+        res,
+        'Validation failed',
+        'VALIDATION_ERROR',
+        422,
+        validationErrors
+      );
+    }
+
+    // Get user ID from authenticated request
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return sendError(
+        res,
+        'Authentication required',
+        'UNAUTHORIZED',
+        401
+      );
+    }
+
+    // Call service layer
+    const result = await userAuthService.changePassword(userId, value);
+
+    if (!result.success) {
+      // Handle specific error codes with appropriate HTTP status
+      let statusCode = 400;
+      
+      switch (result.code) {
+        case 'INVALID_CURRENT_PASSWORD':
+          statusCode = 400;
+          break;
+        case 'USER_NOT_FOUND':
+          statusCode = 404;
+          break;
+        case 'VALIDATION_ERROR':
+          statusCode = 422;
+          break;
+        case 'SERVER_ERROR':
+          statusCode = 500;
+          break;
+        default:
+          statusCode = 400;
+      }
+
+      return sendError(
+        res,
+        result.error || 'Password change failed',
+        result.code,
+        statusCode,
+        result.details
+      );
+    }
+
+    // Success response (200 OK)
+    return sendSuccess(
+      res,
+      result.data,
+      undefined,
+      200
+    );
+
+  } catch (error) {
+    console.error('Change password controller error:', error);
+    return sendError(
+      res,
+      'Internal server error',
+      'INTERNAL_ERROR',
+      500
+    );
+  }
+};
+
 // Export all controller functions
 export const userAuthController = {
   registerUser,
@@ -725,6 +825,7 @@ export const userAuthController = {
   refreshToken,
   requestPasswordReset,
   resetPassword,
+  changePassword,
 };
 
 export default userAuthController;
