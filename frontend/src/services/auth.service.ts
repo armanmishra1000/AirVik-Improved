@@ -19,6 +19,8 @@ import {
   RequestPasswordResetSuccessData,
   ResetPasswordRequest,
   ResetPasswordSuccessData,
+  ChangePasswordRequest,
+  ChangePasswordSuccessData,
   ApiResponse,
   ApiSuccessResponse,
   ApiErrorResponse
@@ -51,7 +53,8 @@ const AUTH_ENDPOINTS = {
   logout: '/api/v1/auth/logout',
   refreshToken: '/api/v1/auth/refresh-token',
   requestPasswordReset: '/api/v1/auth/request-password-reset',
-  resetPassword: '/api/v1/auth/reset-password'
+  resetPassword: '/api/v1/auth/reset-password',
+  changePassword: '/api/v1/auth/change-password'
 } as const;
 
 // ============================================================================
@@ -365,6 +368,46 @@ export async function resendVerification(
     
   } catch (error) {
     console.error('Resend verification API error:', error);
+    return createNetworkErrorResponse(error);
+  }
+}
+
+/**
+ * Change user password with current password verification
+ * 
+ * @param data - Change password request data with current and new password
+ * @returns Promise<ApiResponse<ChangePasswordSuccessData>> - API response with success or error
+ * 
+ * @example
+ * ```typescript
+ * const result = await changePassword({
+ *   currentPassword: 'OldPassword123',
+ *   newPassword: 'NewPassword123'
+ * });
+ * 
+ * if (result.success) {
+ *   console.log('Password changed successfully');
+ * } else {
+ *   console.error('Password change failed:', result.error);
+ * }
+ * ```
+ */
+export async function changePassword(data: ChangePasswordRequest): Promise<ApiResponse<ChangePasswordSuccessData>> {
+  try {
+    // Validate required fields
+    validateRequestData(data, ['currentPassword', 'newPassword']);
+    
+    // Make API request
+    const response = await createApiRequest(AUTH_ENDPOINTS.changePassword, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    
+    // Handle response
+    return await handleApiResponse<ChangePasswordSuccessData>(response);
+    
+  } catch (error) {
+    console.error('Change password API error:', error);
     return createNetworkErrorResponse(error);
   }
 }
@@ -954,6 +997,13 @@ export class AuthService {
   public async resetPassword(data: ResetPasswordRequest): Promise<ApiResponse<ResetPasswordSuccessData>> {
     return resetPassword(data);
   }
+
+  /**
+   * Change user password
+   */
+  public async changePassword(data: ChangePasswordRequest): Promise<ApiResponse<ChangePasswordSuccessData>> {
+    return changePassword(data);
+  }
 }
 
 // ============================================================================
@@ -977,6 +1027,7 @@ export const authApi = {
   refreshToken,
   requestPasswordReset,
   resetPassword,
+  changePassword,
   getStoredTokens,
   setStoredTokens,
   clearStoredTokens
