@@ -1,0 +1,700 @@
+{
+	"info": {
+		"_postman_id": "role-assignment-permission-check-collection",
+		"name": "Role Assignment & Permission Check API Tests",
+		"description": "Complete test suite for role assignment and permission checking functionality. Tests all endpoints with proper authentication, validation, and error scenarios.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "adminUserId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "staffUserId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Setup - Login Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.have.property('user');",
+							"    pm.expect(jsonData.data).to.have.property('accessToken');",
+							"    pm.expect(jsonData.data).to.have.property('refreshToken');",
+							"});",
+							"",
+							"pm.test(\"User has admin role\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    const user = jsonData.data.user;",
+							"    pm.expect(user).to.have.property('role');",
+							"    pm.expect(user.role).to.equal('admin');",
+							"});",
+							"",
+							"// Store tokens and user data for other requests",
+							"if (pm.response.code === 200) {",
+							"    const jsonData = pm.response.json();",
+							"    pm.environment.set('accessToken', jsonData.data.accessToken);",
+							"    pm.environment.set('adminUserId', jsonData.data.user.id);",
+							"    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+							"    pm.collectionVariables.set('adminUserId', jsonData.data.user.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Login as admin user to get access token for role assignment tests. This request sets up the authentication needed for all subsequent role management requests."
+			},
+			"response": []
+		},
+		{
+			"name": "Assign Role - POST /api/v1/roles/assign",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.have.property('user');",
+							"    pm.expect(jsonData.data).to.have.property('previousRole');",
+							"    pm.expect(jsonData.data).to.have.property('newRole');",
+							"    pm.expect(jsonData.data).to.have.property('assignedBy');",
+							"    pm.expect(jsonData.data).to.have.property('message');",
+							"});",
+							"",
+							"pm.test(\"User object has correct fields\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    const user = jsonData.data.user;",
+							"    pm.expect(user).to.have.property('id');",
+							"    pm.expect(user).to.have.property('firstName');",
+							"    pm.expect(user).to.have.property('lastName');",
+							"    pm.expect(user).to.have.property('email');",
+							"    pm.expect(user).to.have.property('role');",
+							"    pm.expect(user).to.have.property('isEmailVerified');",
+							"    pm.expect(user).to.have.property('createdAt');",
+							"    pm.expect(user).to.have.property('updatedAt');",
+							"});",
+							"",
+							"pm.test(\"Role assignment details are correct\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data.newRole).to.equal('staff');",
+							"    pm.expect(jsonData.data.assignedBy).to.have.property('id');",
+							"    pm.expect(jsonData.data.assignedBy).to.have.property('firstName');",
+							"    pm.expect(jsonData.data.assignedBy).to.have.property('lastName');",
+							"    pm.expect(jsonData.data.assignedBy).to.have.property('email');",
+							"});",
+							"",
+							"// Store the assigned user ID for other tests",
+							"if (pm.response.code === 200) {",
+							"    const jsonData = pm.response.json();",
+							"    pm.environment.set('userId', jsonData.data.user.id);",
+							"    pm.collectionVariables.set('userId', jsonData.data.user.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"507f1f77bcf86cd799439011\",\n  \"role\": \"staff\",\n  \"reason\": \"Promoted to handle customer service\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/roles/assign",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"roles",
+						"assign"
+					]
+				},
+				"description": "Assign a role to a user. Only admins can assign staff or admin roles. This endpoint requires admin authentication and validates role assignment permissions."
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Role - GET /api/v1/roles/user/:userId/role",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.have.property('user');",
+							"});",
+							"",
+							"pm.test(\"User object has correct fields\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    const user = jsonData.data.user;",
+							"    pm.expect(user).to.have.property('id');",
+							"    pm.expect(user).to.have.property('firstName');",
+							"    pm.expect(user).to.have.property('lastName');",
+							"    pm.expect(user).to.have.property('email');",
+							"    pm.expect(user).to.have.property('role');",
+							"    pm.expect(user).to.have.property('isEmailVerified');",
+							"    pm.expect(user).to.have.property('createdAt');",
+							"    pm.expect(user).to.have.property('updatedAt');",
+							"});",
+							"",
+							"pm.test(\"User ID matches request parameter\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    const userId = pm.request.url.path[3];",
+							"    pm.expect(jsonData.data.user.id).to.equal(userId);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/roles/user/{{userId}}/role",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"roles",
+						"user",
+						"{{userId}}",
+						"role"
+					]
+				},
+				"description": "Get the role of a specific user. Requires admin or staff authentication. Returns user information with their current role."
+			},
+			"response": []
+		},
+		{
+			"name": "Update Role - PUT /api/v1/roles/update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.have.property('user');",
+							"    pm.expect(jsonData.data).to.have.property('previousRole');",
+							"    pm.expect(jsonData.data).to.have.property('newRole');",
+							"    pm.expect(jsonData.data).to.have.property('updatedBy');",
+							"    pm.expect(jsonData.data).to.have.property('message');",
+							"});",
+							"",
+							"pm.test(\"Role update details are correct\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data.newRole).to.equal('admin');",
+							"    pm.expect(jsonData.data.updatedBy).to.have.property('id');",
+							"    pm.expect(jsonData.data.updatedBy).to.have.property('firstName');",
+							"    pm.expect(jsonData.data.updatedBy).to.have.property('lastName');",
+							"    pm.expect(jsonData.data.updatedBy).to.have.property('email');",
+							"});",
+							"",
+							"// Store the updated user ID for other tests",
+							"if (pm.response.code === 200) {",
+							"    const jsonData = pm.response.json();",
+							"    pm.environment.set('staffUserId', jsonData.data.user.id);",
+							"    pm.collectionVariables.set('staffUserId', jsonData.data.user.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"newRole\": \"admin\",\n  \"reason\": \"Promoted to system administrator\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/roles/update",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"roles",
+						"update"
+					]
+				},
+				"description": "Update a user's role. Only admins can update roles. This endpoint validates permissions and prevents self-modification."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Users By Role - GET /api/v1/roles/users-by-role",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.have.property('users');",
+							"    pm.expect(jsonData.data).to.have.property('pagination');",
+							"    pm.expect(jsonData.data).to.have.property('filters');",
+							"});",
+							"",
+							"pm.test(\"Pagination object has correct fields\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    const pagination = jsonData.data.pagination;",
+							"    pm.expect(pagination).to.have.property('totalCount');",
+							"    pm.expect(pagination).to.have.property('currentPage');",
+							"    pm.expect(pagination).to.have.property('totalPages');",
+							"    pm.expect(pagination).to.have.property('limit');",
+							"    pm.expect(pagination).to.have.property('hasNextPage');",
+							"    pm.expect(pagination).to.have.property('hasPreviousPage');",
+							"});",
+							"",
+							"pm.test(\"Users array contains valid user objects\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    const users = jsonData.data.users;",
+							"    pm.expect(users).to.be.an('array');",
+							"    if (users.length > 0) {",
+							"        const user = users[0];",
+							"        pm.expect(user).to.have.property('id');",
+							"        pm.expect(user).to.have.property('firstName');",
+							"        pm.expect(user).to.have.property('lastName');",
+							"        pm.expect(user).to.have.property('email');",
+							"        pm.expect(user).to.have.property('role');",
+							"        pm.expect(user).to.have.property('isEmailVerified');",
+							"        pm.expect(user).to.have.property('createdAt');",
+							"        pm.expect(user).to.have.property('updatedAt');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/roles/users-by-role?role=staff&page=1&limit=10&sortBy=name&sortOrder=asc",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"roles",
+						"users-by-role"
+					],
+					"query": [
+						{
+							"key": "role",
+							"value": "staff"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "limit",
+							"value": "10"
+						},
+						{
+							"key": "sortBy",
+							"value": "name"
+						},
+						{
+							"key": "sortOrder",
+							"value": "asc"
+						}
+					]
+				},
+				"description": "Get users filtered by role with pagination and sorting. Requires admin or staff authentication. Supports filtering by role, pagination, and sorting options."
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Assignment - POST /api/v1/roles/validate-assignment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success field\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.data).to.have.property('canAssign');",
+							"    pm.expect(jsonData.data).to.have.property('validation');",
+							"    pm.expect(jsonData.data).to.have.property('message');",
+							"});",
+							"",
+							"pm.test(\"Validation object has correct fields\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    const validation = jsonData.data.validation;",
+							"    pm.expect(validation).to.have.property('isValid');",
+							"    pm.expect(validation).to.have.property('currentUserRole');",
+							"    pm.expect(validation).to.have.property('targetRole');",
+							"});",
+							"",
+							"pm.test(\"Validation result is boolean\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data.canAssign).to.be.a('boolean');",
+							"    pm.expect(jsonData.data.validation.isValid).to.be.a('boolean');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"targetUserId\": \"507f1f77bcf86cd799439011\",\n  \"targetRole\": \"admin\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/roles/validate-assignment",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"roles",
+						"validate-assignment"
+					]
+				},
+				"description": "Validate if the current user can assign a specific role to a target user. Returns validation result with detailed information about permissions and requirements."
+			},
+			"response": []
+		},
+		{
+			"name": "Permission Denied - Staff Trying Admin Function",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"Response has success field as false\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.false;",
+							"});",
+							"",
+							"pm.test(\"Response has error field\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"    pm.expect(jsonData.error).to.be.a('string');",
+							"});",
+							"",
+							"pm.test(\"Response has error code\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('code');",
+							"    pm.expect(jsonData.code).to.be.a('string');",
+							"});",
+							"",
+							"pm.test(\"Error code indicates insufficient permissions\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(['INSUFFICIENT_PERMISSIONS', 'ROLE_ASSIGNMENT_DENIED', 'ROLE_REQUIRED']).to.include(jsonData.code);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"507f1f77bcf86cd799439011\",\n  \"role\": \"admin\",\n  \"reason\": \"Testing permission denied\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/roles/assign",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"roles",
+						"assign"
+					]
+				},
+				"description": "Test permission denied scenario - staff user trying to assign admin role. This should return 403 Forbidden with appropriate error message."
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid User ID - 404 Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"pm.test(\"Response has success field as false\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.false;",
+							"});",
+							"",
+							"pm.test(\"Response has error field\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"    pm.expect(jsonData.error).to.be.a('string');",
+							"});",
+							"",
+							"pm.test(\"Response has error code\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('code');",
+							"    pm.expect(jsonData.code).to.equal('USER_NOT_FOUND');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/roles/user/507f1f77bcf86cd799439999/role",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"roles",
+						"user",
+						"507f1f77bcf86cd799439999",
+						"role"
+					]
+				},
+				"description": "Test 404 error scenario - requesting role for non-existent user. This should return 404 Not Found with USER_NOT_FOUND error code."
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid Role - 400 Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Response has success field as false\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData.success).to.be.false;",
+							"});",
+							"",
+							"pm.test(\"Response has error field\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"    pm.expect(jsonData.error).to.be.a('string');",
+							"});",
+							"",
+							"pm.test(\"Response has error code\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('code');",
+							"    pm.expect(['VALIDATION_ERROR', 'INVALID_ROLE']).to.include(jsonData.code);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"507f1f77bcf86cd799439011\",\n  \"role\": \"invalid_role\",\n  \"reason\": \"Testing invalid role\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/roles/assign",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"roles",
+						"assign"
+					]
+				},
+				"description": "Test 400 error scenario - assigning invalid role. This should return 400 Bad Request with VALIDATION_ERROR or INVALID_ROLE error code."
+			},
+			"response": []
+		}
+	]
+} 
