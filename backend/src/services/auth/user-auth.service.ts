@@ -69,6 +69,11 @@ export interface RefreshTokenResponse {
   refreshToken: string;
 }
 
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
+
 // Email transporter configuration
 const createEmailTransporter = () => {
   return nodemailer.createTransport({
@@ -1065,6 +1070,109 @@ export const resetPassword = async (token: string, newPassword: string, confirmP
   }
 };
 
+/**
+ * Change user password with current password verification
+ * @param userId - User ID from authenticated request
+ * @param passwordData - Current and new password data
+ * @returns ServiceResponse with success/error message
+ */
+export const changePassword = async (
+  userId: string,
+  passwordData: ChangePasswordData
+): Promise<ServiceResponse> => {
+  try {
+    const { currentPassword, newPassword } = passwordData;
+
+    // Validate input
+    if (!currentPassword || !newPassword) {
+      return {
+        success: false,
+        error: 'Current password and new password are required',
+        code: 'VALIDATION_ERROR',
+      };
+    }
+
+    // Validate new password strength
+    if (newPassword.length < 8) {
+      return {
+        success: false,
+        error: 'Password must be at least 8 characters long',
+        code: 'VALIDATION_ERROR',
+      };
+    }
+
+    // Find user with password field
+    const user = await User.findById(userId).select('+password');
+    if (!user) {
+      return {
+        success: false,
+        error: 'User not found',
+        code: 'USER_NOT_FOUND',
+      };
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      return {
+        success: false,
+        error: 'Current password is incorrect',
+        code: 'INVALID_CURRENT_PASSWORD',
+      };
+    }
+
+    // Check if new password is same as current
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return {
+        success: false,
+        error: 'New password must be different from current password',
+        code: 'VALIDATION_ERROR',
+      };
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update password using findByIdAndUpdate to avoid middleware conflicts
+    const updateResult = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          password: hashedNewPassword,
+          // Clear all refresh tokens for security
+          refreshTokens: []
+        }
+      },
+      { new: true }
+    );
+
+    if (!updateResult) {
+      return {
+        success: false,
+        error: 'Failed to update password',
+        code: 'UPDATE_FAILED',
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        message: 'Password changed successfully'
+      },
+    };
+
+  } catch (error) {
+    console.error('Change password error:', error);
+    return {
+      success: false,
+      error: 'Internal server error',
+      code: 'SERVER_ERROR',
+    };
+  }
+};
+
 // Export all functions
 export const userAuthService = {
   registerUser,
@@ -1075,6 +1183,7 @@ export const userAuthService = {
   refreshUserToken,
   requestPasswordReset,
   resetPassword,
+  changePassword,
 };
 
 export default userAuthService;
