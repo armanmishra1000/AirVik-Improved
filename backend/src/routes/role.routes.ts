@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { roleController } from '../controllers/role/role.controller.js';
-import { requireAuth } from '../middleware/auth.middleware.js';
-import { requireRole, requireAnyRole } from '../middleware/permission.middleware.js';
+import { roleController } from '../controllers/role/role.controller';
+import { requireAuth } from '../middleware/auth.middleware';
+import { requireRole, requireAnyRole } from '../middleware/permission.middleware';
 
 const router = Router();
 

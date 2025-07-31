@@ -1,5 +1,5 @@
-import User, { IUserDocument } from '../../models/user.model.js';
-import RoleAuditLog, { IRoleAuditLogDocument, CreateAuditLogData } from '../../models/role-audit-log.model.js';
+import User, { IUserDocument } from '../../models/user.model';
+import RoleAuditLog, { IRoleAuditLogDocument, CreateAuditLogData } from '../../models/role-audit-log.model';
 
 // Import types from contracts
 export type UserRole = 'user' | 'staff' | 'admin';

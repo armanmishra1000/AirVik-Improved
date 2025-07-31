@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { sendError } from '../utils/response.utils.js';
+import { sendError } from '../utils/response.utils';
 
 // Import types from contracts
 export type UserRole = 'user' | 'staff' | 'admin';
@@ -103,7 +103,7 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.VIEW_OWN_PROFILE,
     PERMISSIONS.UPDATE_OWN_PROFILE
   ]
-} as const;
+};
 
 // Error responses
 export const PERMISSION_MIDDLEWARE_ERRORS = {

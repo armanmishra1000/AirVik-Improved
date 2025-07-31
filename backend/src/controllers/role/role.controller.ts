@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Joi from 'joi';
-import { roleService } from '../../services/role/role.service.js';
-import { sendSuccess, sendError } from '../../utils/response.utils.js';
+import { roleService } from '../../services/role/role.service';
+import { sendSuccess, sendError } from '../../utils/response.utils';
 
 // Import types
 export type UserRole = 'user' | 'staff' | 'admin';
