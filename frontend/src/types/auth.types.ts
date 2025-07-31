@@ -100,6 +100,14 @@ export interface RequestPasswordResetRequest {
 }
 
 /**
+ * Change password request payload
+ */
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+/**
  * Reset password request payload
  */
 export interface ResetPasswordRequest {
@@ -184,6 +192,13 @@ export interface ResetPasswordSuccessData {
   message: string;
 }
 
+/**
+ * Change password success data
+ */
+export interface ChangePasswordSuccessData {
+  message: string;
+}
+
 // ============================================================================
 // COMPLETE API RESPONSE TYPES
 // ============================================================================
@@ -213,6 +228,11 @@ export type RequestPasswordResetResponse = ApiResponse<RequestPasswordResetSucce
  */
 export type ResetPasswordResponse = ApiResponse<ResetPasswordSuccessData>;
 
+/**
+ * Change password response type
+ */
+export type ChangePasswordResponse = ApiResponse<ChangePasswordSuccessData>;
+
 // ============================================================================
 // ERROR CODE TYPES
 // ============================================================================
@@ -235,7 +255,9 @@ export type ApiErrorCode =
   | 'INVALID_RESET_TOKEN'
   | 'EXPIRED_RESET_TOKEN'
   | 'RESET_TOKEN_USED'
-  | 'EMAIL_SEND_ERROR';
+  | 'EMAIL_SEND_ERROR'
+  | 'INVALID_CURRENT_PASSWORD'
+  | 'AUTHENTICATION_REQUIRED';
 
 /**
  * Validation error details
@@ -292,6 +314,25 @@ export interface ResendVerificationFormValidation {
   isFormValid: boolean;
 }
 
+/**
+ * Change password form data interface
+ */
+export interface ChangePasswordFormData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+/**
+ * Change password form validation interface
+ */
+export interface ChangePasswordFormValidation {
+  currentPassword: FieldValidation;
+  newPassword: FieldValidation;
+  confirmPassword: FieldValidation;
+  isFormValid: boolean;
+}
+
 // ============================================================================
 // UI STATE TYPES
 // ============================================================================
@@ -308,6 +349,7 @@ export interface AuthLoadingState {
   isRefreshingToken: boolean;
   isRequestingPasswordReset: boolean;
   isResettingPassword: boolean;
+  isChangingPassword: boolean;
 }
 
 /**
@@ -347,6 +389,17 @@ export interface ResendVerificationPageState extends AuthUIState {
   validation: ResendVerificationFormValidation;
   lastSentAt: string | null;
   canResend: boolean;
+}
+
+/**
+ * Change password page state interface
+ */
+export interface ChangePasswordPageState extends AuthUIState {
+  formData: ChangePasswordFormData;
+  validation: ChangePasswordFormValidation;
+  showCurrentPassword: boolean;
+  showNewPassword: boolean;
+  showConfirmPassword: boolean;
 }
 
 // ============================================================================
@@ -392,6 +445,19 @@ export interface UseResendVerificationReturn {
   resetForm: () => void;
 }
 
+/**
+ * Change password hook return interface
+ */
+export interface UseChangePasswordReturn {
+  formData: ChangePasswordFormData;
+  validation: ChangePasswordFormValidation;
+  uiState: AuthUIState;
+  updateField: (field: keyof ChangePasswordFormData, value: string) => void;
+  submitForm: () => Promise<void>;
+  resetForm: () => void;
+  togglePasswordVisibility: (field: 'currentPassword' | 'newPassword' | 'confirmPassword') => void;
+}
+
 // ============================================================================
 // SERVICE TYPES
 // ============================================================================
@@ -408,6 +474,7 @@ export interface AuthService {
   refreshToken: (data: RefreshTokenRequest) => Promise<RefreshTokenResponse>;
   requestPasswordReset: (data: RequestPasswordResetRequest) => Promise<RequestPasswordResetResponse>;
   resetPassword: (data: ResetPasswordRequest) => Promise<ResetPasswordResponse>;
+  changePassword: (data: ChangePasswordRequest) => Promise<ChangePasswordResponse>;
 }
 
 /**
@@ -569,6 +636,9 @@ export interface ApiEndpoints {
   login: string;
   logout: string;
   refreshToken: string;
+  requestPasswordReset: string;
+  resetPassword: string;
+  changePassword: string;
 }
 
 /**

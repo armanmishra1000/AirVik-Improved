@@ -27,6 +27,7 @@ interface ResetPasswordFormValidation {
 
 interface AuthLoadingState {
   isResettingPassword: boolean;
+  isChangingPassword: boolean;
 }
 
 interface AuthUIState {
@@ -73,7 +74,8 @@ const ResetPasswordForm: React.FC = () => {
   // UI state for loading, errors, success
   const [uiState, setUiState] = useState<AuthUIState>({
     loading: {
-      isResettingPassword: false
+      isResettingPassword: false,
+      isChangingPassword: false
     },
     error: null,
     success: null,
@@ -230,7 +232,8 @@ const ResetPasswordForm: React.FC = () => {
         ...prev,
         loading: {
           ...prev.loading,
-          isResettingPassword: false
+          isResettingPassword: false,
+          isChangingPassword: false
         },
         success: 'Your password has been reset successfully. You will be redirected to the login page shortly.',
         error: null,
@@ -293,7 +296,8 @@ const ResetPasswordForm: React.FC = () => {
         ...prev,
         loading: {
           ...prev.loading,
-          isResettingPassword: false
+          isResettingPassword: false,
+          isChangingPassword: false
         },
         error: errorMessage
       }));

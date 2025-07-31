@@ -39,7 +39,8 @@ const LoginForm: React.FC = () => {
       isLoggingOut: false,
       isRefreshingToken: false,
       isRequestingPasswordReset: false,
-      isResettingPassword: false
+      isResettingPassword: false,
+      isChangingPassword: false
     },
     error: null,
     success: null,
