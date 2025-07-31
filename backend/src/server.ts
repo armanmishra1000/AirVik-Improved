@@ -7,6 +7,7 @@ import { errorHandler } from './middleware/error.middleware';
 import { connectDatabase } from './config/database';
 import authRoutes from './routes/auth.routes';
 import roleRoutes from './routes/role.routes';
+import profileRoutes from './routes/profile.routes';
 
 // Load environment variables
 dotenv.config();
@@ -39,6 +40,7 @@ app.get('/api/v1/health', (req, res) => {
 // Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/roles', roleRoutes);
+app.use('/api/v1/profile', profileRoutes);
 // app.use('/api/v1/users', userRoutes);
 
 // Error handling middleware (must be last)
