@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { userAuthController } from '../controllers/auth/user-auth.controller';
+import { verifyAccessToken } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -79,6 +80,19 @@ const refreshTokenLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Change password rate limiter
+const changePasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 requests per 15 minutes per IP
+  message: {
+    success: false,
+    error: 'Too many password change attempts. Please try again later.',
+    code: 'RATE_LIMITED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Authentication routes
 
 /**
@@ -138,5 +152,12 @@ router.post('/request-password-reset', passwordResetRequestLimiter, userAuthCont
  * @access  Public
  */
 router.post('/reset-password', userAuthController.resetPassword);
+
+/**
+ * @route   PUT /api/v1/auth/change-password
+ * @desc    Change user password (requires authentication)
+ * @access  Protected
+ */
+router.put('/change-password', changePasswordLimiter, verifyAccessToken, userAuthController.changePassword);
 
 export default router;
