@@ -851,7 +851,7 @@
 							"pm.test(\"Error message and code are correct\", function () {",
 							"    const jsonData = pm.response.json();",
 							"    pm.expect(jsonData.error).to.equal('Authentication required');",
-							"    pm.expect(jsonData.code).to.equal('UNAUTHORIZED');",
+							"    pm.expect(jsonData.code).to.equal('AUTHENTICATION_REQUIRED');",
 							"});"
 						],
 						"type": "text/javascript"
