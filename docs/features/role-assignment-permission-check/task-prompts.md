@@ -76,7 +76,7 @@ Update: docs/features/role-assignment-permission-check/progress.md
 
 
 
-## Backend Task B2: Role Service Layer
+<!-- ## Backend Task B2: Role Service Layer
 
 **MANDATORY FIRST STEPS:**
 
@@ -131,6 +131,10 @@ Use exact error codes from role-service.contract.ts:
 - Validate user exists before role assignment
 - Check if user already has the target role
 
+
+**TEST YOUR WORK:**
+Do testing here in terminal, make sure it works.
+
 **GIT OPERATIONS:**
 After creating the file successfully:
 ```bash
@@ -147,9 +151,11 @@ Update docs/features/role-assignment-permission-check/CURRENT-STATE.md:
 Update: docs/features/role-assignment-permission-check/progress.md
 - Mark B2 as completed
 - Update current state
-- Add Git commit hash and message
+- Add Git commit hash and message -->
 
-## Backend Task B3: Permission Middleware
+
+
+<!-- ## Backend Task B3: Permission Middleware
 
 **MANDATORY FIRST STEPS:**
 
@@ -215,9 +221,12 @@ Update docs/features/role-assignment-permission-check/CURRENT-STATE.md:
 Update: docs/features/role-assignment-permission-check/progress.md
 - Mark B3 as completed
 - Update current state
-- Add Git commit hash and message
+- Add Git commit hash and message -->
 
-## Backend Task B4: Role Controller
+
+
+
+<!-- ## Backend Task B4: Role Controller
 
 **MANDATORY FIRST STEPS:**
 
@@ -288,9 +297,12 @@ Update docs/features/role-assignment-permission-check/CURRENT-STATE.md:
 Update: docs/features/role-assignment-permission-check/progress.md
 - Mark B4 as completed
 - Update current state
-- Add Git commit hash and message
+- Add Git commit hash and message -->
 
-## Backend Task B5: Role Routes Configuration
+
+
+
+<!-- ## Backend Task B5: Role Routes Configuration
 
 **MANDATORY FIRST STEPS:**
 
@@ -352,6 +364,10 @@ Follow existing pattern from auth.routes.ts for export and route registration
 **ADD TO MAIN SERVER:**
 Update backend/src/server.ts to include role routes
 
+
+**TEST YOUR WORK:**
+Do testing here in terminal, make sure it works.
+
 **GIT OPERATIONS:**
 After creating the file successfully:
 ```bash
@@ -369,9 +385,13 @@ Update docs/features/role-assignment-permission-check/CURRENT-STATE.md:
 Update: docs/features/role-assignment-permission-check/progress.md
 - Mark B5 as completed
 - Update current state
-- Add Git commit hash and message
+- Add Git commit hash and message -->
 
-## Backend Task B6: Postman Collection
+
+
+
+
+<!-- ## Backend Task B6: Postman Collection
 
 **MANDATORY FIRST STEPS:**
 
@@ -479,9 +499,12 @@ Update: docs/features/role-assignment-permission-check/progress.md
 - Mark B6 as completed
 - Mark backend phase complete
 - Update current state
-- Add Git commit hash and message
+- Add Git commit hash and message -->
 
-## Frontend Task F1: Role Management TypeScript Types
+
+
+
+<!-- ## Frontend Task F1: Role Management TypeScript Types
 
 **MANDATORY FIRST STEPS:**
 
@@ -545,6 +568,11 @@ export enum UserRole {
 }
 ```
 
+
+**TEST YOUR WORK:**
+Do testing here in terminal, make sure it works.
+
+
 **GIT OPERATIONS:**
 After creating the file successfully:
 ```bash
@@ -561,9 +589,12 @@ Update docs/features/role-assignment-permission-check/CURRENT-STATE.md:
 Update: docs/features/role-assignment-permission-check/progress.md
 - Mark F1 as completed
 - Update current state
-- Add Git commit hash and message
+- Add Git commit hash and message -->
 
-## Frontend Task F2: Role API Service
+
+
+
+<!-- ## Frontend Task F2: Role API Service
 
 **MANDATORY FIRST STEPS:**
 
@@ -623,6 +654,11 @@ Follow existing patterns from auth.service.ts:
 - Include in Authorization header
 - Handle token refresh if needed
 
+
+**TEST YOUR WORK:**
+Do testing here in terminal, make sure it works.
+
+
 **GIT OPERATIONS:**
 After creating the file successfully:
 ```bash
@@ -639,9 +675,13 @@ Update docs/features/role-assignment-permission-check/CURRENT-STATE.md:
 Update: docs/features/role-assignment-permission-check/progress.md
 - Mark F2 as completed
 - Update current state
-- Add Git commit hash and message
+- Add Git commit hash and message -->
 
-## Frontend Task F3: Role Assignment UI Component
+
+
+
+
+<!-- ## Frontend Task F3: Role Assignment UI Component
 
 **MANDATORY FIRST STEPS:**
 
@@ -710,6 +750,11 @@ const mockUsers = [
 4. Reason Input
 5. Action Buttons (Assign/Update/Cancel)
 
+
+**TEST YOUR WORK:**
+Do testing here in terminal, make sure it works.
+
+
 **GIT OPERATIONS:**
 After creating the file successfully:
 ```bash
@@ -726,9 +771,13 @@ Update docs/features/role-assignment-permission-check/CURRENT-STATE.md:
 Update: docs/features/role-assignment-permission-check/progress.md
 - Mark F3 as completed
 - Update current state
-- Add Git commit hash and message
+- Add Git commit hash and message -->
 
-## Frontend Task F4: Role Management Page
+
+
+
+
+<!-- ## Frontend Task F4: Role Management Page
 
 **MANDATORY FIRST STEPS:**
 
@@ -802,6 +851,11 @@ Add comment for future authentication check:
 // TODO: Add admin role check in F5
 ```
 
+
+**TEST YOUR WORK:**
+Do testing here in terminal, make sure it works.
+
+
 **GIT OPERATIONS:**
 After creating the file successfully:
 ```bash
@@ -818,9 +872,13 @@ Update docs/features/role-assignment-permission-check/CURRENT-STATE.md:
 Update: docs/features/role-assignment-permission-check/progress.md
 - Mark F4 as completed
 - Update current state
-- Add Git commit hash and message
+- Add Git commit hash and message -->
 
-## Frontend Task F5: Backend Integration
+
+
+
+
+<!-- ## Frontend Task F5: Backend Integration
 
 **MANDATORY FIRST STEPS:**
 
@@ -891,6 +949,12 @@ Add route protection to ensure only admins can access:
 - [ ] Loading states work properly
 - [ ] Page refreshes after role changes
 
+
+
+**TEST YOUR WORK:**
+Do testing here in terminal, make sure it works.
+
+
 **GIT OPERATIONS:**
 After modifying successfully:
 ```bash
@@ -920,4 +984,4 @@ Test complete end-to-end functionality:
 4. Assign different roles to users
 5. Verify role changes persist
 6. Test permission restrictions work
-7. Logout and test access restrictions
+7. Logout and test access restrictions -->

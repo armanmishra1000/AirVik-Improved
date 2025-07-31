@@ -25,6 +25,7 @@ interface AuthenticatedRequest extends Request {
     firstName?: string;
     lastName?: string;
     isEmailVerified?: boolean;
+    role?: string;
   };
 }
 
@@ -135,7 +136,8 @@ export const verifyAccessToken = async (
       email: user.email,
       firstName,
       lastName,
-      isEmailVerified: user.isActive
+      isEmailVerified: user.isActive,
+      role: user.role
     };
     
     // Continue to the next middleware or route handler

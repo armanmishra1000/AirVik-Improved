@@ -55,6 +55,7 @@ export interface LoginResponse {
     firstName: string;
     lastName: string;
     email: string;
+    role: string;
     isEmailVerified: boolean;
     createdAt: string;
     updatedAt: string;
@@ -593,6 +594,7 @@ export const loginUser = async (userData: LoginUserData): Promise<ServiceRespons
       firstName: nameParts[0],
       lastName: nameParts.slice(1).join(' '),
       email: user.email,
+      role: user.role,
       isEmailVerified: user.isActive,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),

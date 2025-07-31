@@ -3,7 +3,7 @@
 /**
  * Test Users Setup Script for Role Assignment Feature
  * 
- * This script creates test users in the database for testing the role assignment feature.
+ * This script sets up test users with the provided verified accounts.
  * Run this script after starting the backend server.
  */
 
@@ -11,24 +11,26 @@ const axios = require('axios');
 
 // Configuration
 const API_BASE_URL = 'http://localhost:5000/api/v1';
-const TEST_USERS = [
+
+// Verified test accounts provided by user
+const VERIFIED_TEST_USERS = [
   {
-    email: 'admin@airvik.com',
-    password: 'admin123',
+    email: '5speq1gvgf@illubd.com',
+    password: '5Speq1gvgf@illubd',
     firstName: 'Admin',
     lastName: 'User',
     role: 'admin'
   },
   {
-    email: 'staff@airvik.com',
-    password: 'staff123',
+    email: 'k6nhyvw15w@daouse.com',
+    password: '5Speq1gvgf@illubd',
     firstName: 'Staff',
     lastName: 'User',
     role: 'staff'
   },
   {
-    email: 'user@airvik.com',
-    password: 'user123',
+    email: '3hb62vmpdh@bltiwd.com',
+    password: '5Speq1gvgf@illubd',
     firstName: 'Regular',
     lastName: 'User',
     role: 'user'
@@ -60,46 +62,65 @@ async function checkBackendHealth() {
   }
 }
 
-async function createUser(userData) {
+async function loginUser(email, password) {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/register`, userData);
-    
-    if (response.data.success) {
-      log(`✅ Created user: ${userData.email} (${userData.role})`, 'green');
-      return response.data.data;
-    } else {
-      log(`⚠️  User might already exist: ${userData.email}`, 'yellow');
-      return null;
-    }
-  } catch (error) {
-    if (error.response?.status === 409) {
-      log(`⚠️  User already exists: ${userData.email}`, 'yellow');
-      return null;
-    } else {
-      log(`❌ Failed to create user ${userData.email}: ${error.message}`, 'red');
-      return null;
-    }
-  }
-}
-
-async function verifyEmail(userId) {
-  try {
-    // In a real scenario, you would get the verification token from email
-    // For testing, we'll simulate email verification
-    const response = await axios.post(`${API_BASE_URL}/auth/verify-email`, {
-      userId: userId,
-      token: 'test-verification-token' // This would normally come from email
+    const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      email,
+      password
     });
     
     if (response.data.success) {
-      log(`✅ Email verified for user: ${userId}`, 'green');
+      log(`✅ Successfully logged in as ${email}`, 'green');
+      return response.data.data.accessToken;
+    } else {
+      throw new Error('Login failed');
+    }
+  } catch (error) {
+    log(`❌ Failed to login as ${email}: ${error.message}`, 'red');
+    return null;
+  }
+}
+
+async function getUsersByRole(accessToken) {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/roles/users`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
+    
+    if (response.data.success) {
+      return response.data.data.users;
+    } else {
+      throw new Error('Failed to get users');
+    }
+  } catch (error) {
+    log(`❌ Failed to get users: ${error.message}`, 'red');
+    return [];
+  }
+}
+
+async function assignRole(userId, role, accessToken) {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/roles/assign`, {
+      userId,
+      role,
+      reason: 'Test user setup'
+    }, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
+    
+    if (response.data.success) {
+      log(`✅ Assigned role ${role} to user ${userId}`, 'green');
       return true;
     } else {
-      log(`⚠️  Email verification might not be required for testing`, 'yellow');
+      log(`⚠️  Role assignment failed for ${userId}: ${response.data.error}`, 'yellow');
       return false;
     }
   } catch (error) {
-    log(`⚠️  Email verification failed (this might be expected): ${error.message}`, 'yellow');
+    log(`❌ Failed to assign role ${role} to ${userId}: ${error.message}`, 'red');
     return false;
   }
 }
@@ -113,37 +134,57 @@ async function setupTestUsers() {
     process.exit(1);
   }
   
-  log('\n📋 Creating test users...', 'blue');
+  log('\n🔐 Logging in as admin to setup roles...', 'blue');
   
-  const createdUsers = [];
+  // Login as the admin user
+  const adminUser = VERIFIED_TEST_USERS[0];
+  const accessToken = await loginUser(adminUser.email, adminUser.password);
   
-  for (const userData of TEST_USERS) {
-    const user = await createUser(userData);
-    if (user) {
-      createdUsers.push(user);
-      
-      // Try to verify email (optional for testing)
-      await verifyEmail(user.id);
+  if (!accessToken) {
+    log('❌ Failed to login as admin user. Cannot setup roles.', 'red');
+    log('📝 Please check the credentials and try again.', 'yellow');
+    return;
+  }
+  
+  log('\n👥 Getting existing users...', 'blue');
+  
+  // Get all users to see what exists
+  const existingUsers = await getUsersByRole(accessToken);
+  
+  if (existingUsers.length > 0) {
+    log(`✅ Found ${existingUsers.length} existing users`, 'green');
+    
+    // Find our test users and assign roles
+    for (const testUser of VERIFIED_TEST_USERS) {
+      const existingUser = existingUsers.find(u => u.email === testUser.email);
+      if (existingUser && existingUser.role !== testUser.role) {
+        log(`🔄 Updating role for ${testUser.email} from ${existingUser.role} to ${testUser.role}`, 'yellow');
+        await assignRole(existingUser.id, testUser.role, accessToken);
+      } else if (existingUser) {
+        log(`✅ User ${testUser.email} already has correct role: ${existingUser.role}`, 'green');
+      } else {
+        log(`⚠️  User ${testUser.email} not found in system`, 'yellow');
+      }
     }
+  } else {
+    log('⚠️  No users found in system', 'yellow');
   }
   
   log('\n📊 Setup Summary:', 'blue');
-  log(`✅ Created ${createdUsers.length} test users`, 'green');
+  log(`✅ Processed ${VERIFIED_TEST_USERS.length} test users`, 'green');
   
-  if (createdUsers.length > 0) {
-    log('\n🔑 Test User Credentials:', 'blue');
-    TEST_USERS.forEach(user => {
-      log(`   Email: ${user.email}`, 'yellow');
-      log(`   Password: ${user.password}`, 'yellow');
-      log(`   Role: ${user.role}`, 'yellow');
-      log('   ---', 'reset');
-    });
-  }
+  log('\n🔑 Test User Credentials:', 'blue');
+  VERIFIED_TEST_USERS.forEach(user => {
+    log(`   Email: ${user.email}`, 'yellow');
+    log(`   Password: ${user.password}`, 'yellow');
+    log(`   Role: ${user.role}`, 'yellow');
+    log('   ---', 'reset');
+  });
   
   log('\n📝 Next Steps:', 'blue');
   log('1. Start the frontend: cd frontend && npm run dev', 'yellow');
   log('2. Open http://localhost:3000 in your browser', 'yellow');
-  log('3. Login with admin@airvik.com / admin123', 'yellow');
+  log('3. Login with 5speq1gvgf@illubd.com / 5Speq1gvgf@illubd', 'yellow');
   log('4. Navigate to /admin/roles', 'yellow');
   log('5. Test the role assignment feature', 'yellow');
   
@@ -158,4 +199,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { setupTestUsers, TEST_USERS }; 
+module.exports = { setupTestUsers, VERIFIED_TEST_USERS }; 
