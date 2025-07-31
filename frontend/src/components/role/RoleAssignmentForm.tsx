@@ -9,51 +9,30 @@ import {
   RoleUIState,
   UserWithRole 
 } from '../../types/role.types';
+import * as roleService from '../../services/role.service';
+import { isSuccessResponse, isErrorResponse, getErrorMessage } from '../../services/role.service';
 
 /**
  * RoleAssignmentForm Component
  * 
  * A reusable role assignment form component for the Airvik Hotel System
  * This component handles form state, validation, and UI feedback
- * It does NOT handle API calls directly (that's handled in F5)
+ * Now integrated with real backend API calls
  */
-const RoleAssignmentForm: React.FC = () => {
+interface RoleAssignmentFormProps {
+  users: UserWithRole[];
+  onRoleAssigned?: () => void;
+}
+
+const RoleAssignmentForm: React.FC<RoleAssignmentFormProps> = ({ 
+  users, 
+  onRoleAssigned 
+}) => {
   // ============================================================================
-  // MOCK DATA FOR TESTING
+  // USER DATA FROM PROPS
   // ============================================================================
   
-  const mockUsers: UserWithRole[] = [
-    { 
-      id: '1', 
-      firstName: 'John', 
-      lastName: 'Doe', 
-      email: 'john@example.com', 
-      role: UserRole.USER,
-      isEmailVerified: true,
-      createdAt: '2024-01-01T00:00:00.000Z',
-      updatedAt: '2024-01-01T00:00:00.000Z'
-    },
-    { 
-      id: '2', 
-      firstName: 'Jane', 
-      lastName: 'Smith', 
-      email: 'jane@example.com', 
-      role: UserRole.STAFF,
-      isEmailVerified: true,
-      createdAt: '2024-01-02T00:00:00.000Z',
-      updatedAt: '2024-01-02T00:00:00.000Z'
-    },
-    { 
-      id: '3', 
-      firstName: 'Bob', 
-      lastName: 'Johnson', 
-      email: 'bob@example.com', 
-      role: UserRole.ADMIN,
-      isEmailVerified: true,
-      createdAt: '2024-01-03T00:00:00.000Z',
-      updatedAt: '2024-01-03T00:00:00.000Z'
-    }
-  ];
+  // Use users from props instead of mock data
 
   // ============================================================================
   // STATE MANAGEMENT
@@ -90,7 +69,7 @@ const RoleAssignmentForm: React.FC = () => {
   
   // User search and selection state
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [filteredUsers, setFilteredUsers] = useState<UserWithRole[]>(mockUsers);
+  const [filteredUsers, setFilteredUsers] = useState<UserWithRole[]>(users);
   const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
   const [showUserDropdown, setShowUserDropdown] = useState<boolean>(false);
   
@@ -126,10 +105,10 @@ const RoleAssignmentForm: React.FC = () => {
     setSearchTerm(searchValue);
     
     if (searchValue.trim() === '') {
-      setFilteredUsers(mockUsers);
+      setFilteredUsers(users);
       setShowUserDropdown(false);
     } else {
-      const filtered = mockUsers.filter(user => 
+      const filtered = users.filter((user: UserWithRole) => 
         user.email.toLowerCase().includes(searchValue.toLowerCase()) ||
         `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchValue.toLowerCase())
       );
@@ -188,21 +167,30 @@ const RoleAssignmentForm: React.FC = () => {
     }));
     
     try {
-      // Mock API call (will be replaced in F5)
-      await mockAssignRoleApi(formData);
+      // Real API call using role service
+      const result = await roleService.assignRole(formData);
       
-      // Show success message
-      setUiState(prev => ({
-        ...prev,
-        loading: {
-          ...prev.loading,
-          isAssigningRole: false
-        },
-        success: `Role ${formData.role} successfully assigned to ${selectedUser?.firstName} ${selectedUser?.lastName}`
-      }));
+      if (isSuccessResponse(result)) {
+        // Show success message
+        setUiState(prev => ({
+          ...prev,
+          loading: {
+            ...prev.loading,
+            isAssigningRole: false
+          },
+          success: result.data?.message || `Role ${formData.role} successfully assigned to ${selectedUser?.firstName} ${selectedUser?.lastName}`
+        }));
+      } else {
+        throw new Error(getErrorMessage(result));
+      }
       
       // Reset form
       resetForm();
+      
+      // Notify parent to refresh data
+      if (onRoleAssigned) {
+        onRoleAssigned();
+      }
       
     } catch (error) {
       // Handle error
@@ -228,7 +216,7 @@ const RoleAssignmentForm: React.FC = () => {
     });
     setSelectedUser(null);
     setSearchTerm('');
-    setFilteredUsers(mockUsers);
+    setFilteredUsers(users);
     setShowUserDropdown(false);
     setValidation({
       userId: { isValid: true },
@@ -313,30 +301,20 @@ const RoleAssignmentForm: React.FC = () => {
   };
   
   // ============================================================================
-  // MOCK API (WILL BE REPLACED IN F5)
+  // API INTEGRATION COMPLETE
   // ============================================================================
-  
-  /**
-   * Mock role assignment API call
-   */
-  const mockAssignRoleApi = async (data: AssignRoleFormData): Promise<void> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Simulate random success/failure for testing
-    if (Math.random() > 0.2) {
-      // Success
-      return Promise.resolve();
-    } else {
-      // Failure
-      throw new Error('Mock error: Role assignment failed');
-    }
-  };
   
   // ============================================================================
   // EFFECTS
   // ============================================================================
   
+  /**
+   * Update filtered users when users prop changes
+   */
+  useEffect(() => {
+    setFilteredUsers(users);
+  }, [users]);
+
   /**
    * Validate form when inputs change
    */

@@ -1,71 +1,78 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import { Metadata } from 'next';
 import RoleAssignmentForm from '../../../components/role/RoleAssignmentForm';
 import { UserRole, UserWithRole } from '../../../types/role.types';
+import * as roleService from '../../../services/role.service';
+import { isSuccessResponse, isErrorResponse, getErrorMessage } from '../../../services/role.service';
 
 /**
- * Metadata for the role management page
+ * Role Management Page Component
+ * 
+ * This page provides a complete interface for managing user roles.
+ * It displays a list of users with their current roles and includes
+ * the role assignment form for changing user roles.
+ * 
+ * TODO: Add admin role check in F5
  */
-export const metadata: Metadata = {
-  title: 'Role Management | Admin',
-  description: 'Manage user roles and permissions',
-};
 
 /**
- * Mock user data for the user list
+ * Role Management Page Component
  */
-const mockUsers: UserWithRole[] = [
-  { 
-    id: '1', 
-    firstName: 'John', 
-    lastName: 'Doe', 
-    email: 'john@example.com', 
-    role: UserRole.USER,
-    isEmailVerified: true,
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z'
-  },
-  { 
-    id: '2', 
-    firstName: 'Jane', 
-    lastName: 'Smith', 
-    email: 'jane@example.com', 
-    role: UserRole.STAFF,
-    isEmailVerified: true,
-    createdAt: '2024-01-02T00:00:00.000Z',
-    updatedAt: '2024-01-02T00:00:00.000Z'
-  },
-  { 
-    id: '3', 
-    firstName: 'Bob', 
-    lastName: 'Johnson', 
-    email: 'bob@example.com', 
-    role: UserRole.ADMIN,
-    isEmailVerified: true,
-    createdAt: '2024-01-03T00:00:00.000Z',
-    updatedAt: '2024-01-03T00:00:00.000Z'
-  },
-  { 
-    id: '4', 
-    firstName: 'Alice', 
-    lastName: 'Brown', 
-    email: 'alice@example.com', 
-    role: UserRole.USER,
-    isEmailVerified: true,
-    createdAt: '2024-01-04T00:00:00.000Z',
-    updatedAt: '2024-01-04T00:00:00.000Z'
-  },
-  { 
-    id: '5', 
-    firstName: 'Charlie', 
-    lastName: 'Wilson', 
-    email: 'charlie@example.com', 
-    role: UserRole.STAFF,
-    isEmailVerified: true,
-    createdAt: '2024-01-05T00:00:00.000Z',
-    updatedAt: '2024-01-05T00:00:00.000Z'
-  }
-];
+export default function RoleManagementPage() {
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+  
+  const [users, setUsers] = useState<UserWithRole[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // ============================================================================
+  // API FUNCTIONS
+  // ============================================================================
+  
+  /**
+   * Fetch users from backend API
+   */
+  const fetchUsers = async (): Promise<void> => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await roleService.getUsersByRole();
+      
+      if (isSuccessResponse(result)) {
+        setUsers(result.data.users);
+      } else {
+        throw new Error(getErrorMessage(result));
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load users');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  /**
+   * Refresh users list after role assignment
+   */
+  const handleRoleAssigned = (): void => {
+    fetchUsers();
+  };
+  
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+  
+  /**
+   * Load users on component mount
+   */
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
 /**
  * Get role display name
@@ -108,7 +115,10 @@ const getRoleColorClass = (role: UserRole): string => {
  * 
  * TODO: Add admin role check in F5
  */
-export default function RoleManagementPage() {
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+  
   return (
     <div className="container mx-auto p-6">
       {/* Breadcrumbs Navigation */}
@@ -156,6 +166,13 @@ export default function RoleManagementPage() {
         </p>
       </div>
 
+      {/* Error Alert */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          <p>{error}</p>
+        </div>
+      )}
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Users List Section */}
@@ -164,88 +181,107 @@ export default function RoleManagementPage() {
             <h2 className="text-xl font-semibold text-gray-900">
               Users List
             </h2>
-            <span className="text-sm text-gray-500">
-              {mockUsers.length} users
-            </span>
-          </div>
-
-          {/* Users Table */}
-          <div className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      User
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Role
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {mockUsers.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                              <span className="text-sm font-medium text-gray-700">
-                                {user.firstName.charAt(0)}{user.lastName.charAt(0)}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {user.firstName} {user.lastName}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {user.email}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColorClass(user.role)}`}>
-                          {getRoleDisplayName(user.role)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          user.isEmailVerified 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {user.isEmailVerified ? 'Verified' : 'Pending'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          type="button"
-                          className="text-blue-600 hover:text-blue-900 font-medium"
-                          onClick={() => {
-                            // TODO: Implement role change functionality in F5
-                            console.log('Change role for user:', user.id);
-                          }}
-                        >
-                          Change Role
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-500">
+                {users.length} users
+              </span>
+              <button
+                onClick={fetchUsers}
+                disabled={loading}
+                className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+              >
+                Refresh
+              </button>
             </div>
           </div>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-500">Loading users...</p>
+            </div>
+          )}
+
+          {/* Users Table */}
+          {!loading && (
+            <div className="overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        User
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Role
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {users.map((user) => (
+                      <tr key={user.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                <span className="text-sm font-medium text-gray-700">
+                                  {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {user.firstName} {user.lastName}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {user.email}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColorClass(user.role)}`}>
+                            {getRoleDisplayName(user.role)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.isEmailVerified 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {user.isEmailVerified ? 'Verified' : 'Pending'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            type="button"
+                            className="text-blue-600 hover:text-blue-900 font-medium"
+                            onClick={() => {
+                              // TODO: Implement role change functionality in F5
+                              console.log('Change role for user:', user.id);
+                            }}
+                          >
+                            Change Role
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           {/* Empty State */}
-          {mockUsers.length === 0 && (
+          {!loading && users.length === 0 && (
             <div className="text-center py-12">
               <div className="text-gray-400 mb-4">
                 <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -263,7 +299,10 @@ export default function RoleManagementPage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-6">
             Assign Role
           </h2>
-          <RoleAssignmentForm />
+          <RoleAssignmentForm 
+            users={users} 
+            onRoleAssigned={handleRoleAssigned}
+          />
         </div>
       </div>
 
