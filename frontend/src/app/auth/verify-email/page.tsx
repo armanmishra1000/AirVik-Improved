@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import { verifyEmail, resendVerification } from '@/src/services/auth.service';
+import { CircleCheckBig, CircleX, TriangleAlert } from 'lucide-react';
+import { FaCheck, FaExclamation } from 'react-icons/fa';
+import { Input } from '@/components/ui/input';
 
 interface VerifyEmailState {
   isLoading: boolean;
@@ -44,6 +48,38 @@ export default function VerifyEmailPage() {
     handleVerification(token);
   }, [searchParams]);
 
+  const showErrorToast = (message: string, isError = true) => {
+    toast(
+      <div className="flex items-start p-4">
+        <div className="flex-shrink-0">
+          <div className={`flex items-center justify-center size-12 rounded-full ${isError ? 'bg-red-500' : 'bg-green-500'}`}>
+            {isError ? (
+              <FaExclamation className="text-lg text-white" />
+            ) : (
+              <FaCheck className="text-lg text-white" />
+            )}
+          </div>
+        </div>
+        <div className="ml-4">
+          <h3 className="text-sm font-medium text-gray-900">
+            {isError ? 'Verification Failed' : 'Success'}
+          </h3>
+          <p className="text-sm text-gray-500">{message}</p>
+        </div>
+      </div>,
+      {
+        duration: 5000,
+        className: 'p-4 bg-white',
+        style: {
+          padding: 0,
+          borderRadius: '0.5rem',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+        },
+        icon: null
+      }
+    );
+  };
+
   const handleVerification = async (token: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
@@ -56,6 +92,9 @@ export default function VerifyEmailPage() {
           isLoading: false,
           isSuccess: true,
         }));
+
+        // Show success toast
+        showErrorToast('Your email has been verified successfully!', false);
 
         // Redirect to login after 3 seconds
         setTimeout(() => {
@@ -84,18 +123,24 @@ export default function VerifyEmailPage() {
             canResend = true;
         }
 
+        // Show error toast
+        showErrorToast(errorMessage);
+
         setState(prev => ({
           ...prev,
           isLoading: false,
-          error: errorMessage,
+          error: errorMessage, // Keep error in state for reference
           canResend,
         }));
       }
     } catch (error) {
+      const errorMessage = 'Network error. Please check your connection and try again.';
+      showErrorToast(errorMessage);
+
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: 'Network error. Please check your connection and try again.',
+        error: errorMessage, // Keep error in state for reference
         canResend: true,
       }));
     }
@@ -103,10 +148,7 @@ export default function VerifyEmailPage() {
 
   const handleResendVerification = async () => {
     if (!state.resendEmail) {
-      setState(prev => ({
-        ...prev,
-        error: 'Email address is required to resend verification.',
-      }));
+      showErrorToast('Email address is required to resend verification.');
       return;
     }
 
@@ -116,6 +158,9 @@ export default function VerifyEmailPage() {
       const response = await resendVerification({ email: state.resendEmail });
 
       if (response.success) {
+        // Show success toast with checkmark
+        showErrorToast('Verification email has been resent successfully!', false);
+
         setState(prev => ({
           ...prev,
           isLoading: false,
@@ -136,17 +181,23 @@ export default function VerifyEmailPage() {
             break;
         }
 
+        // Show error toast
+        showErrorToast(errorMessage);
+
         setState(prev => ({
           ...prev,
           isLoading: false,
-          error: errorMessage,
+          error: errorMessage, // Keep error in state for reference
         }));
       }
     } catch (error) {
+      const errorMessage = 'Failed to resend verification email. Please try again.';
+      showErrorToast(errorMessage);
+
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: 'Failed to resend verification email. Please try again.',
+        error: errorMessage, // Keep error in state for reference
       }));
     }
   };
@@ -162,38 +213,26 @@ export default function VerifyEmailPage() {
   // Success state
   if (state.isSuccess) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center lg:py-10 py-5">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-                <svg
-                  className="h-6 w-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+          <div className="bg-white px-4">
+            <div className="text-center space-y-5">
+              <div className="mx-auto flex items-center justify-center flex-shrink-0">
+                <CircleCheckBig className="size-12 text-primary" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              <h2 className="lg:text-2xl text-xl font-bold">
                 Email Verified Successfully!
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-500">
                 Your email has been verified. You can now sign in to your AirVik account.
               </p>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-gray-500">
                 Redirecting to login page in 3 seconds...
               </p>
-              
+
               <Link
                 href="/auth/login"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="w-full flex justify-center py-2.5 px-6 border border-transparent rounded-md text-sm font-medium bg-primary hover:bg-primary/90 text-primary-foreground focus:outline-none transition-all duration-75 ease-linear"
               >
                 Go to Login
               </Link>
@@ -207,11 +246,11 @@ export default function VerifyEmailPage() {
   // Loading state
   if (state.isLoading && !state.isTokenMissing) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center lg:py-10 py-5">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <div className="bg-white px-4">
             <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+              <div className="mx-auto flex items-center justify-center size-12 rounded-full bg-blue-100 mb-4">
                 <svg
                   className="animate-spin h-6 w-6 text-blue-600"
                   xmlns="http://www.w3.org/2000/svg"
@@ -233,7 +272,7 @@ export default function VerifyEmailPage() {
                   ></path>
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              <h2 className="text-2xl font-bold mb-4">
                 Verifying Your Email
               </h2>
               <p className="text-gray-600">
@@ -248,92 +287,61 @@ export default function VerifyEmailPage() {
 
   // Error or token missing state
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center lg:py-10 py-5">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">AirVik Hotel System</h1>
-          <h2 className="mt-6 text-2xl font-bold text-gray-900">Email Verification</h2>
+          <h2 className="mt-6 text-2xl font-bold">Email Verification</h2>
         </div>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white px-4">
           <div className="text-center">
             {state.isTokenMissing ? (
               <>
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
-                  <svg
-                    className="h-6 w-6 text-yellow-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z"
-                    />
-                  </svg>
+                <div className="mx-auto flex items-center justify-center size-12 rounded-full bg-yellow-200 mb-4">
+                  <TriangleAlert className='size-6 text-yellow-600' />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                <h3 className="text-lg font-medium mb-4">
                   Verification Link Required
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-500 mb-6">
                   Please click the verification link in your email, or enter your email below to resend the verification email.
                 </p>
               </>
             ) : (
               <>
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                  <svg
-                    className="h-6 w-6 text-red-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                <div className="mx-auto flex items-center justify-center rounded-full mb-4">
+                  <CircleX className="size-12 text-red-600" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                <h3 className="text-xl font-medium text-gray-900 mb-4">
                   Verification Failed
                 </h3>
               </>
             )}
 
-            {state.error && (
-              <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-600">{state.error}</p>
-              </div>
-            )}
 
+            {/* Resend Verification Email */}
             {(state.canResend || state.isTokenMissing) && (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 text-left">
+                  <label htmlFor="email" className="block text-sm font-medium text-text text-left mb-1">
                     Email Address
                   </label>
-                  <div className="mt-1">
-                    <input
-                      type="email"
-                      id="email"
-                      value={state.resendEmail}
-                      onChange={(e) => handleEmailChange(e.target.value)}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      placeholder="Enter your email address"
-                    />
-                  </div>
+                  <Input
+                    type="email"
+                    id="email"
+                    value={state.resendEmail}
+                    onChange={(e) => handleEmailChange(e.target.value)}
+                    placeholder="Enter your email address"
+                    className="px-4 py-3 border rounded-md focus:outline-none"
+                  />
                 </div>
 
                 <button
                   onClick={handleResendVerification}
                   disabled={state.isLoading || !state.resendEmail}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-2.5 px-6 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md text-sm font-medium transition-all duration-75 ease-linear disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {state.isLoading ? (
                     <div className="flex items-center">
@@ -366,17 +374,18 @@ export default function VerifyEmailPage() {
               </div>
             )}
 
+            {/* Create New Account */}
             <div className="mt-6 space-y-3">
               <Link
                 href="/auth/register"
-                className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="w-full flex justify-center py-2.5 px-6 border border-[#B0B0B0] rounded-md text-sm font-medium text-gray-700 bg-white focus:outline-none"
               >
                 Create New Account
               </Link>
-              
+
               <Link
                 href="/auth/login"
-                className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="w-full flex justify-center py-2.5 px-6 rounded-md text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none transition-all duration-75 ease-linear"
               >
                 Back to Login
               </Link>

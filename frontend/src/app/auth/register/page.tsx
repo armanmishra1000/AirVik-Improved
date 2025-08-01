@@ -388,6 +388,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
+              {/* Email field */}
               <div className="space-y-2">
                 <label htmlFor="email" className="block text-sm font-medium text-text">
                   Email Address
@@ -608,6 +609,7 @@ export default function RegisterPage() {
                   Sign in
                 </Link>
               </p>
+
               
             </form>
           </CardContent>

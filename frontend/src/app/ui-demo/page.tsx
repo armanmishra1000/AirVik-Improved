@@ -52,7 +52,7 @@ export default function UIDemoPage() {
                   <Button
                     onClick={() => {
                       toast.error(
-                        <div className="flex items-start p-2">
+                        <div className="flex items-start p-4">
                           <div className="flex-shrink-0">
                             <div className="flex items-center justify-center size-10 rounded-full bg-red-500">
                               <FaExclamation className="text-white text-lg" />
@@ -67,7 +67,7 @@ export default function UIDemoPage() {
                         </div>,
                         {
                           duration: 4000,
-                          className: 'p-2 bg-white',
+                          className: 'p-4 bg-white',
                           style: {
                             border: '1px solid #DDDDDD',
                             borderRadius: '0.75rem',
