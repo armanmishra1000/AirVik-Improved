@@ -44,8 +44,20 @@ export default function VerifyEmailPage() {
       return;
     }
 
-    // Auto-verify if token is present
-    handleVerification(token);
+    // Set loading state first
+    setState(prev => ({
+      ...prev,
+      isLoading: true,
+      error: null
+    }));
+
+    // Add a small delay before verification to ensure loading state is shown
+    const verificationTimer = setTimeout(() => {
+      // Auto-verify if token is present
+      handleVerification(token);
+    }, 1000);
+
+    return () => clearTimeout(verificationTimer);
   }, [searchParams]);
 
   const showErrorToast = (message: string, isError = true) => {
@@ -81,7 +93,7 @@ export default function VerifyEmailPage() {
   };
 
   const handleVerification = async (token: string) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    // Loading state is already set in useEffect
 
     try {
       const response = await verifyEmail({ token });
@@ -243,47 +255,7 @@ export default function VerifyEmailPage() {
     );
   }
 
-  // Loading state
-  if (state.isLoading && !state.isTokenMissing) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center lg:py-10 py-5">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white px-4">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center size-12 rounded-full bg-blue-100 mb-4">
-                <svg
-                  className="animate-spin h-6 w-6 text-blue-600"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold mb-4">
-                Verifying Your Email
-              </h2>
-              <p className="text-gray-600">
-                Please wait while we verify your email address...
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // We'll handle the loading state in the main return
 
   // Error or token missing state
   return (
@@ -309,14 +281,48 @@ export default function VerifyEmailPage() {
                   Please click the verification link in your email, or enter your email below to resend the verification email.
                 </p>
               </>
-            ) : (
+            ) : state.error ? (
               <>
+                {/* verification failed */}
                 <div className="mx-auto flex items-center justify-center rounded-full mb-4">
                   <CircleX className="size-12 text-red-600" />
                 </div>
                 <h3 className="text-xl font-medium text-gray-900 mb-4">
                   Verification Failed
                 </h3>
+                <p className="text-gray-500 mb-6">{state.error}</p>
+              </>
+            ) : (
+              <>
+                {/* Processing Verification */}
+                <div className="mx-auto flex items-center justify-center size-12 rounded-full bg-blue-100 mb-4">
+                  <svg
+                    className="animate-spin h-6 w-6 text-blue-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium mb-4">
+                  Processing Verification
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  Please wait while we verify your email address...
+                </p>
               </>
             )}
 
@@ -341,10 +347,10 @@ export default function VerifyEmailPage() {
                 <button
                   onClick={handleResendVerification}
                   disabled={state.isLoading || !state.resendEmail}
-                  className="w-full py-2.5 px-6 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md text-sm font-medium transition-all duration-75 ease-linear disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 px-6 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md text-sm font-medium transition-all duration-75 ease-linear disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {state.isLoading ? (
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                       <svg
                         className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                         xmlns="http://www.w3.org/2000/svg"
@@ -378,14 +384,14 @@ export default function VerifyEmailPage() {
             <div className="mt-6 space-y-3">
               <Link
                 href="/auth/register"
-                className="w-full flex justify-center py-2.5 px-6 border border-[#B0B0B0] rounded-md text-sm font-medium text-gray-700 bg-white focus:outline-none"
+                className="w-full flex justify-center py-3 px-6 border rounded-md text-sm font-medium text-gray-700 bg-white focus:outline-none"
               >
                 Create New Account
               </Link>
 
               <Link
                 href="/auth/login"
-                className="w-full flex justify-center py-2.5 px-6 rounded-md text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none transition-all duration-75 ease-linear"
+                className="w-full flex justify-center py-3 px-6 rounded-md text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none transition-all duration-75 ease-linear"
               >
                 Back to Login
               </Link>

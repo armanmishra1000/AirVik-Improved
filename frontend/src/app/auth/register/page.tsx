@@ -348,7 +348,7 @@ export default function RegisterPage() {
                       })}
                       type="text"
                       autoComplete="given-name"
-                      className={`px-4 py-3 border rounded-md focus:outline-none ${errors.firstName ? 'border-red-500' : 'border-[#B0B0B0]'}`}
+                      className={`px-4 py-3 border rounded-md focus:outline-none ${errors.firstName ? 'border-red-500' : ''}`}
                       placeholder="First name"
                       onBlur={() => trigger('firstName')}
                     />
@@ -374,7 +374,7 @@ export default function RegisterPage() {
                       })}
                       type="text"
                       autoComplete="family-name"
-                      className={`px-4 py-3 border rounded-md focus:outline-none ${errors.lastName ? 'border-red-500' : 'border-[#B0B0B0]'}`}
+                      className={`px-4 py-3 border rounded-md focus:outline-none ${errors.lastName ? 'border-red-500' : ''}`}
                       placeholder="Last name"
                       onBlur={() => trigger('lastName')}
                     />
@@ -404,7 +404,7 @@ export default function RegisterPage() {
                     })}
                     type="email"
                     autoComplete="email"
-                    className={`px-4 py-3 border rounded-md focus:outline-none ${errors.email ? 'border-red-500' : 'border-[#B0B0B0]'}`}
+                    className={`px-4 py-3 border rounded-md focus:outline-none ${errors.email ? 'border-red-500' : ''}`}
                     placeholder="Email"
                     onBlur={() => trigger('email')}
                   />
@@ -432,7 +432,7 @@ export default function RegisterPage() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder='Password'
                     autoComplete="new-password"
-                    className={`px-4 py-3.5 text-sm border ${errors.password ? 'border-red-500' : 'border-[#B0B0B0]'} rounded-md focus:outline-none pr-10`}
+                    className={`px-4 py-3.5 text-sm border ${errors.password ? 'border-red-500' : ''} rounded-md focus:outline-none pr-10`}
                     onFocus={() => {
                       setIsPasswordFocused(true);
                       setHasInteracted(true);
@@ -517,7 +517,7 @@ export default function RegisterPage() {
                     })}
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="new-password"
-                    className={`px-4 py-3.5 text-sm border ${errors.confirmPassword || (confirmPassword && !passwordsMatch) ? 'border-red-500' : 'border-[#B0B0B0]'} rounded-md focus:outline-none`}
+                    className={`px-4 py-3.5 text-sm border ${errors.confirmPassword || (confirmPassword && !passwordsMatch) ? 'border-red-500' : ''} rounded-md focus:outline-none`}
                     placeholder="Confirm password"
                     onFocus={() => setHasInteracted(true)}
                     onBlur={() => trigger('confirmPassword')}
@@ -530,8 +530,6 @@ export default function RegisterPage() {
                   </div>
                 )}
               </div>
-
-
 
               <div className="bg-white text-sm text-muted">
                 By creating an account, you agree to our{' '}
@@ -587,7 +585,7 @@ export default function RegisterPage() {
 
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-[#B0B0B0]" />
+                  <span className="w-full border-t " />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-white px-2 text-muted-foreground">
@@ -597,7 +595,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <Button variant="outline" type="button" className="w-full border-[#B0B0B0] my-2">
+                <Button variant="outline" type="button" className="w-full  my-2">
                   <FcGoogle className="mr-2" size={28} />
                   <span className='text-sm font-medium'>Sign in with Google</span>
                 </Button>
@@ -610,7 +608,6 @@ export default function RegisterPage() {
                 </Link>
               </p>
 
-              
             </form>
           </CardContent>
         </Card>
